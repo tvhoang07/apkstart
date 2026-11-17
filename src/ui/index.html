@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="vi">
 <head>
 <meta charset="UTF-8" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- 品牌标记：小尺寸下也要认得出来，所以用矢量而不是 1024 的位图缩到 22px -->
+<!-- 品牌标记：Nhỏ尺寸下也要认得出来，所以Dùng矢量而不是 1024 của位图缩到 22px -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
@@ -31,11 +31,11 @@
       <svg viewBox="0 0 48 48" width="22" height="22"><use href="#brandMark"/></svg>
     </div>
     <span class="brand-name">ApkStart</span>
-    <span class="brand-tag" id="engineTag">未连接运行时</span>
+    <span class="brand-tag" id="engineTag">Chưa kết nối bộ chạy</span>
   </div>
   <div class="titlebar-spacer"></div>
   <div class="titlebar-actions">
-    <button class="icon-btn" id="btnSettings" title="设置">
+    <button class="icon-btn" id="btnSettings" title="Cài đặt">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6h.09A1.7 1.7 0 0 0 10 3.05V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
@@ -45,12 +45,12 @@
   <section class="toolbar">
     <div class="search">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="search" type="text" placeholder="搜索已安装应用" autocomplete="off" />
+      <input id="search" type="text" placeholder="Tìm ứng dụng đã cài" autocomplete="off" />
     </div>
     <div class="toolbar-right">
       <button class="btn primary" id="btnInstall">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v10"/><path d="m7 12 5 5 5-5"/><path d="M5 20h14"/></svg>
-        安装 APK
+        Cài đặt APK
       </button>
     </div>
   </section>
@@ -68,9 +68,9 @@
           <rect x="40" y="100" width="80" height="8" rx="4" fill="#eef1f4"/>
         </svg>
       </div>
-      <h2>把 APK 拖进来就能装</h2>
-      <p>安装完成后会自动生成桌面图标，双击即以独立窗口运行，和普通 Windows 软件一样。<br/>已注册 .apk 关联时，在资源管理器里双击 APK 也会直接装到 ApkStart。</p>
-      <button class="btn primary lg" id="btnInstall2">选择 APK 文件</button>
+      <h2>Kéo APK vào là cài được</h2>
+      <p>Cài xong sẽ tự tạo biểu tượng trên màn hình nền, nhấp đúp để chạy trong cửa sổ riêng như phần mềm Windows thông thường.<br/>Khi đã đăng ký liên kết .apk, nhấp đúp APK trong File Explorer cũng sẽ cài thẳng vào ApkStart.</p>
+      <button class="btn primary lg" id="btnInstall2">Chọn tệp APK</button>
       <p class="hint" id="emptyHint"></p>
     </div>
   </section>
@@ -78,7 +78,7 @@
   <footer class="statusbar">
     <div class="status-left">
       <span class="dot" id="statusDot"></span>
-      <span id="statusText">正在检查运行时…</span>
+      <span id="statusText">Đang kiểm tra bộ chạy…</span>
       <button class="status-chip" id="envChip" hidden></button>
     </div>
     <div class="status-right">
@@ -93,66 +93,66 @@
   </footer>
 </main>
 
-<!-- 启动欢迎卡：替代原来散落的各种启动小提示 -->
+<!-- 启动欢迎卡：替代原来散落của各种启动Nhỏ提示 -->
 <div class="modal-mask welcome-mask" id="welcomeMask" hidden>
   <div class="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeHi">
     <div class="welcome-hero">
       <div class="welcome-halo"></div>
       <div class="welcome-badge"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><use href="#brandMark"/></svg></div>
-      <div class="welcome-hi" id="welcomeHi">你好</div>
-      <div class="welcome-sub" id="welcomeSub">ApkStart 已就绪</div>
+      <div class="welcome-hi" id="welcomeHi">Xin chào</div>
+      <div class="welcome-sub" id="welcomeSub">ApkStart Đã sẵn sàng</div>
     </div>
     <div class="welcome-body">
       <div class="welcome-stats" id="welcomeStats"></div>
       <div class="welcome-tips" id="welcomeTips"></div>
       <label class="welcome-opt">
         <input type="checkbox" id="welcomeNever" />
-        <span>下次启动不再自动弹出</span>
+        <span>Lần khởi động sau không tự hiện nữa</span>
       </label>
     </div>
     <div class="welcome-actions">
-      <button class="btn ghost" id="welcomeSettings">打开设置</button>
-      <button class="btn primary" id="welcomeOk">开始使用</button>
+      <button class="btn ghost" id="welcomeSettings">Mở cài đặt</button>
+      <button class="btn primary" id="welcomeOk">Bắt đầu sử dụng</button>
     </div>
   </div>
 </div>
 
-<!-- 安装进度 -->
+<!-- Cài đặt进度 -->
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- 拖放遮罩 -->
 <div class="dropzone" id="dropzone">
   <div class="dropzone-inner">
     <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg>
-    <strong>松手开始安装</strong>
-    <span>支持单个或多个 .apk 文件</span>
+    <strong>Thả tay để bắt đầu cài đặt</strong>
+    <span>Hỗ trợ một hoặc nhiều tệp .apk</span>
   </div>
 </div>
 
 <!-- 右键菜单 -->
 <div class="ctxmenu" id="ctxmenu"></div>
 
-<!-- 设置 -->
+<!-- Cài đặt -->
 <div class="modal-mask" id="settingsMask">
   <div class="modal">
     <header class="modal-head">
-      <h2>设置</h2>
+      <h2>Cài đặt</h2>
       <button class="icon-btn" id="btnCloseSettings">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </header>
     <div class="modal-body">
       <div class="group" id="runtimeGroup">
-        <div class="group-title">运行时与环境</div>
+        <div class="group-title">Bộ chạy và môi trường</div>
         <div class="field">
-          <label>运行状态</label>
+          <label>Trạng thái chạy</label>
           <div class="row" style="align-items:center;">
-            <span class="inline-note" id="setupStateText">正在检查…</span>
+            <span class="inline-note" id="setupStateText">Đang kiểm tra…</span>
             <span style="flex:1"></span>
-            <button class="btn primary sm" id="btnDeployAll">一键完成</button>
-            <button class="btn ghost sm" id="btnSetupAdvanced">高级：连接已有运行时</button>
+            <button class="btn primary sm" id="btnDeployAll">Hoàn tất một chạm</button>
+            <button class="btn ghost sm" id="btnSetupAdvanced">Nâng cao: kết nối bộ chạy có sẵn</button>
           </div>
-          <span class="sub" id="setupNote">全自动：无需选择镜像、无需启用加速、无需调内存</span>
+          <span class="sub" id="setupNote">Hoàn toàn tự động: không cần chọn ảnh hệ thống, không cần bật tăng tốc, không cần chỉnh RAM</span>
         </div>
         <div class="field">
           <div class="steps" id="setupSteps"></div>
@@ -160,214 +160,214 @@
         <div id="envCheck" class="env-check" hidden></div>
 
         <div class="setup-guide" id="setupGuide" hidden>
-          <h2>安装 Android 到虚拟磁盘</h2>
-          <p class="guide-sub">虚拟机窗口已打开。按下面 6 步操作一次，之后 ApkStart 会直接从磁盘启动，不再需要镜像。</p>
+          <h2>Cài Android vào đĩa ảo</h2>
+          <p class="guide-sub">Cửa sổ máy ảo đã mở. Làm theo 6 bước dưới đây một lần, sau đó ApkStart sẽ khởi động thẳng từ ổ đĩa, không cần ảnh hệ thống nữa.</p>
           <ol class="guide-list">
-            <li><b>启动菜单</b>：用 <kbd>↓</kbd> 选到 <code>Installation - Install Android-x86 to harddisk</code>，回车</li>
-            <li><b>Choose Partition</b>：选 <code>Create/Modify partitions</code>；询问是否使用 GPT 时选 <code>No</code></li>
-            <li><b>cfdisk 分区</b>：<code>New</code> → <code>Primary</code> → 容量直接回车 → <code>Bootable</code> → <code>Write</code> → 输入 <code>yes</code> → <code>Quit</code></li>
-            <li><b>格式化</b>：选 <code>vda1</code> → 提示格式化时选 <code>ext4</code> → <code>Yes</code></li>
-            <li><b>引导与系统</b>：<code>Install GRUB</code> 选 <code>Yes</code>；<code>Install /system as read-write</code> 选 <code>Yes</code></li>
-            <li><b>完成</b>：进度到 100% 后点下面的「我已安装完成」（ApkStart 会自动重启并接管）</li>
+            <li><b>Menu Start</b>: dùng <kbd>↓</kbd> Chọn được <code>Installation - Install Android-x86 to harddisk</code>, nhấn Enter</li>
+            <li><b>Choose Partition</b>: chọn <code>Create/Modify partitions</code>; khi hỏi có dùng GPT không thì chọn <code>No</code></li>
+            <li><b>cfdisk Phân vùng</b>：<code>New</code> → <code>Primary</code> → Dung lượng cứ nhấn Enter → <code>Bootable</code> → <code>Write</code> → Nhập <code>yes</code> → <code>Quit</code></li>
+            <li><b>Định dạng</b>: chọn <code>vda1</code> → Khi được nhắc định dạng, chọn <code>ext4</code> → <code>Yes</code></li>
+            <li><b>Khởi động và hệ thống</b>：<code>Install GRUB</code> Chọn <code>Yes</code>；<code>Install /system as read-write</code> Chọn <code>Yes</code></li>
+            <li><b>Hoàn tất</b>: tiến độ đến 100% thì bấm “Tôi đã cài xong” bên dưới (ApkStart sẽ tự khởi động lại và tiếp quản)</li>
           </ol>
-          <p class="guide-tip">如果之后提示 adb 未连接：在虚拟机窗口按 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>F1</kbd> 进入终端，执行
+          <p class="guide-tip">Nếu sau đó báo adb chưa kết nối: trong cửa sổ máy ảo, nhấn <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>F1</kbd> Vào terminal, chạy
             <code>setprop service.adb.tcp.port 5555</code>、<code>stop adbd</code>、<code>start adbd</code>，
-            再按 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>F7</kbd> 回到图形界面。</p>
+            Rồi nhấn <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>F7</kbd> quay về giao diện đồ họa.</p>
           <div class="guide-foot">
-            <button class="btn primary" id="btnMarkInstalled">我已安装完成</button>
-            <button class="btn ghost" id="btnGuideClose">稍后再说</button>
+            <button class="btn primary" id="btnMarkInstalled">Tôi đã cài xong</button>
+            <button class="btn ghost" id="btnGuideClose">Để sau</button>
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-title">自动模式（默认，无需设置）</div>
+        <div class="group-title">Chế độ tự động (mặc định, không cần cài đặt)</div>
         <div class="field">
-          <label>本机自适应参数</label>
-          <div class="inline-note" id="autoProfileText">正在检测…</div>
-          <span class="sub">内存、核心数、渲染后端、端口、加速方式全部自动选择；启动失败会自动降级重试，不需要手动改。
-            ApkStart 用<b>专用 adb 服务端口 5044</b>（你系统里自己的 adb 是 5037），所以命令行里
-            <code>adb devices</code> 看不到这台安卓设备 —— 这是刻意的隔离。想连的话用
-            <code>$env:ANDROID_ADB_SERVER_PORT=5044</code> 再执行 adb。
-            注意：别对着 5555 端口手动 <code>adb connect</code>，那会在正在运行的应用上弹出
-            「允许 USB 调试吗」的系统弹窗。</span>
+          <label>Tham số tự thích ứng theo máy</label>
+          <div class="inline-note" id="autoProfileText">Đang dò…</div>
+          <span class="sub">Bộ nhớ, số nhân, backend kết xuất, cổng, cách tăng tốc đều tự chọn; khởi động lỗi sẽ tự hạ cấp và thử lại, không cần chỉnh tay.
+            ApkStart Dùng<b>Cổng dịch vụ adb riêng 5044</b>(adb có sẵn trong hệ thống của bạn dùng 5037), nên trong dòng lệnh
+            <code>adb devices</code> Không thấy thiết bị Android này - đây là cách ly có chủ ý. Muốn kết nối thì dùng
+            <code>$env:ANDROID_ADB_SERVER_PORT=5044</code> rồi mới chạy adb.
+            Lưu ý: đừng thao tác thủ công trên cổng 5555 <code>adb connect</code>, bộ chạy và ảnh hệ thống có thể làm đầy ổ cứng.
+            hộp thoại hệ thống “Cho phép gỡ lỗi USB?”.</span>
         </div>
         <div class="field">
-          <label>磁盘总占用（运行时 + 安卓数据 + 缓存）</label>
+          <label>Tổng dung lượng ổ đĩa chiếm (bộ chạy + dữ liệu Android + bộ nhớ đệm)</label>
           <div class="row">
-            <span class="inline-note" id="usageText">正在统计…</span>
-            <button class="btn ghost sm" id="btnCleanup">清理可回收文件</button>
-            <button class="btn ghost sm" id="btnLeftovers" title="扫描并清掉旧版本留下的程序目录、失效的卸载项和更新临时文件">清理旧版本残留</button>
-            <button class="btn ghost sm" id="btnRepairNetwork" title="安卓虚拟机没有网络时（应用里联网页面一直黑屏/转圈），用这个把安卓数据重置掉来修网络。应用清单会保留，点开应用会自动重装">修复网络</button>
-            <button class="btn ghost sm danger" id="btnResetData" title="清空安卓 /data 用户数据 + 已装应用 + 快速启动快照，还原成刚装好系统的干净状态">重置安卓数据</button>
+            <span class="inline-note" id="usageText">Đang thống kê…</span>
+            <button class="btn ghost sm" id="btnCleanup">Dọn tệp có thể thu hồi</button>
+            <button class="btn ghost sm" id="btnLeftovers" title="Quét và dọn thư mục chương trình của bản cũ, mục gỡ cài đặt hỏng và tệp tạm cập nhật">Dọn tàn dư bản cũ</button>
+            <button class="btn ghost sm" id="btnRepairNetwork" title="Khi máy ảo Android không có mạng (trang cần mạng trong ứng dụng cứ đen màn hình/xoay vòng), dùng mục này để đặt lại dữ liệu Android và sửa mạng. Danh sách ứng dụng được giữ, mở ứng dụng sẽ tự cài lại">Sửa mạng</button>
+            <button class="btn ghost sm danger" id="btnResetData" title="Xóa sạch dữ liệu người dùng Android /data + ứng dụng đã cài + snapshot khởi động nhanh, đưa về trạng thái sạch như vừa cài hệ thống">Đặt lại dữ liệu Android</button>
           </div>
           <label class="checkbox-inline">
             <input type="checkbox" id="chkCleanSnapshots" />
-            <span>连当前 AVD 的快速启动快照也一起清（会先停运行时，能真正回收几 GB 快照）</span>
+            <span>Xóa luôn snapshot khởi động nhanh của AVD hiện tại (sẽ dừng bộ chạy trước, thu hồi được vài GB snapshot)</span>
           </label>
-          <span class="sub">系统镜像全机共享一份，应用数据用差分层保存；旧镜像、旧快照、日志和锁文件都可回收。日志超过上限会自动滚动，不会无限增长。「重置安卓数据」会真实删除数 GB 用户数据，仅保留系统本身。</span>
+          <span class="sub">Ảnh hệ thống dùng chung một bản cho cả máy, dữ liệu ứng dụng lưu bằng lớp chênh lệch; ảnh cũ, snapshot cũ, nhật ký và tệp khóa đều có thể thu hồi. Nhật ký vượt giới hạn sẽ tự cuộn, không tăng vô hạn. “Đặt lại dữ liệu Android” sẽ xóa thật vài GB dữ liệu người dùng, chỉ giữ lại hệ thống.</span>
         </div>
         <div class="runtime-actions">
-          <button class="btn ghost sm" id="btnDiagnostics">导出诊断报告</button>
-          <button class="btn ghost sm" id="btnRebuildShortcuts">重建快捷方式</button>
-          <span class="inline-note">诊断报告用于排障；重建会补齐桌面 + 开始菜单入口</span>
+          <button class="btn ghost sm" id="btnDiagnostics">Xuất báo cáo chẩn đoán</button>
+          <button class="btn ghost sm" id="btnRebuildShortcuts">Tạo lại lối tắt</button>
+          <span class="inline-note">Báo cáo chẩn đoán dùng để tìm lỗi; tạo lại sẽ bổ sung lối tắt trên màn hình nền và Start Menu</span>
         </div>
         <div class="field switch-field">
           <div>
-            <label>开机自动启动（默认开启）</label>
-            <span class="sub">随 Windows 登录常驻托盘，双击桌面图标秒开应用，无需手动启动。</span>
+            <label>Tự khởi động cùng máy (mặc định bật)</label>
+            <span class="sub">Đăng nhập cùng Windows và nằm trong khay hệ thống, nhấp đúp biểu tượng màn hình nền để mở ứng dụng ngay, không cần khởi động thủ công.</span>
           </div>
           <input type="checkbox" id="setAutoStart" class="switch" />
         </div>
       </div>
 
       <div class="group">
-        <div class="group-title">应用窗口</div>
+        <div class="group-title">Cửa sổ ứng dụng</div>
         <div class="field">
-          <label>显示模式</label>
+          <label>Chế độ hiển thị</label>
           <select id="setDisplayMode">
-            <option value="window">竖屏窗口（可自由拉伸，记住每个应用的大小）</option>
-            <option value="fullscreen">全屏（铺满屏幕，保持手机比例两侧留黑）</option>
+            <option value="window">Cửa sổ màn dọc (kéo giãn tự do, nhớ kích thước từng ứng dụng)</option>
+            <option value="fullscreen">Toàn màn hình (lấp đầy màn hình, giữ tỉ lệ điện thoại, hai bên để viền đen)</option>
           </select>
-          <span class="sub">随时按 <b>F11</b> 或右键托盘切换；全屏只放大窗口，不改变画面比例，切换不重启应用。</span>
+          <span class="sub">Bất cứ lúc nào nhấn <b>F11</b> hoặc nhấp chuột phải vào khay hệ thống để chuyển; toàn màn hình chỉ phóng to cửa sổ, không đổi tỉ lệ hình, chuyển đổi không khởi động lại ứng dụng.</span>
         </div>
         <div class="field">
-          <label>自动全屏</label>
+          <label>Tự động toàn màn hình</label>
           <select id="setAutoFullscreen">
-            <option value="off">关闭（按上面选的显示模式走）</option>
-            <option value="on">打开 · 每次启动应用都自动全屏</option>
+            <option value="off">Tắt (theo chế độ hiển thị đã chọn ở trên)</option>
+            <option value="on">Bật · mỗi lần khởi động ứng dụng đều tự toàn màn hình</option>
           </select>
-          <span class="sub">打开后，每次点开应用直接铺满屏幕，不用再按 F11。配合下面的「横屏」使用效果最好
-            —— 横屏面板的宽高比本来就贴合屏幕，全屏不会留黑边。</span>
+          <span class="sub">Khi bật, mỗi lần mở ứng dụng sẽ tràn màn hình ngay, không cần nhấn F11. Dùng cùng mục “Ngang” bên dưới sẽ hiệu quả nhất
+            — Tỉ lệ khung ngang vốn vừa với màn hình, toàn màn hình sẽ không có viền đen.</span>
         </div>
         <div class="field">
-          <label>屏幕方向</label>
+          <label>Hướng màn hình</label>
           <select id="setOrientationMode">
-            <option value="auto">跟随应用（推荐 · 自动选横竖屏，画面铺满不留黑边）</option>
-            <option value="portrait">强制竖屏（手机比例，适合刷短视频、看小说）</option>
-            <option value="landscape">强制横屏（宽屏铺满，适合看剧、玩游戏）</option>
+            <option value="auto">Theo ứng dụng (khuyên dùng · tự chọn ngang/dọc, hình tràn màn hình không viền đen)</option>
+            <option value="portrait">Buộc màn hình dọc (tỉ lệ điện thoại, hợp lướt video ngắn, đọc truyện)</option>
+            <option value="landscape">Buộc màn hình ngang (toàn màn hình rộng, hợp xem phim, chơi game)</option>
           </select>
-          <span class="sub">安卓的横竖屏是<b>虚拟手机面板的真实方向</b>决定的。面板方向和应用自己声明的方向不一致时，
-            安卓只会给应用中间一条窄画面、两侧补黑 —— 换窗口大小、改分辨率都填不满。
-            「跟随应用」会在安装 APK 时读出应用的方向，启动时自动把面板换成一致的那个，
-            所以红果、墨读这类应用会正立且铺满。方向不对时才重启一次运行时（约十几秒），
-            之后再打开同一方向的应用都是秒进。</span>
+          <span class="sub">Chiều màn hình của Android là<b>Hướng thực của bảng điện thoại ảo</b>quyết định. Khi hướng khung và hướng ứng dụng khai báo không khớp,
+            Android chỉ cho ứng dụng một dải hình hẹp ở giữa và chừa viền đen hai bên - đổi kích thước cửa sổ hay độ phân giải đều không lấp đầy.
+            “Theo ứng dụng” sẽ đọc hướng của ứng dụng khi cài APK, và khi khởi động tự đổi khung sang hướng tương ứng,
+            nên các ứng dụng như Hongguo, Modu sẽ hiển thị đúng chiều và lấp đầy màn hình. Chỉ khi hướng sai mới khởi động lại bộ chạy một lần (khoảng chục giây),
+            Sau đó mở ứng dụng cùng hướng sẽ vào ngay lập tức.</span>
         </div>
         <div class="field">
-          <label>平板排版</label>
+          <label>Bố cục máy tính bảng</label>
           <select id="setTabletMode">
-            <option value="on">打开（推荐 · 逻辑密度 190dpi，sw606dp 走平板排版）</option>
-            <option value="off">关闭（镜像默认密度，手机排版）</option>
+            <option value="on">Bật (khuyến nghị · mật độ logic 190dpi, sw606dp dùng bố cục máy tính bảng)</option>
+            <option value="off">Tắt (mật độ mặc định của ảnh hệ thống, bố cục điện thoại)</option>
           </select>
-          <span class="sub">720 宽按 190dpi 算等于 606dp，正好越过 Android 的 600dp 平板断点，
-            红果短剧的双列剧集页、设置页的分栏都只在这个排版下出现。关掉会回到手机排版
-            （字更大、信息更少）。切换后下次打开应用生效。</span>
+          <span class="sub">720 Chiều rộng tính theo 190dpi bằng 606dp, vừa vượt ngưỡng máy tính bảng 600dp của Android,
+            Trang tập phim hai cột của Hongguo Short Drama và phần chia cột trong trang cài đặt chỉ xuất hiện ở bố cục này. Tắt đi sẽ về bố cục điện thoại
+            (chữ lớn hơn, ít thông tin hơn). Có hiệu lực ở lần mở ứng dụng sau khi chuyển.</span>
         </div>
         <div class="field">
-          <label>当前面板方向</label>
+          <label>Hướng bảng hiện tại</label>
           <select id="setLandscape">
-            <option value="portrait">竖屏面板</option>
-            <option value="landscape">横屏面板</option>
+            <option value="portrait">Bảng màn dọc</option>
+            <option value="landscape">Bảng màn ngang</option>
           </select>
-          <span class="sub">这是运行时<b>现在</b>用的物理面板方向，由上面那条策略自动写入。
-            只有在「强制」模式下它才完全由你决定。</span>
+          <span class="sub">Đây là bộ chạy<b>Hiện</b>Hướng bảng vật lý đang dùng, tự ghi theo chính sách ở trên.
+            Chỉ ở chế độ “Bắt buộc” thì hoàn toàn do bạn quyết định.</span>
         </div>
         <div class="field">
-          <label>窗口承载方式</label>
+          <label>Cách chứa cửa sổ</label>
           <select id="setWindowEmbed">
-            <option value="embed">嵌入模式（默认）· 安卓画面嵌在 ApkStart 窗口里，观感统一</option>
-            <option value="detached">独立窗口 · 由模拟器自己开窗口，避开花屏/黑边/点不准</option>
+            <option value="embed">Chế độ nhúng (mặc định) · hình Android nhúng trong cửa sổ ApkStart, giao diện thống nhất</option>
+            <option value="detached">Cửa sổ riêng · trình giả lập tự mở cửa sổ, tránh vỡ hình / viền đen / chạm lệch</option>
           </select>
-          <span class="sub">嵌入模式最像「一个应用一个窗口」，但需要把模拟器的窗口塞进我们自己的窗口，
-            容易在缩放、旋转、多窗口切换时出现黑边或点击错位。独立模式下方向、缩放、输入都由模拟器原生处理，
-            这类问题不会出现，代价是多一个任务栏图标。改动在下次打开应用时生效。</span>
+          <span class="sub">Chế độ nhúng giống “một ứng dụng một cửa sổ” nhất, nhưng cần nhét cửa sổ trình giả lập vào cửa sổ của chúng tôi,
+            Dễ bị viền đen hoặc lệch điểm chạm khi thu phóng, xoay, đổi giữa nhiều cửa sổ. Ở chế độ độc lập, hướng, thu phóng và nhập liệu đều do trình giả lập xử lý nguyên bản,
+            Vấn đề loại này sẽ không xảy ra, đổi lại là thêm một biểu tượng trên thanh tác vụ. Thay đổi có hiệu lực ở lần mở ứng dụng sau.</span>
         </div>
         <div class="field" id="portraitField">
-          <label>竖屏画面大小</label>
+          <label>Kích thước khung hình màn dọc</label>
           <select id="setPortrait">
-            <option value="720x1280">小 · 720 × 1280</option>
-            <option value="900x1600">中 · 900 × 1600</option>
-            <option value="1080x1920">大 · 1080 × 1920</option>
-            <option value="1440x2560">超大 · 1440 × 2560</option>
+            <option value="720x1280">Nhỏ · 720 × 1280</option>
+            <option value="900x1600">Vừa · 900 × 1600</option>
+            <option value="1080x1920">Lớn · 1080 × 1920</option>
+            <option value="1440x2560">Cực lớn · 1440 × 2560</option>
           </select>
-          <span class="sub">窗口模式下可拖动边框任意缩放；这里调的是 Android 内部渲染尺寸，越小越省性能。</span>
+          <span class="sub">Ở chế độ cửa sổ có thể kéo viền để thu phóng tùy ý; ở đây chỉnh kích thước render nội bộ của Android, càng nhỏ càng tiết kiệm hiệu năng.</span>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-title">鼠标键位</div>
+        <div class="group-title">Phím chuột</div>
         <div class="field">
-          <label>左键 · 确认 / 点击</label>
-          <span class="sub">模拟器原生把左键当成手指点击，按住拖动就是滑动，无需额外设置。</span>
+          <label>Chuột trái · Xác nhận / Nhấp</label>
+          <span class="sub">Trình giả lập mặc định coi chuột trái là chạm ngón tay, giữ và kéo là vuốt, không cần cài đặt thêm.</span>
         </div>
         <div class="field switch-field">
           <div>
-            <label>右键 · 安卓返回</label>
-            <span class="sub">模拟器默认把右键也当成一次点击（容易误触）。开启后右键只执行返回，不再触发点击。</span>
+            <label>Chuột phải · Quay lại Android</label>
+            <span class="sub">Trình giả lập mặc định coi chuột phải cũng là một lần chạm (dễ bấm nhầm). Khi bật, chuột phải chỉ thực hiện quay lại, không kích hoạt chạm nữa.</span>
           </div>
           <input type="checkbox" id="setMouseRightBack" class="switch" />
         </div>
         <div class="field">
-          <label>滚轮 · 滑动</label>
+          <label>Con lăn · vuốt</label>
           <select id="setMouseWheelMode">
-            <option value="smooth">平滑（推荐）· 合并多次滚动为一次流畅滑动</option>
-            <option value="native">原生 · 交给模拟器逐格处理</option>
-            <option value="off">关闭 · 不拦截滚轮</option>
+            <option value="smooth">Mượt (khuyến nghị) · gộp nhiều lần cuộn thành một lần vuốt mượt</option>
+            <option value="native">Gốc · giao cho trình giả lập xử lý từng khung</option>
+            <option value="off">Tắt · không chặn con lăn chuột</option>
           </select>
-          <span class="sub">平滑模式把一小段时间内的滚动合并成一次滑动手势，避免逐格抽搐，也不会每格都拉起一个 adb 进程。</span>
+          <span class="sub">Chế độ mượt gộp các lần cuộn trong thời gian ngắn thành một thao tác vuốt, tránh giật từng nấc và không gọi một tiến trình adb cho mỗi nấc.</span>
         </div>
         <div class="field switch-field">
           <div>
-            <label>鼠标侧键 · 返回 / 前进（默认关闭）</label>
-            <span class="sub">侧键映射需要全局鼠标钩子。钩子只在 ApkStart 应用窗口处于前台时安装，失焦或关闭立即卸载，不会拖慢桌面。</span>
+            <label>Phím bên chuột · Quay lại / Tiến tới (mặc định tắt)</label>
+            <span class="sub">Ánh xạ phím bên cần hook chuột toàn cục. Hook chỉ được cài khi cửa sổ ApkStart ở tiền cảnh, mất tiêu điểm hoặc đóng là gỡ ngay, không làm chậm màn hình nền.</span>
           </div>
           <input type="checkbox" id="setMouseSideButtons" class="switch" />
         </div>
         <div class="field">
-          <span class="sub">以上映射只在应用窗口前台生效；切回桌面或关闭窗口后，鼠标行为完全恢复 Windows 原生。</span>
+          <span class="sub">Các ánh xạ trên chỉ có hiệu lực khi cửa sổ ứng dụng ở tiền cảnh; khi chuyển về màn hình nền hoặc đóng cửa sổ, hành vi chuột trở lại hoàn toàn như Windows gốc.</span>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-title">键盘映射（游戏手柄）</div>
+        <div class="group-title">Ánh xạ phím (tay cầm chơi game)</div>
         <div class="field switch-field">
           <div>
-            <label>启用键盘映射</label>
-            <span class="sub">把键盘按键映射成安卓触屏点击/滑动。适合用键盘玩手游（WASD 移动、J/K 技能等）。
-              每个应用可以单独配置，右键应用卡片 → 「按键映射」选择预设模板或自定义。</span>
+            <label>Bật ánh xạ bàn phím</label>
+            <span class="sub">Ánh xạ phím bàn phím thành chạm/vuốt trên màn hình cảm ứng Android. Hợp để chơi game bằng bàn phím (WASD di chuyển, J/K kỹ năng...).
+              Mỗi ứng dụng có thể cấu hình riêng: bấm chuột phải vào thẻ ứng dụng → “Ánh xạ phím”, chọn mẫu có sẵn hoặc tự tùy chỉnh.</span>
           </div>
           <input type="checkbox" id="setKeymapEnabled" class="switch" />
         </div>
         <div class="field">
-          <span class="sub" id="keymapHint">当前应用未配置按键映射。右键应用卡片可快速套用预设模板。</span>
+          <span class="sub" id="keymapHint">Ứng dụng hiện tại chưa cấu hình ánh xạ phím. Nhấp chuột phải vào thẻ ứng dụng để áp dụng nhanh mẫu có sẵn.</span>
         </div>
       </div>
 
       <div class="group" id="perfGroup">
-        <div class="group-title">性能与资源占用</div>
+        <div class="group-title">Hiệu năng và tài nguyên</div>
         <div class="field">
-          <label>资源策略</label>
+          <label>Chính sách tài nguyên</label>
           <select id="setResourceMode">
-            <option value="save">省资源 · 2 核 / 让出前台 / 540p（老机器、挂机）</option>
-            <option value="balanced">均衡 · 一半物理核 / 让出前台 / 720p（推荐）</option>
-            <option value="smooth">流畅 · 不限核数 / 与前台同优先级（视频、游戏）</option>
+            <option value="save">Tiết kiệm · 2 nhân / nhường cửa sổ chính / 540p (máy cũ, treo máy)</option>
+            <option value="balanced">Cân bằng · nửa số nhân vật lý / nhường tiền cảnh / 720p (khuyến nghị)</option>
+            <option value="smooth">Mượt · không giới hạn số nhân / cùng mức ưu tiên với cửa sổ chính (video, game)</option>
           </select>
-          <span class="sub">决定安卓虚拟机吃多少 CPU、画面多细腻。红果/抖音发卡就切「流畅」，只想挂着跑小应用就切「省资源」。改完下一次打开应用生效。</span>
+          <span class="sub">Quyết định máy ảo Android dùng bao nhiêu CPU và hình ảnh mịn đến đâu. Hongguo/Douyin bị giật thì chọn “Mượt”, chỉ muốn treo chạy ứng dụng nhỏ thì chọn “Tiết kiệm”. Sửa xong có hiệu lực ở lần mở ứng dụng sau.</span>
         </div>
         <div class="field two">
           <div>
-            <label>画质（安卓内部渲染分辨率）</label>
+            <label>Chất lượng hình (độ phân giải render nội bộ của Android)</label>
             <select id="setRenderSize">
-              <option value="auto">自动（按加速状态）</option>
-              <option value="540x960">流畅 · 540 × 960</option>
-              <option value="720x1280">均衡 · 720 × 1280</option>
-              <option value="1080x1920">高清 · 1080 × 1920</option>
+              <option value="auto">Tự động (theo trạng thái tăng tốc)</option>
+              <option value="540x960">Mượt · 540 × 960</option>
+              <option value="720x1280">Cân bằng · 720 × 1280</option>
+              <option value="1080x1920">Nét · 1080 × 1920</option>
             </select>
           </div>
           <div>
-            <label>安卓数据分区（应用与游戏装这里）</label>
+            <label>Phân vùng dữ liệu Android (ứng dụng và game cài ở đây)</label>
             <select id="setDataGB">
-              <option value="0">自动</option>
+              <option value="0">Tự động</option>
               <option value="4">4 GB</option>
               <option value="6">6 GB</option>
               <option value="8">8 GB</option>
@@ -376,7 +376,7 @@
               <option value="24">24 GB</option>
               <option value="32">32 GB</option>
               <option value="48">48 GB</option>
-              <option value="64">64 GB（50GB 级游戏）</option>
+              <option value="64">64 GB(game cỡ 50GB)</option>
               <option value="96">96 GB</option>
               <option value="128">128 GB</option>
             </select>
@@ -384,144 +384,144 @@
         </div>
         <div class="field">
           <div class="row">
-            <button class="btn ghost sm" id="btnGrowData">立即扩容</button>
-            <span class="sub" style="flex:1;margin:0">扩容是就地做的：已装应用与存档都保留，只是下次打开应用会多花十几秒。</span>
+            <button class="btn ghost sm" id="btnGrowData">Mở rộng ngay</button>
+            <span class="sub" style="flex:1;margin:0">Mở rộng thực hiện tại chỗ: ứng dụng đã cài và dữ liệu lưu đều được giữ, chỉ là lần mở ứng dụng tới sẽ lâu hơn chục giây.</span>
           </div>
         </div>
         <div class="field">
-          <span class="sub" id="dataNote">正在读取数据分区…</span>
+          <span class="sub" id="dataNote">Đang đọc phân vùng dữ liệu…</span>
         </div>
         <div class="field">
-          <label>系统语言</label>
+          <label>Ngôn ngữ hệ thống</label>
           <select id="setLocale">
-            <option value="zh-CN">简体中文（推荐）</option>
+            <option value="zh-CN">简体中文 (khuyên dùng)</option>
             <option value="zh-TW">繁體中文</option>
-            <option value="en-US">English（镜像原生）</option>
+            <option value="en-US">English(gốc của ảnh hệ thống)</option>
             <option value="ja-JP">日本語</option>
             <option value="ko-KR">한국어</option>
           </select>
-          <span class="sub">系统设置、权限弹窗、日期格式的语言。开机时注入到虚拟机，
-            <b>下次重启运行时生效</b>。中文输入法不受此项影响，单独在下面开关。</span>
+          <span class="sub">Ngôn ngữ của cài đặt hệ thống, hộp thoại quyền, định dạng ngày. Được nạp vào máy ảo khi khởi động,
+            <b>Có hiệu lực sau lần khởi động lại bộ chạy tiếp theo</b>. Bộ gõ tiếng Trung không bị ảnh hưởng bởi mục này, bật/tắt riêng bên dưới.</span>
         </div>
         <div class="field switch-field">
           <div>
-            <label>中文输入法（推荐）</label>
-            <span class="sub">镜像只带英文键盘，勾上会静默安装并启用随包的谷歌拼音输入法，
-              这样在安卓应用里能直接打中文。关掉则保持系统原生输入法。</span>
+            <label>Bộ gõ tiếng Trung (khuyến nghị)</label>
+            <span class="sub">Ảnh hệ thống chỉ có bàn phím tiếng Anh, tích chọn sẽ cài âm thầm và bật bộ gõ Google Pinyin đi kèm,
+              Nhờ vậy có thể gõ tiếng Trung trực tiếp trong ứng dụng Android. Tắt đi sẽ giữ bộ gõ gốc của hệ thống.</span>
           </div>
           <input type="checkbox" id="setChineseIme" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>网络加速（推荐）</label>
-            <span class="sub">给安卓指定国内公共 DNS（阿里 / 腾讯）。安卓默认走主机的 DNS，主机挂着 VPN 或走公司网时解析会拖到几百毫秒，视频类应用首屏发慢。内网域名访问异常时可关掉。</span>
+            <label>Tăng tốc mạng (khuyên dùng)</label>
+            <span class="sub">Chỉ định DNS công cộng trong nước (Alibaba / Tencent) cho Android. Mặc định Android dùng DNS của máy chủ, khi máy chủ bật VPN hoặc dùng mạng công ty, phân giải có thể chậm hàng trăm ms, ứng dụng video mở màn hình đầu chậm. Truy cập tên miền nội bộ bất thường thì có thể tắt.</span>
           </div>
           <input type="checkbox" id="setFastDns" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>安卓声音</label>
-            <span class="sub">让应用提示音、视频声音正常播放。仅在你完全不需要声音、想再省一点 CPU 时关闭。</span>
+            <label>Âm thanh Android</label>
+            <span class="sub">Để âm báo và âm thanh video của ứng dụng phát bình thường. Chỉ tắt khi bạn hoàn toàn không cần âm thanh và muốn tiết kiệm thêm chút CPU.</span>
           </div>
           <input type="checkbox" id="setAudio" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>保留快速启动快照（推荐）</label>
-            <span class="sub">第二次打开应用只要几秒，代价是磁盘上多一份约 2–3 GB 的 <code>ram.bin</code>。磁盘紧张可以关掉：只影响启动速度，不影响应用与存档。</span>
+            <label>Giữ snapshot khởi động nhanh (khuyến nghị)</label>
+            <span class="sub">Mở ứng dụng lần hai chỉ mất vài giây, đổi lại ổ đĩa tốn thêm một bản khoảng 2–3 GB của <code>ram.bin</code>. Nếu ổ đĩa thiếu chỗ có thể tắt: chỉ ảnh hưởng tốc độ khởi động, không ảnh hưởng ứng dụng và dữ liệu lưu.</span>
           </div>
           <input type="checkbox" id="setKeepSnapshot" class="switch" />
         </div>
         <details class="mini-details">
-          <summary>容器细节（高级）</summary>
+          <summary>Chi tiết container (nâng cao)</summary>
           <div class="field switch-field">
             <div>
-              <label>轻量容器</label>
-              <span class="sub">收敛 vCPU 配额并降低进程优先级，CPU 优先让给 Windows 桌面。上面的「资源策略」已经会自动设置这一项。</span>
+              <label>Container nhẹ</label>
+              <span class="sub">Giới hạn hạn ngạch vCPU và hạ mức ưu tiên tiến trình, nhường CPU cho màn hình Windows. “Chính sách tài nguyên” ở trên đã tự đặt mục này.</span>
             </div>
             <input type="checkbox" id="setLiteMode" class="switch" />
           </div>
           <div class="field">
-            <label>虚拟机优先级</label>
+            <label>Mức ưu tiên máy ảo</label>
             <select id="setPriorityMode">
-              <option value="balanced">均衡（推荐）· 运行时让着前台窗口</option>
-              <option value="performance">性能优先 · 运行时与前台同等优先级</option>
-              <option value="game">游戏 / 低延迟 · 运行时高优先级，适合 FPS、音游</option>
+              <option value="balanced">Cân bằng (khuyến nghị) · bộ chạy nhường cửa sổ tiền cảnh</option>
+              <option value="performance">Ưu tiên hiệu năng · bộ chạy cùng mức ưu tiên với cửa sổ đang dùng</option>
+              <option value="game">Game / độ trễ thấp · bộ chạy ưu tiên cao, hợp với FPS, game nhịp điệu</option>
             </select>
-            <span class="sub">游戏模式会让安卓虚拟机保持较高 CPU 优先级并减少宿主侧轮询，输入与画面延迟最低；代价是整机其他程序会变慢。没有应用窗口时容器仍会自动降优先级停放。</span>
+            <span class="sub">Chế độ game giữ máy ảo Android ở mức ưu tiên CPU cao và giảm thăm dò phía máy chủ, độ trễ đầu vào và hình ảnh thấp nhất; đổi lại các chương trình khác trên máy sẽ chậm. Khi không có cửa sổ ứng dụng, vùng chứa vẫn tự hạ ưu tiên và tạm dừng.</span>
           </div>
         </details>
         <div class="field switch-field">
           <div>
-            <label>深度裁剪系统后台</label>
-            <span class="sub">额外禁用 Play 商店、设置向导、打印服务等后台包，只留打开应用必需的环境。若遇到应用提示缺少 Google Play 服务，关掉此开关会自动恢复。</span>
+            <label>Cắt giảm sâu tiến trình nền hệ thống</label>
+            <span class="sub">Tắt thêm các gói nền như Play Store, trình hướng dẫn cài đặt, dịch vụ in…, chỉ giữ môi trường cần thiết để mở ứng dụng. Nếu ứng dụng báo thiếu Google Play Services, tắt công tắc này sẽ tự khôi phục.</span>
           </div>
           <input type="checkbox" id="setDeepTrim" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>开机预热（推荐）</label>
-            <span class="sub">启动 ApkStart 后就在后台把安卓环境引导好（窗口全程隐藏，不会看到模拟器）。之后点任何应用只剩一次「打开」，实测从 20 多秒降到几乎不用等。代价是空闲时常驻约 1GB 内存，关掉后第一次打开应用需要冷启动。</span>
+            <label>Khởi động trước (khuyến nghị)</label>
+            <span class="sub">Sau khi khởi động ApkStart, môi trường Android được chuẩn bị sẵn ở nền (cửa sổ ẩn hoàn toàn, không thấy trình giả lập). Sau đó bấm ứng dụng nào cũng chỉ còn một bước “Mở”, đo thực tế từ hơn 20 giây xuống gần như không phải chờ. Đổi lại lúc rảnh chiếm thường trực khoảng 1GB RAM; tắt đi thì lần mở ứng dụng đầu tiên phải khởi động nguội.</span>
           </div>
           <input type="checkbox" id="setPrewarm" class="switch" />
         </div>
         <div class="field">
-          <span class="sub">安卓环境只开机一次并常驻；之后打开应用不再重跑整个系统，只启动该应用并停掉其他应用进程。关掉最后一个窗口会清后台、停放容器，下次点开仍是秒进。</span>
+          <span class="sub">Môi trường Android chỉ khởi động một lần và chạy thường trực; sau đó mở ứng dụng không chạy lại cả hệ thống, chỉ khởi động ứng dụng đó và dừng các tiến trình ứng dụng khác. Đóng cửa sổ cuối cùng sẽ dọn nền và tạm dừng container, lần sau bấm mở vẫn vào ngay.</span>
         </div>
       </div>
 
       <div class="group" id="downloadGroup">
-        <div class="group-title">下载与更新源</div>
+        <div class="group-title">Nguồn tải và cập nhật</div>
         <div class="field">
-          <label>更新与下载源</label>
+          <label>Cập nhật và nguồn tải</label>
           <select id="setSourcePref">
-            <option value="auto">自动选择较快的源（推荐）</option>
-            <option value="gitee">只用 Gitee（国内通常最快）</option>
-            <option value="github">只用 GitHub</option>
+            <option value="auto">Tự chọn nguồn nhanh hơn (khuyên dùng)</option>
+            <option value="gitee">Chỉ dùng Gitee (ở Trung Quốc thường nhanh nhất)</option>
+            <option value="github">Chỉ dùng GitHub</option>
           </select>
-          <span class="sub">「自动」会同时问 GitHub 与 Gitee 的最新版本，把每个下载地址都真下 256KB 测一次速度，再从最快的那个地址下载；其中一个源不通不影响更新。</span>
+          <span class="sub">“Tự động” sẽ hỏi cả GitHub và Gitee về phiên bản mới nhất, tải thử 256KB từ mỗi địa chỉ để đo tốc độ, rồi tải từ địa chỉ nhanh nhất; một nguồn không thông cũng không ảnh hưởng việc cập nhật.</span>
         </div>
         <div class="field switch-field">
           <div>
-            <label>自动尝试公共加速镜像</label>
-            <span class="sub">GitHub 直连太慢时，额外测速 ghfast.top / gh-proxy.com 这两个公开转发服务（只转发公开的发布文件，不涉及账号）。关掉后只用直连和你自己填的前缀。</span>
+            <label>Tự động thử các bản ảnh tăng tốc công cộng</label>
+            <span class="sub">GitHub Khi kết nối trực tiếp quá chậm, đo tốc độ thêm hai dịch vụ chuyển tiếp công khai ghfast.top / gh-proxy.com (chỉ chuyển tiếp tệp phát hành công khai, không liên quan tài khoản). Tắt đi thì chỉ dùng kết nối trực tiếp và tiền tố bạn tự nhập.</span>
           </div>
           <input type="checkbox" id="setAutoMirror" class="switch" />
         </div>
         <div class="field">
-          <label>下载镜像前缀（可选，加速 GitHub）</label>
-          <input id="setMirrorPrefix" type="text" placeholder="例如 https://ghfast.top/" />
-          <span class="sub">填了就只用你填的前缀，不再尝试上面那两个公共镜像；留空则由「自动」逻辑决定。下载器会把它拼在真实地址前面。</span>
+          <label>Tiền tố mirror tải xuống (tùy chọn, tăng tốc GitHub)</label>
+          <input id="setMirrorPrefix" type="text" placeholder="Ví dụ https://ghfast.top/" />
+          <span class="sub">Điền vào thì chỉ dùng tiền tố bạn điền, không thử hai mirror công khai ở trên nữa; để trống thì do logic “Tự động” quyết định. Trình tải sẽ nối nó vào trước địa chỉ thật.</span>
         </div>
         <div class="field">
-          <label>下载线程数（1–16，默认 8）</label>
+          <label>Số luồng tải (1–16, mặc định 8)</label>
           <input id="setConnections" type="number" min="1" max="16" step="1" />
-          <span class="sub">大文件按块并行下载。默认 8 线程已经能跑满大多数家宽；网络稳定时可以试 16。</span>
+          <span class="sub">Tệp lớn được tải song song theo khối. Mặc định 8 luồng đã đủ chạy hết băng thông mạng gia đình; mạng ổn định có thể thử 16.</span>
         </div>
         <details class="mini-details">
-          <summary>Gitee 更新源（可选）</summary>
+          <summary>Gitee Nguồn cập nhật (tùy chọn)</summary>
           <div class="field">
-            <label>Gitee 只读 token（一般不用填）</label>
-            <input id="setGiteeToken" type="password" placeholder="留空即可：公开仓库匿名也能读" />
-            <span class="sub">本项目仓库已公开，Gitee 的发行版列表匿名就能读，留空也能用 Gitee 源。
-              只有在「Gitee 被限流（返回 403/429）」或你想读私有分支时才需要填：
-              gitee.com → 设置 → 私人令牌，只勾「projects」即可，它只用于读取发行版列表，
-              不会上传任何东西。</span>
+            <label>Gitee Token chỉ đọc (thường không cần điền)</label>
+            <input id="setGiteeToken" type="password" placeholder="Cứ để trống: kho công khai đọc ẩn danh cũng được" />
+            <span class="sub">Kho mã của dự án đã công khai, danh sách bản phát hành trên Gitee đọc được ẩn danh, để trống vẫn dùng được nguồn Gitee.
+              Chỉ cần điền khi “Gitee bị giới hạn tốc độ (trả về 403/429)” hoặc bạn muốn đọc nhánh riêng tư:
+              gitee.com → Cài đặt → Token cá nhân, chỉ cần chọn “projects”, token này chỉ dùng để đọc danh sách bản phát hành,
+              Sẽ không tải lên bất cứ thứ gì.</span>
           </div>
         </details>
       </div>
 
       <div class="group" id="preflightGroup">
-        <div class="group-title">本机体检 · 自动配置</div>
+        <div class="group-title">Kiểm tra máy · tự cấu hình</div>
         <div class="field">
-          <span class="sub">先查一遍这台机器：CPU 虚拟化有没有开、Windows 的虚拟机监控程序平台在不在、
-            显卡是什么、显存多大、内存和系统版本够不够。能自动改的（内存 / 核心 / 画质 / 渲染后端）直接写进设置，
-            并把结果固化成一份驱动；必须管理员权限的给按钮；只能在 BIOS 里改的会告诉你怎么改。</span>
+          <span class="sub">Kiểm tra máy này trước: ảo hóa CPU đã bật chưa, Windows Hypervisor Platform có không,
+            Card đồ họa là gì, VRAM bao nhiêu, RAM và phiên bản hệ thống có đủ không. Những mục tự sửa được (RAM / nhân / chất lượng hình / backend render) sẽ ghi thẳng vào cài đặt,
+            và cố định kết quả thành một bộ trình điều khiển; việc cần quyền quản trị sẽ có nút riêng; việc chỉ sửa được trong BIOS sẽ hướng dẫn bạn cách sửa.</span>
         </div>
         <div class="field">
           <div class="row">
-            <button class="btn primary sm" id="btnPreflight">开始体检</button>
-            <button class="btn ghost sm" id="btnPreflightApply" hidden>应用推荐配置</button>
+            <button class="btn primary sm" id="btnPreflight">Bắt đầu kiểm tra</button>
+            <button class="btn ghost sm" id="btnPreflightApply" hidden>Áp dụng cấu hình đề xuất</button>
           </div>
         </div>
         <div id="preflightList" class="drv-list"></div>
@@ -531,60 +531,60 @@
       </div>
 
       <div class="group" id="driverGroup">
-        <div class="group-title">驱动 · 兼容补丁</div>
+        <div class="group-title">Trình điều khiển · bản vá tương thích</div>
         <div class="field">
-          <span class="sub">有些机器要改启动参数才跑得起来（老显卡 GLES 版本低、没开硬件加速、某版驱动一开硬件渲染就崩）。
-            驱动就是一份 JSON：声明「匹配哪些机器」+「命中后改哪些启动参数」。你可以自己写、导入、分享。
-            驱动只改白名单里的启动项，<b>不执行任何代码</b>；匹配不上就不生效。</span>
+          <span class="sub">Một số máy cần đổi tham số khởi động mới chạy được (card đồ họa cũ có GLES thấp, chưa bật tăng tốc phần cứng, một số bản driver cứ bật render phần cứng là sập).
+            Trình điều khiển là một tệp JSON: khai báo “khớp những máy nào” + “khi khớp thì sửa tham số khởi động nào”. Bạn có thể tự viết, nhập, chia sẻ.
+            Trình điều khiển chỉ sửa các mục khởi động trong danh sách trắng,<b>Không chạy bất kỳ mã nào</b>; không khớp thì không có hiệu lực.</span>
         </div>
         <div class="field">
-          <span class="sub" id="drvSummary">正在读取驱动…</span>
+          <span class="sub" id="drvSummary">Đang đọc driver…</span>
         </div>
         <div id="drvList" class="drv-list"></div>
         <div class="field">
           <div class="row">
-            <button class="btn ghost sm" id="btnDrvReload">刷新</button>
-            <button class="btn ghost sm" id="btnDrvImport">导入驱动…</button>
-            <button class="btn ghost sm" id="btnDrvFolder">打开驱动目录</button>
-            <button class="btn ghost sm" id="btnDrvExport">导出本机模板</button>
+            <button class="btn ghost sm" id="btnDrvReload">Làm mới</button>
+            <button class="btn ghost sm" id="btnDrvImport">Nhập trình điều khiển…</button>
+            <button class="btn ghost sm" id="btnDrvFolder">Mở thư mục trình điều khiển</button>
+            <button class="btn ghost sm" id="btnDrvExport">Xuất mẫu của máy này</button>
           </div>
-          <span class="sub">「导出本机模板」会把匹配条件按这台机器填好，改 <code>effect</code> 里的
-            <code>gpuMode</code> / <code>forceTcg</code> 就能用。字段说明见仓库里的 <code>docs/drivers.md</code>。</span>
+          <span class="sub">“Xuất mẫu máy này” sẽ điền sẵn điều kiện khớp theo máy này, sửa <code>effect</code> trong
+            <code>gpuMode</code> / <code>forceTcg</code> là dùng được. Xem mô tả các trường trong kho mã tại <code>docs/drivers.md</code>。</span>
         </div>
       </div>
 
       <details class="advanced-group">
-        <summary>高级参数（一般无需修改）</summary>
+        <summary>Tham số nâng cao (thường không cần chỉnh)</summary>
       <div class="group">
-        <div class="group-title">运行时</div>
+        <div class="group-title">Bộ chạy</div>
         <div class="field">
-          <label>运行时</label>
+          <label>Bộ chạy</label>
           <div class="row">
-            <input id="setEngineLabel" type="text" readonly value="ApkStart 自带运行时（QEMU + Android 14，独立运行）" />
+            <input id="setEngineLabel" type="text" readonly value="ApkStart Bộ chạy tích hợp (QEMU + Android 14, chạy độc lập)" />
           </div>
-          <span class="sub">ApkStart 只跑自己的运行时：adb / emulator / 系统镜像都由它自己下载和管理，
-            不探测、不接管、不依赖你电脑上装的任何模拟器（MuMu / 雷电 / 蓝叠 / WSA 都不会被使用）。
-            这样换机器、别人装没装模拟器、模拟器怎么升级，都不影响这里。</span>
+          <span class="sub">ApkStart Chỉ chạy bộ chạy của riêng nó: adb / emulator / ảnh hệ thống đều do nó tự tải và quản lý,
+            Không dò tìm, không tiếp quản, không phụ thuộc bất kỳ trình giả lập nào cài trên máy (MuMu / LDPlayer / BlueStacks / WSA đều không được dùng).
+            Nhờ vậy dù đổi máy, người khác có cài trình giả lập hay không, hay trình giả lập nâng cấp thế nào, đều không ảnh hưởng đến đây.</span>
         </div>
         <div class="field">
-          <label>adb 路径</label>
-          <input id="setAdbPath" type="text" placeholder="留空则自动在 PATH / Android SDK 中查找" />
+          <label>adb Đường dẫn</label>
+          <input id="setAdbPath" type="text" placeholder="Để trống sẽ tự tìm trong PATH / Android SDK" />
         </div>
         <div class="field">
-          <label>设备地址</label>
-          <span class="sub" id="deviceAddrNote">由 ApkStart 自己分配（emulator-5554，端口冲突时自动顺延），无需填写。</span>
+          <label>Địa chỉ thiết bị</label>
+          <span class="sub" id="deviceAddrNote">Do ApkStart tự cấp (emulator-5554, tự lùi sang cổng kế khi trùng cổng), không cần nhập.</span>
         </div>
         <div class="field">
-          <label>系统镜像（ISO）</label>
-          <input id="setSystemImage" type="text" placeholder="Android-x86 / Bliss OS 的 ISO 或 IMG 路径，留空使用默认位置" />
+          <label>Ảnh hệ thống (ISO)</label>
+          <input id="setSystemImage" type="text" placeholder="Android-x86 / Bliss OS Đường dẫn ISO hoặc IMG, để trống dùng vị trí mặc định" />
         </div>
         <div class="field two">
           <div>
-            <label>内存 (MB，0 = 自动)</label>
+            <label>Bộ nhớ (MB,0 = Tự động)</label>
             <input id="setMemory" type="number" min="0" step="512" />
           </div>
           <div>
-            <label>CPU 核心（0 = 自动）</label>
+            <label>CPU Nhân (0 = Tự động)</label>
             <input id="setCores" type="number" min="0" max="16" />
           </div>
         </div>
@@ -592,65 +592,65 @@
           <span class="sub" id="builtinResNote"></span>
         </div>
         <div class="field">
-          <label>空闲回收（分钟，0 = 不回收）</label>
+          <label>Thu hồi khi rảnh (phút,0 = không thu hồi)</label>
           <input id="setIdle" type="number" min="0" step="1" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>通用兼容镜像（自动管理）</label>
-            <span class="sub">现在只有一个 Android 14 通用镜像，x86 与 ARM 应用都能跑，首次遇到 ARM 应用时会自动下载，不需要手动切换。此开关仅用于旧配置兼容。</span>
+            <label>Ảnh hệ thống tương thích chung (tự quản lý)</label>
+            <span class="sub">Hiện chỉ có một ảnh hệ thống Android 14 dùng chung, ứng dụng x86 và ARM đều chạy được, lần đầu gặp ứng dụng ARM sẽ tự tải, không cần chuyển thủ công. Công tắc này chỉ để tương thích cấu hình cũ.</span>
           </div>
           <input type="checkbox" id="setCompat" class="switch" />
         </div>
         <div class="field" id="compatInstallField" hidden>
-          <label>兼容镜像</label>
+          <label>Ảnh hệ thống tương thích</label>
           <div class="row">
-            <span class="inline-note" id="compatImgStatus">未下载</span>
-            <button class="btn ghost sm" id="btnInstallPlay">下载兼容镜像</button>
+            <span class="inline-note" id="compatImgStatus">Chưa tải</span>
+            <button class="btn ghost sm" id="btnInstallPlay">Tải ảnh hệ thống tương thích</button>
           </div>
         </div>
         <div class="runtime-actions">
-          <button class="btn ghost sm" id="btnRuntimeStart">启动运行时</button>
-          <button class="btn ghost sm" id="btnRuntimeStop">停止内置虚拟机</button>
+          <button class="btn ghost sm" id="btnRuntimeStart">Khởi động bộ chạy</button>
+          <button class="btn ghost sm" id="btnRuntimeStop">Dừng máy ảo tích hợp</button>
           <span class="inline-note" id="probeResult"></span>
         </div>
       </div>
       </details>
 
       <div class="group">
-        <div class="group-title">安卓系统设置（不用进安卓桌面）</div>
+        <div class="group-title">Cài đặt hệ thống Android (không cần vào màn hình chính Android)</div>
         <div class="field">
-          <label>运行状态</label>
+          <label>Trạng thái chạy</label>
           <div class="row">
-            <span class="inline-note" id="androidStatus">运行时未启动</span>
-            <button class="btn ghost sm" id="btnAndroidRefresh">刷新</button>
-            <button class="btn ghost sm" id="btnAndroidTune">一键流畅优化</button>
+            <span class="inline-note" id="androidStatus">Bộ chạy chưa khởi động</span>
+            <button class="btn ghost sm" id="btnAndroidRefresh">Làm mới</button>
+            <button class="btn ghost sm" id="btnAndroidTune">Tối ưu mượt một chạm</button>
           </div>
-          <span class="sub">关闭系统动画、放开后台进程上限并把当前应用加入电池白名单，低配电脑体感最明显。</span>
+          <span class="sub">Tắt hiệu ứng động hệ thống, bỏ giới hạn tiến trình nền và đưa ứng dụng hiện tại vào danh sách trắng pin; máy cấu hình thấp cảm nhận rõ nhất.</span>
         </div>
         <div class="field switch-field">
           <div>
             <label>Wi-Fi</label>
-            <span class="sub">安卓虚拟机内部的无线网，关掉可省一点 CPU。</span>
+            <span class="sub">Wi-Fi bên trong máy ảo Android, tắt đi để tiết kiệm một chút CPU.</span>
           </div>
           <input type="checkbox" id="setAndroidWifi" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>飞行模式</label>
-            <span class="sub">彻底断网（含移动数据），需要安静时打开。</span>
+            <label>Chế độ máy bay</label>
+            <span class="sub">Ngắt mạng hoàn toàn (kể cả dữ liệu di động), bật khi cần yên tĩnh.</span>
           </div>
           <input type="checkbox" id="setAndroidAirplane" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>系统动画</label>
-            <span class="sub">关掉后界面切换明显更快，功能不受影响。</span>
+            <label>Hoạt ảnh hệ thống</label>
+            <span class="sub">Tắt đi thì chuyển giao diện nhanh hơn rõ rệt, chức năng không bị ảnh hưởng.</span>
           </div>
           <input type="checkbox" id="setAndroidAnim" class="switch" />
         </div>
         <div class="field">
-          <label>媒体音量</label>
+          <label>Âm lượng phương tiện</label>
           <div class="row">
             <input type="range" id="setAndroidVolume" min="0" max="100" step="1" style="flex:1" />
             <span class="inline-note" id="androidVolumeText">—</span>
@@ -658,155 +658,155 @@
         </div>
         <div class="field two">
           <div>
-            <label>字体大小</label>
+            <label>Cỡ chữ</label>
             <select id="setAndroidFont">
-              <option value="0.85">小</option>
-              <option value="1.00">标准</option>
-              <option value="1.15">大</option>
-              <option value="1.30">特大</option>
+              <option value="0.85">Nhỏ</option>
+              <option value="1.00">Tiêu chuẩn</option>
+              <option value="1.15">Lớn</option>
+              <option value="1.30">Rất lớn</option>
             </select>
           </div>
           <div>
-            <label>显示大小</label>
+            <label>Kích thước hiển thị</label>
             <select id="setAndroidDensity">
-              <option value="240">紧凑（省性能）</option>
-              <option value="320">标准</option>
-              <option value="420">宽松</option>
-              <option value="480">特大</option>
+              <option value="240">Gọn (tiết kiệm hiệu năng)</option>
+              <option value="320">Tiêu chuẩn</option>
+              <option value="420">Rộng</option>
+              <option value="480">Rất lớn</option>
             </select>
           </div>
         </div>
         <div class="runtime-actions">
-          <button class="btn ghost sm" id="btnAndroidSettings">安卓原生设置</button>
-          <button class="btn ghost sm" id="btnAndroidDisplay">显示设置</button>
-          <button class="btn ghost sm" id="btnAndroidSound">声音设置</button>
-          <button class="btn ghost sm" id="btnAndroidLocale">语言设置</button>
-          <button class="btn ghost sm" id="btnAndroidApps">应用管理</button>
+          <button class="btn ghost sm" id="btnAndroidSettings">Cài đặt gốc của Android</button>
+          <button class="btn ghost sm" id="btnAndroidDisplay">Cài đặt hiển thị</button>
+          <button class="btn ghost sm" id="btnAndroidSound">Cài đặt âm thanh</button>
+          <button class="btn ghost sm" id="btnAndroidLocale">Cài đặt ngôn ngữ</button>
+          <button class="btn ghost sm" id="btnAndroidApps">Quản lý ứng dụng</button>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-title">桌面与应用</div>
+        <div class="group-title">Màn hình nền và ứng dụng</div>
         <div class="field switch-field">
           <div>
-            <label>安装后自动创建桌面快捷方式</label>
-            <span class="sub">快捷方式带真实应用图标，双击直接进应用</span>
+            <label>Tự tạo lối tắt trên màn hình nền sau khi cài</label>
+            <span class="sub">Lối tắt có biểu tượng ứng dụng thật, nhấp đúp là vào thẳng ứng dụng</span>
           </div>
           <input type="checkbox" id="setAutoShortcut" class="switch" />
         </div>
         <div class="field switch-field">
           <div>
-            <label>同时添加到开始菜单</label>
-            <span class="sub">Windows 搜索能搜到应用名，任务栏也按应用分组</span>
+            <label>Đồng thời thêm vào Menu Start</label>
+            <span class="sub">Windows Tìm kiếm ra được tên ứng dụng, thanh tác vụ cũng nhóm theo ứng dụng</span>
           </div>
           <input type="checkbox" id="setStartMenuShortcut" class="switch" />
         </div>
         <div class="field">
-          <label>快捷方式目录</label>
-          <input id="setShortcutDir" type="text" placeholder="留空 = 桌面" />
+          <label>Thư mục lối tắt</label>
+          <input id="setShortcutDir" type="text" placeholder="Để trống = Màn hình nền" />
         </div>
         <div class="runtime-actions">
-          <button class="btn ghost sm" id="btnRebuildShortcuts">重建快捷方式</button>
-          <span class="inline-note">桌面图标被误删或被安全软件拦掉时，点这里按当前设置全部补齐。</span>
+          <button class="btn ghost sm" id="btnRebuildShortcuts">Tạo lại lối tắt</button>
+          <span class="inline-note">Khi biểu tượng trên màn hình nền bị xóa nhầm hoặc bị phần mềm bảo mật chặn, bấm vào đây để tạo lại đầy đủ theo cài đặt hiện tại.</span>
         </div>
       </div>
 
       <div class="group">
-        <div class="group-title">文件互通</div>
+        <div class="group-title">Chia sẻ tệp</div>
         <div class="field">
-          <label>本机共享目录</label>
+          <label>Thư mục chia sẻ của máy</label>
           <div class="row">
             <input id="setSharedDir" type="text" />
-            <button class="btn ghost sm" id="btnBrowseShared">浏览</button>
-            <button class="btn ghost sm" id="btnOpenShared">打开</button>
-            <button class="btn ghost sm" id="btnSyncShared">立即同步</button>
-            <button class="btn primary sm" id="btnSaveShared">保存并迁移</button>
+            <button class="btn ghost sm" id="btnBrowseShared">Duyệt</button>
+            <button class="btn ghost sm" id="btnOpenShared">Mở</button>
+            <button class="btn ghost sm" id="btnSyncShared">Đồng bộ ngay</button>
+            <button class="btn primary sm" id="btnSaveShared">Lưu và di chuyển</button>
           </div>
-          <span class="sub">修改后旧目录里已有的文件会自动搬到新目录；正在运行的文件互通不受影响。</span>
+          <span class="sub">Sau khi đổi, tệp trong thư mục cũ sẽ tự chuyển sang thư mục mới; việc trao đổi tệp đang chạy không bị ảnh hưởng.</span>
         </div>
         <div class="field">
-          <label>安卓内对应目录</label>
+          <label>Thư mục tương ứng trong Android</label>
           <input id="setDeviceSharedDir" type="text" placeholder="/sdcard/ApkStartShared" />
         </div>
-        <p class="note">两侧目录会持续双向同步；在安卓应用里保存到该目录的文件，会出现在本机共享目录中。</p>
+        <p class="note">Hai thư mục được đồng bộ hai chiều liên tục; tệp lưu vào thư mục này trong ứng dụng Android sẽ xuất hiện trong thư mục chia sẻ trên máy.</p>
       </div>
 
       <div class="group">
-        <div class="group-title">系统集成</div>
+        <div class="group-title">Tích hợp hệ thống</div>
         <div class="field switch-field">
           <div>
-            <label>关联 .apk 文件</label>
-            <span class="sub">双击 APK 直接安装到 ApkStart（仅写入当前用户，无需管理员）</span>
+            <label>Liên kết tệp .apk</label>
+            <span class="sub">Nhấp đúp APK để cài thẳng vào ApkStart (chỉ ghi cho người dùng hiện tại, không cần quyền quản trị)</span>
           </div>
-          <button class="btn ghost sm" id="btnAssoc">检查中…</button>
+          <button class="btn ghost sm" id="btnAssoc">Đang kiểm tra…</button>
         </div>
         <div class="field">
-          <label>运行时数据目录（系统镜像 · 已装应用 · 快照）</label>
+          <label>Thư mục dữ liệu bộ chạy (ảnh hệ thống · ứng dụng đã cài · snapshot)</label>
           <div class="row">
-            <input id="setRuntimeDir" type="text" readonly placeholder="默认：C 盘用户数据目录" />
-            <button class="btn ghost sm" id="btnBrowseRuntimeDir">浏览</button>
-            <button class="btn ghost sm" id="btnOpenData">打开</button>
+            <input id="setRuntimeDir" type="text" readonly placeholder="Mặc định: thư mục dữ liệu người dùng trên ổ C" />
+            <button class="btn ghost sm" id="btnBrowseRuntimeDir">Duyệt</button>
+            <button class="btn ghost sm" id="btnOpenData">Mở</button>
           </div>
-          <span class="sub">这里占用空间最大（数 GB）。改到非系统盘可大幅减轻 C 盘压力；修改后需重启软件，已存在的数据不会自动搬移（请手动复制后删除旧目录）。</span>
+          <span class="sub">Nơi này chiếm nhiều dung lượng nhất (vài GB). Chuyển sang ổ không phải ổ hệ thống sẽ giảm mạnh áp lực cho ổ C; sau khi đổi cần khởi động lại phần mềm, dữ liệu hiện có không tự chuyển (hãy sao chép thủ công rồi xóa thư mục cũ).</span>
         </div>
         <div class="field">
-          <label>安卓数据目录（应用、游戏与快速启动快照）</label>
+          <label>Thư mục dữ liệu Android (ứng dụng, game và snapshot khởi động nhanh)</label>
           <div class="row">
-            <input id="setAvdDir" type="text" readonly placeholder="默认：运行时目录下的 avd 文件夹" />
-            <button class="btn ghost sm" id="btnBrowseAvdDir">浏览</button>
-            <button class="btn ghost sm" id="btnOpenAvdDir">打开</button>
+            <input id="setAvdDir" type="text" readonly placeholder="Mặc định: thư mục avd trong thư mục bộ chạy" />
+            <button class="btn ghost sm" id="btnBrowseAvdDir">Duyệt</button>
+            <button class="btn ghost sm" id="btnOpenAvdDir">Mở</button>
           </div>
-          <span class="sub">真正吃盘的是这一块：数据分区（默认 6 GB，可在上面对大）+ 快速启动快照（约 2–3 GB）。
-            磁盘紧张时把它指到另一个盘（如 D:），重启软件后生效；旧目录里的 <code>apkstart.avd</code> 可整体搬过去再删。</span>
+          <span class="sub">Thứ thực sự ngốn ổ đĩa là phần này: phân vùng dữ liệu (mặc định 6 GB, có thể tăng ở trên) + snapshot khởi động nhanh (khoảng 2–3 GB）。
+            Khi ổ đĩa đầy, hãy trỏ nó sang ổ khác (như D:), có hiệu lực sau khi khởi động lại phần mềm; trong thư mục cũ <code>apkstart.avd</code> Có thể chuyển cả thư mục sang rồi xóa.</span>
         </div>
         <div class="field">
-          <label>卸载 ApkStart</label>
+          <label>Gỡ cài đặt ApkStart</label>
           <div class="row">
-            <button class="btn ghost sm" id="btnUninstall">一键卸载</button>
-            <span class="inline-note">卸载会取消 .apk 关联并移除程序；便携版请按提示手动删除目录。</span>
+            <button class="btn ghost sm" id="btnUninstall">Gỡ cài đặt một chạm</button>
+            <span class="inline-note">Gỡ cài đặt sẽ hủy liên kết .apk và gỡ chương trình; với bản portable hãy xóa thư mục thủ công theo hướng dẫn.</span>
           </div>
         </div>
       </div>
       <div class="group" id="updateGroup">
-        <div class="group-title">软件更新</div>
+        <div class="group-title">Cập nhật phần mềm</div>
         <div class="field">
-          <label>当前版本 <span class="inline-note" id="updateCurrent">—</span></label>
+          <label>Phiên bản hiện tại <span class="inline-note" id="updateCurrent">—</span></label>
           <div class="row">
-            <span class="inline-note" id="updateState">尚未检查</span>
+            <span class="inline-note" id="updateState">Chưa kiểm tra</span>
             <span style="flex:1"></span>
-            <button class="btn ghost sm" id="btnCheckUpdate">检查更新</button>
-            <button class="btn primary sm" id="btnDoUpdate" style="display:none" hidden>立即更新</button>
+            <button class="btn ghost sm" id="btnCheckUpdate">Kiểm tra cập nhật</button>
+            <button class="btn primary sm" id="btnDoUpdate" style="display:none" hidden>Cập nhật ngay</button>
           </div>
           <div class="update-bar" id="updateBar" hidden><i id="updateBarFill"></i></div>
           <span class="sub" id="updateNote">
-            从 GitHub（RoutineMiku/apkstart）获取最新版本；轻量版会下载便携包并自动替换程序文件，
-            运行时、已装应用与快照都不受影响。
+            Lấy bản mới nhất từ GitHub (RoutineMiku/apkstart); bản nhẹ sẽ tải bản portable và tự thay thế các tệp chương trình,
+            Bộ chạy, ứng dụng đã cài và snapshot đều không bị ảnh hưởng.
           </span>
         </div>
       </div>
 
       <div class="group" id="aboutGroup">
-        <div class="group-title">关于</div>
+        <div class="group-title">Giới thiệu</div>
         <div class="about-box">
           <div class="about-brand">
             <img class="about-logo" src="assets/logo.png" alt="ApkStart Logo" draggable="false" />
           </div>
           <div class="about-qrs">
             <div class="about-qr">
-              <img src="assets/wechat-qr.jpg" alt="微信公众号二维码" width="112" height="112" />
-              <span class="about-qr-tip">扫码关注公众号</span>
+              <img src="assets/wechat-qr.jpg" alt="Mã QR tài khoản WeChat" width="112" height="112" />
+              <span class="about-qr-tip">Quét mã để theo dõi tài khoản</span>
             </div>
             <div class="about-qr">
-              <img src="assets/douyin-qr.jpg" alt="抖音二维码" width="112" height="112" />
-              <span class="about-qr-tip">抖音 · 日常MIKU</span>
+              <img src="assets/douyin-qr.jpg" alt="Mã QR Douyin" width="112" height="112" />
+              <span class="about-qr-tip">Douyin · Hằng ngàyMIKU</span>
             </div>
           </div>
           <div class="about-info">
             <div class="about-name">ApkStart <span class="about-ver" id="aboutVer"></span></div>
-            <p class="note">双击即装的 Windows 安卓应用启动器：APK 安装、桌面快捷方式、独立窗口运行、文件双向互通。</p>
+            <p class="note">Trình khởi chạy ứng dụng Android cho Windows, nhấp đúp là cài: cài APK, lối tắt màn hình nền, chạy cửa sổ riêng, trao đổi tệp hai chiều.</p>
             <div class="about-links">
               <a href="https://github.com/RoutineMiku/apkstart" target="_blank" rel="noopener">GitHub · RoutineMiku/apkstart</a>
-              <a href="https://v.douyin.com/9TIIxVCANig/" target="_blank" rel="noopener">抖音 · @日常MIKU（联系作者）</a>
+              <a href="https://v.douyin.com/9TIIxVCANig/" target="_blank" rel="noopener">Douyin · @MIKU thường ngày (liên hệ tác giả)</a>
               <span class="powered">Powered by <b>RoutineMiku</b></span>
             </div>
           </div>
@@ -814,8 +814,8 @@
       </div>
     </div>
     <footer class="modal-foot">
-      <span class="inline-note">设置修改后立即生效</span>
-      <button class="btn primary" id="btnDoneSettings">完成</button>
+      <span class="inline-note">Thay đổi cài đặt có hiệu lực ngay</span>
+      <button class="btn primary" id="btnDoneSettings">Hoàn tất</button>
     </footer>
   </div>
 </div>

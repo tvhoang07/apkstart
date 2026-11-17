@@ -1,7 +1,7 @@
 'use strict';
 /**
  * ApkStart 主进程
- * 职责：窗口 / 托盘 / 单实例 / 命令行分发（双击 apk、桌面快捷方式启动）/ IPC
+ * 职责：窗口 / 托盘 / 单实例 / 命令行分发（双击 apk、Màn hình nền快捷方式启动）/ IPC
  */
 const { app, BrowserWindow, ipcMain, dialog, Tray, Menu, shell, nativeImage, screen, globalShortcut } = require('electron');
 const fs = require('fs');
@@ -14,7 +14,7 @@ const { Sharer } = require('./core/sharer');
 const { parseApk } = require('./core/apk');
 const { drawAppIcon } = require('./core/png');
 
-// 品牌 Logo（build/render-logo.js 生成）；缺失时回退到程序化绘制的旧版图标
+// 品牌 Logo（build/render-logo.js 生成）；Thiếu失时回退到程序化绘制của旧版图标
 const LOGO_DIR = path.join(__dirname, 'ui', 'assets');
 const LOGO_FILE = path.join(LOGO_DIR, 'logo.png');
 const APPICON_FILE = path.join(LOGO_DIR, 'appicon.ico');
@@ -28,7 +28,7 @@ function loadBrandIcon(size) {
   return nativeImage.createFromBuffer(drawAppIcon(size || 256));
 }
 
-// 托盘用「小尺寸简化标」：把 512 主标缩到 16px 会糊成一团，纹理和文字都没了
+// 托盘Dùng「Nhỏ尺寸简化标」：把 512 主标缩到 16px 会糊成一团，纹理和文字都没了
 function loadTrayIcon() {
   try {
     const p = path.join(LOGO_DIR, 'tray-16.png');
@@ -49,15 +49,15 @@ const { AndroidSettings } = require('./core/android');
 const { Updater, findUninstaller } = require('./core/updater');
 const leftovers = require('./core/leftovers');
 
-// Windows 下窗口被遮挡时 capturePage 会拿到旧帧，自动化截图需要禁用遮挡计算
+// Windows 下窗口被遮挡时 capturePage 会拿到旧帧，Tự động化截图Cần禁Dùng遮挡计算
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
 /**
- * 系统盘快满时，把 Chromium 自己的缓存（Cache / GPUCache / Local Storage …）
- * 挪到「安卓数据目录」所在的盘。
- * 默认这些缓存写在 %APPDATA%\apkstart 里 —— C 盘只剩几百 MB 时，连启动都可能失败，
- * 而用户往往已经把安卓数据挪到别的盘了，缓存却还在 C 盘上挤。
- * 必须在 app ready 之前设置，之后改无效。
+ * 系统盘快满时，把 Chromium 自己của缓存（Cache / GPUCache / Local Storage …）
+ * 挪到「安卓数据目录」所在của盘。
+ * 默认这些缓存写在 %APPDATA%\apkstart 里 —— C 盘Chỉ còn几百 MB 时，连启动都可能Thất bại，
+ * 而Dùng户往往已经把安卓数据挪到别của盘了，缓存却还在 C 盘上挤。
+ * 必须在 app ready 之前Cài đặt，之后改Không hợp lệ。
  */
 function relocateUserDataIfCrowded() {
   try {
@@ -74,12 +74,12 @@ function relocateUserDataIfCrowded() {
 }
 relocateUserDataIfCrowded();
 
-// 应用窗口把模拟器以 SetParent 方式嵌进来当子窗口。Chromium 默认用
+// Cửa sổ ứng dụng把模拟器以 SetParent 方式嵌进来当子窗口。Chromium 默认Dùng
 // DirectComposition 上半透明图层（Intermediate D3D Window /
 // WS_EX_NOREDIRECTIONBITMAP）绘制网页，这层由 DWM 在窗口级别合成，
-// 会直接盖住嵌入的子窗口——表现就是"画面全黑但安卓其实在跑"。
-// 外壳界面只有一条 38px 标题栏和启动遮罩，走软件合成完全不卡，
-// 关掉硬件加速后 Chromium 直接画进 HWND，子窗口层级才真正生效。
+// 会直接盖住嵌入của子窗口——表现就是"画面全黑但安卓其实在跑"。
+// 外壳界面只Có一条 38px 标题栏和启动遮罩，走软件合成完全不卡，
+// 关掉Tăng tốc phần cứng后 Chromium 直接画进 HWND，子窗口层级才真正生效。
 // 想对比效果时可以设 APKSTART_HWACCEL=1 启动。
 if (process.env.APKSTART_HWACCEL !== '1') app.disableHardwareAcceleration();
 
@@ -87,48 +87,48 @@ const APP_ROOT = path.join(__dirname, '..');
 const IS_DEV = process.argv.includes('--dev');
 
 /**
- * 轻量文件日志：打包后没有控制台，出问题时用户可以把 app.log 发过来。
- * 只记关键节点和异常，正常路径几千行也不会撑爆。
+ * 轻量文件Nhật ký：打包后没Có控制台，出问题时Dùng户可以把 app.log 发过来。
+ * 只记关键节点和异常，正常Đường dẫn几千行也不会撑爆。
  */
 function appLog(line) {
   try {
     const dir = path.join(store.DATA_DIR, 'logs');
     const limit = store.getSettings().engine.logLimitKB || 2048;
     require('./core/logfile').append(path.join(dir, 'app.log'), `${new Date().toISOString()} ${line}`, limit);
-  } catch (_) { /* 日志失败不能影响主流程 */ }
+  } catch (_) { /* Nhật kýThất bại不能影响主流程 */ }
 }
 process.on('uncaughtException', (e) => appLog(`UNCAUGHT ${e && (e.stack || e.message)}`));
 process.on('unhandledRejection', (e) => appLog(`REJECT ${e && (e.stack || e.message || e)}`));
 
 /**
- * 完整版（内置运行时）自动接管：
- * 发行包里 ApkStart.exe 旁边带有 runtime/（emulator + platform-tools + AEHD + ARM 兼容镜像）。
- * 首次启动（settings.json 尚不存在）时直接把 runtime.dir 指向它并开启兼容模式，
- * 用户无需任何下载与设置，开箱即用。之后用户仍可在设置里改回在线版。
+ * 完整版（内置Bộ chạy）Tự động接管：
+ * 发行包里 ApkStart.exe 旁边带Có runtime/（emulator + platform-tools + AEHD + ARM Ảnh hệ thống tương thích）。
+ * 首次启动（settings.json 尚Không tồn tại）时直接把 runtime.dir 指向它并开启Tương thích模式，
+ * Dùng户无需任何下载与Cài đặt，开箱即Dùng。之后Dùng户仍可在Cài đặt里改回在线版。
  */
 /**
- * 随安装包带来的运行时目录（完整版 exe 旁边的 runtime/、微软商店 MSIX 的
- * app\resources\runtime）。非空 = 模拟器和镜像都是本地的：开机动画不该提
+ * 随Gói cài đặt带来củaThư mục bộ chạy (完整版 exe 旁边của runtime/、微软商店 MSIX của
+ * app\resources\runtime）。Không phảiTrống = 模拟器和镜像都是本地của：开机动画不该提
  * 「下载」，autoDeploy 也不该联网。
  *
- * 必须在 bootstrapBundledRuntime() 之前声明：那个函数在模块加载时立刻执行，
- * 用 `let` 声明在它后面会撞上 TDZ（赋值直接抛错，被 catch 吞掉，标志永远为空）。
+ * 必须在 bootstrapBundledRuntime() 之前声明：那cái函数在模块加载时立刻执行，
+ * Dùng `let` 声明在它后面会撞上 TDZ（赋值直接抛错，被 catch 吞掉，标志永远为Trống）。
  */
 let bundledRuntimeDir = null;
 
 function bootstrapBundledRuntime() {
   try {
     const exeDir = path.dirname(process.execPath);
-    // 便携版把运行时放在 exe 旁边；electron-builder 的 portable 会把资源解到
-    // resources/ 下，进程 exe 和 resources 同级，所以几个候选位置都看一下。
+    // 便携版把Bộ chạy放在 exe 旁边；electron-builder của portable 会把资源解到
+    // resources/ 下，进程 exe 和 resources 同级，所以几cái候Chọn位置都看一下。
     const candidates = [
       path.join(exeDir, 'runtime'),
       path.join(path.dirname(exeDir), 'runtime'),
       path.join(process.resourcesPath || '', 'runtime'),
       path.join(process.resourcesPath || '', 'app', 'runtime'),
     ];
-    // 内置运行时只要求「有 emulator + 任意一套完整系统镜像」，不写死 API 版本：
-    // 单文件发行版带的可能是更小的 AOSP 镜像，写死 API34 会让它误判成没有运行时。
+    // 内置Bộ chạy只要求「Có emulator + 任意一套完整Ảnh hệ thống」，不写死 API 版本：
+    // 单文件发行版带của可能是更Nhỏcủa AOSP 镜像，写死 API34 会让它误判成没CóBộ chạy。
     const hasImage = (dir) => {
       const root = path.join(dir, 'system-images');
       let apis = [];
@@ -141,7 +141,7 @@ function bootstrapBundledRuntime() {
           try { abis = fs.readdirSync(path.join(root, api, tag)); } catch (_) { continue; }
           for (const abi of abis) {
             const d = path.join(root, api, tag, abi);
-            // 单文件发行版里的镜像是压缩存放的（system.img.xz / .gz），解压在首次启动时做。
+            // 单文件发行版trong镜像是压缩存放của（system.img.xz / .gz），Giải nén在首次启动时做。
             // 这里只认 system.img 会让「包里明明带了镜像」被判成没带，转而去联网下载。
             const hasSys = ['system.img', 'system.img.xz', 'system.img.gz']
               .some((f) => fs.existsSync(path.join(d, f)));
@@ -156,38 +156,38 @@ function bootstrapBundledRuntime() {
     if (!bundled) return;
 
     const s = store.getSettings();
-    // 旧版只在 settings.json 不存在时接管：用户先装过在线版再解压完整版，
-    // 就会一直走「缺组件」的部署向导。现在只要当前运行时目录里没有 emulator 就接管。
+    // 旧版只在 settings.json Không tồn tại时接管: dùng户先装过在线版再Giải nén完整版，
+    // 就会一直走「Thiếu组件」của部署向导。Hiện只要当前Bộ chạyTrong thư mục không có emulator 就接管。
     const explicit = String(s.runtime.dir || '').trim();
     const current = explicit || path.join(store.DATA_DIR, 'runtime');
     const currentExe = path.join(current, 'emulator', 'emulator.exe');
-    // 便携版被移动/升级（解压到新目录）后，settings 里记的还是旧路径：
-    // 必须只认「本次 EXE 所在目录下的 runtime」，否则会一直用旧包里的组件
-    // （实测踩过：旧包的 emulator 缺 emulator-check → 加速探测失败 → 退回 TCG 软件模拟）。
+    // 便携版被移动/升级（Giải nén到新目录）后，settings 里记của还是旧Đường dẫn：
+    // 必须只认「本次 EXE 所在目录下của runtime」，否则会一直Dùng旧包trong组件
+    // （实测踩过：旧包của emulator Thiếu emulator-check → Tăng tốc探测Thất bại → 退回 TCG Giả lập phần mềm）。
     const sameTree = path.resolve(current).toLowerCase()
       .startsWith(path.resolve(exeDir).toLowerCase());
     const currentOk = fs.existsSync(currentExe) && sameTree;
-    // 用户自己挑的目录（不在 EXE 目录树里，例如 D:\ApkStartRuntime 或别的盘）
-    // 一律尊重：他可能就是为了省 C 盘空间、或让多个便携版共用一个运行时。
-    // 旧版在这里无条件覆盖成 exe 旁边的 bundled runtime，表现就是
-    // 「设置里改了运行时数据目录，结果还是下到旧目录 / AppData」（issue #23）。
+    // Dùng户自己挑của目录（不在 EXE 目录树里，Ví dụ D:\ApkStartRuntime 或别của盘）
+    // 一律尊重：他可能就是为了省 C 盘Trống间、或让多cái便携版TổngDùng一cáiBộ chạy。
+    // 旧版在这里无条件覆盖成 exe 旁边của bundled runtime，表现就是
+    // 「Cài đặt里改了Bộ chạy数据目录，结果还是下到旧目录 / AppData」（issue #23）。
     if (explicit && !sameTree && fs.existsSync(currentExe)) {
       if (s.engine.gpuMode === 'swiftshader_indirect' || s.engine.memoryMB === 4096) {
         store.saveSettings({ engine: { gpuMode: 'auto', autoMemory: true, memoryMB: 0, cores: 0 } });
       }
       return;
     }
-    // 已有可用运行时（含在线版）就尊重它：AVD 用户数据就在该目录下，不能悄悄搬走
+    // 已CóKhả dụngBộ chạy（含在线版）就尊重它：AVD Dùng户数据就在该目录下，不能悄悄搬走
     if (currentOk) {
-      // 运行时就在 EXE 目录树里 = 它是安装包自带的（完整版 / 商店版）
+      // Bộ chạy就在 EXE 目录树里 = 它是Gói cài đặt自带của（完整版 / 商店版）
       bundledRuntimeDir = current;
-      // 但仍把自动参数打开，旧配置里的硬编码 4G/4核/弃用 GPU 模式不能继续用
+      // 但仍把Tự động参数Mở，旧配置trong硬编码 4G/4nhân/弃Dùng GPU 模式不能Tiếp tụcDùng
       if (s.engine.gpuMode === 'swiftshader_indirect' || s.engine.memoryMB === 4096) {
         store.saveSettings({ engine: { gpuMode: 'auto', autoMemory: true, memoryMB: 0, cores: 0 } });
       }
       return;
     }
-    // 包里带的是 Google Play 镜像才开兼容模式；AOSP 镜像带的是原生 x86_64 库
+    // 包里带của是 Google Play 镜像才开Tương thích模式；AOSP 镜像带của是原生 x86_64 库
     let playBundled = false;
     try {
       const root = path.join(bundled, 'system-images');
@@ -202,19 +202,19 @@ function bootstrapBundledRuntime() {
       engine: { gpuMode: 'auto', autoMemory: true },
     });
     bundledRuntimeDir = bundled;
-  } catch (_) { /* 接管失败不阻塞启动，走在线引导 */ }
+  } catch (_) { /* 接管Thất bại不阻塞启动，走在线引导 */ }
 }
 bootstrapBundledRuntime();
 
-// 冒烟截图等自动化场景下跳过注册表探测（避免依赖 reg.exe）
+// 冒烟截图等Tự động化场景下跳过注册表探测（避免依赖 reg.exe）
 const NO_SHELL_PROBE = process.argv.includes('--smoke') || process.env.APKSTART_NO_SHELL_PROBE === '1';
 const ICON_PNG = loadBrandIcon().toPNG();
 
 let mainWindow = null;
 let tray = null;
 let runtime = null;
-// 「哪些窗口算我们的」由 whenReady 里赋值（见 agentScope）。放模块级是因为
-// runLaunch / 预热定时器都早于那段代码定义，闭包里的 const 在它们的作用域外看不到。
+// 「哪些窗口算我们của」由 whenReady 里赋值（见 agentScope）。放模块级是因为
+// runLaunch / 预热定时器都早于那段代码定义，闭包trong const 在它们của作Dùng域外看不到。
 let armAgent = async () => ({ ok: false });
 let installer = null;
 let sharer = null;
@@ -228,16 +228,16 @@ let updateBusy = false;
 let updateInfo = null;
 
 /**
- * 开机动画窗口的状态放在模块级。
+ * 开机动画窗口của状态放在模块级。
  *
- * 之前是写在 app.whenReady() 的回调里（const splashWin/splashDone），而
- * runLaunch() / autoDeploy() 定义在更外层作用域 —— 它们里的
+ * 之前是写在 app.whenReady() của回调里（const splashWin/splashDone），而
+ * runLaunch() / autoDeploy() 定义在更外层作Dùng域 —— 它们trong
  * `typeof splashDone === 'function'` 永远是 false，于是：
- *   - 进度文字永远不更新（一直显示「正在准备…」）；
- *   - 启动成功后 splash 永远不关闭，480x360 的 alwaysOnTop 窗口就钉在
+ *   - 进度文字永远不更新（一直显示「Đang chuẩn bị…」）；
+ *   - 启动成功后 splash 永远不Đóng，480x360 của alwaysOnTop 窗口就钉在
  *     屏幕中央、压在安卓画面上面。
- * 这就是用户反馈的「打开应用出现多个窗口」：管理窗口/splash/应用窗口同时在场。
- * 提升到模块级之后这些调用才真正生效。
+ * 这就是Dùng户反馈của「Mở ứng dụng出现多cái窗口」：管理窗口/splash/Cửa sổ ứng dụng同时在场。
+ * 提升到模块级之后这些调Dùng才真正生效。
  */
 let splashWin = null;
 let splashProgress = () => {};
@@ -251,7 +251,7 @@ function parseArgs(argv) {
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--launch') {
-      // Electron 会往 argv 里塞自己的开关和 app 路径，只认形如 com.foo.bar 的包名
+      // Electron 会往 argv 里塞自己của开关和 app Đường dẫn，只认形如 com.foo.bar của包名
       const v = args.slice(i + 1).find((x) => x && /^[a-zA-Z][\w]*(\.[\w]+)+$/.test(x));
       if (v) { out.launch = v; out.silent = true; }
     } else if (a === '--silent' || a === '--autostart') out.silent = true;
@@ -260,7 +260,7 @@ function parseArgs(argv) {
   return out;
 }
 
-/** Chromium 能解 WebP，nativeImage 不能；用隐藏窗口把 APK 图标转成 PNG */
+/** Chromium 能解 WebP，nativeImage 不能；Dùng隐藏窗口把 APK 图标转成 PNG */
 let decodeWindow = null;
 async function decodeIcon(raw) {
   if (!decodeWindow || decodeWindow.isDestroyed()) {
@@ -281,54 +281,54 @@ async function decodeIcon(raw) {
   return Buffer.from(String(url).split(',')[1] || '', 'base64');
 }
 
-/** 开机自启：默认开启，不需要用户去设置里勾 */
+/** 开机自启：默认开启，不CầnDùng户去Cài đặt里勾 */
 function applyAutoStart() {
   if (!app.isPackaged) return; // 开发时不写注册表
   const on = !!store.getSettings().autoStart;
   try {
-    // 必须显式给 name，否则注册表里的启动项会叫 "electron.app.Electron"
+    // 必须显式给 name，否则注册表trong启动mục会叫 "electron.app.Electron"
     app.setLoginItemSettings({
       openAtLogin: on,
       name: 'ApkStart',
       path: process.execPath,
       args: ['--autostart'],
     });
-    // 清掉旧版本（没传 name）留下的那条，避免重复启动
+    // 清掉旧版本（没传 name）留下của那条，避免重复启动
     app.setLoginItemSettings({ openAtLogin: false, name: 'electron.app.Electron' });
   } catch (_) { /* 组策略禁止时忽略 */ }
 }
 
-// ---------------- 显示模式：全屏自适应 / 竖屏窗口可调 ----------------
+// ---------------- Chế độ hiển thị：全屏自适应 / Màn dọc窗口可调 ----------------
 
 function displaySettings() { return store.getSettings().display || {}; }
 
 /**
- * Windows 任务栏 / 通知的身份。
+ * Windows 任务栏 / 通知của身份。
  *
- * 为什么要按应用切换：每个安卓应用的桌面快捷方式都写了自己的 AUMID
- * （`RoutineMiku.ApkStart.<包名>`，见 installer.createShortcut），而且快捷方式的
- * 图标是**那个应用自己的图标**。Windows 只有在「运行进程的 AUMID == 快捷方式的
- * AUMID」时，才会把正在运行的窗口和任务栏固定项合并成同一个按钮、并沿用快捷方式
- * 的图标。身份对不上就会出现「固定项是应用图标、任务栏上却另起一个 ApkStart 图标」。
+ * 为什么要按Áp dụng切换：每cáiỨng dụng AndroidcủaMàn hình nền快捷方式都写了自己của AUMID
+ * （`RoutineMiku.ApkStart.<包名>`，见 installer.createShortcut），而且快捷方式của
+ * 图标是**那 ứng dụng自己của图标**。Windows 只Có在「运行进程của AUMID == 快捷方式của
+ * AUMID」时，才会把Đang chạycủa窗口和任务栏固定mục合并成同一cái按钮、并沿Dùng快捷方式
+ * của图标。身份对不上就会出现「固定mục是Áp dụng图标、任务栏上却另起一cái ApkStart 图标」。
  *
- * setAppUserModelId 官方建议只调一次；实践中对**之后创建**的窗口有效（VS Code 这类
- * 一个进程跑多个应用的壳层就是这么做的）。这里只在开窗口之前切，且全程 try/catch ——
- * 万一某个 Windows 版本忽略它，也只是退化成按 exe 图标显示，不影响功能。
+ * setAppUserModelId 官方建议只调一次；实践中对**之后Tạo**của窗口Có效（VS Code 这类
+ * 一cái进程跑多 ứng dụngcủa壳层就是这么做của）。这里只在开窗口之前切，且全程 try/catch ——
+ * 万一某cái Windows 版本忽略它，也只是退化成按 exe 图标显示，不影响功能。
  */
 const APP_AUMID = 'RoutineMiku.ApkStart';
 function setAumid(id) {
-  try { app.setAppUserModelId(String(id || APP_AUMID).slice(0, 128)); } catch (_) { /* 非 Windows 或旧版本忽略 */ }
+  try { app.setAppUserModelId(String(id || APP_AUMID).slice(0, 128)); } catch (_) { /* Không phải Windows 或旧版本忽略 */ }
 }
 
 /**
- * 这个应用应该用横屏面板还是竖屏面板？
+ * 这 ứng dụng应该DùngBảng màn ngang还是Bảng màn dọc？
  *
- * 模拟器的物理面板（hw.lcd）是画面的「真实形状」，Android 不会为了
- * 一个跟面板方向不一致的应用去旋转整块面板 —— 它只会给应用一个信箱式的
- * 中间窄条，两侧留黑。所以「铺满窗口」的唯一出路是：面板方向 = 应用方向。
+ * 模拟器của物理面板（hw.lcd）是画面của「真实形状」，Android 不会为了
+ * 一cái跟面板方向不一致củaÁp dụng去旋转整块面板 —— 它只会给Áp dụng一cái信箱式của
+ * 中间窄条，两侧留黑。所以「铺满窗口」của唯一出路是：面板方向 = Áp dụng方向。
  *
- * 优先级：设置里的强制模式 > 单个应用的手动覆盖 > APK 清单解析出的天然方向
- * > 当前面板方向（应用声明跟随重力时不折腾重启）。
+ * 优先级：Cài đặttrong强制模式 > 单 ứng dụngcủa手动覆盖 > APK 清单解析出của天然方向
+ * > Hướng bảng hiện tại（Áp dụng声明跟随重力时不折腾重启）。
  */
 function wantLandscapeFor(pkg) {
   const ds = displaySettings();
@@ -346,12 +346,12 @@ function wantLandscapeFor(pkg) {
 }
 
 /**
- * 运行期「学习」应用真正的方向。
+ * 运行期「学习」Áp dụng真正của方向。
  *
- * 离线解析 AndroidManifest 对红果这类应用够用（几十个 Activity 写死 portrait），
- * 但有的应用全部声明成 sensor / fullSensor，清单里看不出倾向。这种就等它真的
- * 跑起来后问安卓自己要了一次（ActivityRecord 的 requestedOrientation 是系统
- * 按应用实际请求算出来的最终值）。学到之后写进 apps.json，下次启动就能选对面板。
+ * 离线解析 AndroidManifest 对红果这类Áp dụng够Dùng（几十cái Activity 写死 portrait），
+ * 但CócủaÁp dụng全部声明成 sensor / fullSensor，清单里看不出倾向。这种就等它真của
+ * 跑起来后问安卓自己要了一次（ActivityRecord của requestedOrientation 是系统
+ * 按Áp dụng实际请求算出来của最终 giá trị)。学到之后写进 apps.json，下次启动就能Chọn对面板。
  */
 async function learnAppOrientation(pkg) {
   const app = store.getApp(pkg);
@@ -381,10 +381,10 @@ let currentAppPkg = null;
 let wheelRouter = null;
 const deviceSize = { value: null };
 
-/** 滚轮注入需要知道 Android 侧分辨率；缓存一次，转屏/重启运行时后失效 */
+/** 滚轮注入Cần知道 Android 侧分辨率；缓存一次，转屏/重启Bộ chạy后失效 */
 async function getDeviceSize() {
   if (deviceSize.value) return deviceSize.value;
-  try { deviceSize.value = await runtime.client().wmSize(); } catch (_) { /* 运行时还没起来 */ }
+  try { deviceSize.value = await runtime.client().wmSize(); } catch (_) { /* Bộ chạy还没起来 */ }
   if (!deviceSize.value || !deviceSize.value.width || !deviceSize.value.height) {
     const p = portraitSize();
     deviceSize.value = { width: p.w, height: p.h };
@@ -397,7 +397,7 @@ function portraitSize() {
   return display.portraitSize(d.portrait || '540x960');
 }
 
-/** 设置页改动鼠标键位后，立刻按当前窗口焦点同步一次钩子配置 */
+/** Cài đặt页改动Phím chuột后，立刻按当前窗口焦点同步一次钩子配置 */
 function refreshPointerMapping() {
   if (appWin && appWin.isOpen) appWin.refreshPointer();
   else if (winAgent && winAgent.hooked) winAgent.setHook(false).catch(() => {});
@@ -406,19 +406,19 @@ function refreshPointerMapping() {
 /**
  * 旋转 = 换物理面板尺寸并重启模拟器。
  *
- * 这是唯一能得到「正立 + 铺满」横屏的方式（三种错路都踩过）：
- *   - wm size：只改逻辑分辨率，物理 LCD 仍是竖的 -> 画面躺倒 90°、只占左上角一条；
- *   - wm density：framebuffer 尺寸不变 -> 画面不铺满，最大化后右侧一大片空白；
- *   - adb emu rotate：只转画面内容，系统里还是竖屏。
- * 只有把 hw.lcd.width/height 换成横屏并重启，Qt 才会按横屏面板开窗口、画面正立铺满。
+ * 这是唯一能得到「正立 + 铺满」Màn ngangcủa方式（三种错路都踩过）：
+ *   - wm size：只改逻辑分辨率，物理 LCD 仍是竖của -> 画面躺倒 90°、只占左上角一条；
+ *   - wm density：framebuffer 尺寸不变 -> 画面不铺满，Phóng to后右侧一Lớn片Trống白；
+ *   - adb emu rotate：只转画面内容，系统里还是Màn dọc。
+ * 只Có把 hw.lcd.width/height 换成Màn ngang并重启，Qt 才会按Bảng màn ngang开窗口、画面正立铺满。
  */
 async function restartForOrientation(landscape, { reloadApp = true } = {}) {
   if (!appWin || !appWin.isOpen) return false;
   const pkg = appWin.pkg;
   store.saveSettings({ display: { landscape: !!landscape } });
-  send('runtime:log', landscape ? '切换到横屏：正在重启安卓运行时…' : '切换回竖屏：正在重启安卓运行时…');
+  send('runtime:log', landscape ? 'Chuyển sang ngang: đang khởi động lại bộ chạy Android…' : 'Chuyển về dọc: đang khởi động lại bộ chạy Android…');
   try {
-    // 先把嵌入窗口摘下来，避免重启过程中在桌面留下黑窗
+    // 先把嵌入窗口摘下来，避免重启过程中在Màn hình nền留下黑窗
     try { await appWin.agent.detach(); } catch (_) { /* ignore */ }
     await runtime.stop({ graceful: false }).catch(() => {});
     appLog(`rotate -> landscape=${landscape} restarting runtime`);
@@ -427,7 +427,7 @@ async function restartForOrientation(landscape, { reloadApp = true } = {}) {
     });
     if (!rt || !rt.ok) return false;
     await runtime.waitForNetwork({ onLog: () => {}, timeoutMs: 25000 }).catch(() => null);
-    // reloadApp=false：调用方（runLaunch）自己会把应用拉起来，这里别抢着做一遍
+    // reloadApp=false：调Dùng方（runLaunch）自己会把Áp dụng拉起来，这里别抢着做一遍
     if (reloadApp && pkg) {
       const app = store.getApp(pkg);
       if (app) {
@@ -438,7 +438,7 @@ async function restartForOrientation(landscape, { reloadApp = true } = {}) {
       await attachAppWindow();
       appWin.scheduleFit(6);
     }
-    // 返回新的 rt：beforeStart 拿到后会替换掉旧的（旧 client 已随 stop 失效）
+    // 返回新của rt：beforeStart 拿到后会替换掉旧của（旧 client 已随 stop 失效）
     return rt;
   } catch (e) {
     appLog(`rotate restart failed: ${e && e.message}`);
@@ -447,16 +447,16 @@ async function restartForOrientation(landscape, { reloadApp = true } = {}) {
 }
 
 /**
- * 把安卓画面接到用户眼前。两种模式：
- *   - 嵌入（默认）：SetParent 进我们自己的窗口，观感统一；
- *   - 独立窗口：让模拟器开原生窗口，绕开嵌入固有的一整串问题
- *     （黑边、坐标错位、铺不满、Qt 面板方向打架）。由设置 display.windowEmbed 控制。
+ * 把安卓画面接到Dùng户眼前。两种模式：
+ *   - 嵌入（默认）：SetParent 进我们自己của窗口，观感统一；
+ *   - 独立窗口：让模拟器开原生窗口，绕开嵌入固Cócủa一整串问题
+ *     （黑边、坐标错位、铺不满、Qt 面板方向打架）。由Cài đặt display.windowEmbed 控制。
  */
 async function attachAppWindow() {
   if (!appWin || !appWin.isOpen) return false;
   const embedMode = displaySettings().windowEmbed !== false;
   if (!embedMode) {
-    // 独立窗口不需要标题栏里那块区域了，直接让模拟器窗口自己露出来
+    // 独立窗口不Cần标题栏里那块区域了，直接让模拟器窗口自己露出来
     return appWin.openDetached().catch(() => false);
   }
   const ok = await appWin.embed().catch(() => false);
@@ -468,25 +468,25 @@ async function attachAppWindow() {
 }
 
 /**
- * 打开（或复用）那个「一个应用一个干净窗口」。
+ * Mở（或复Dùng）那cái「一 ứng dụng一cái干净窗口」。
  *
- * 切换应用时必须先把**上一个**应用真正关掉，否则会出现用户反馈的
- * 「点开第二个应用，第一个没响应 / ANR」：
- *   - appWin.open() 里对旧窗口用的是 close({keepApp:true})，它只收窗口、
- *     **不调 endApp**，于是旧应用进程既没被 force-stop，也留在
+ * 切换Áp dụng时必须先把**上一cái**Áp dụng真正关掉，否则会出现Dùng户反馈của
+ * 「点开第二 ứng dụng，第一cái没响应 / ANR」：
+ *   - appWin.open() 里对旧窗口Dùngcủa是 close({keepApp:true})，它只收窗口、
+ *     **不调 endApp**，于是旧Áp dụng进程既没被 force-stop，也留在
  *     runtime._activeApps 里；
- *   - 新应用 beginApp 时 `first = _activeApps.size === 0` 因此判断错误，
+ *   - 新Áp dụng beginApp 时 `first = _activeApps.size === 0` 因此判断错误，
  *     优先级 / 快照逻辑全乱；
- *   - 两个应用同时抢同一个模拟器的前台 → 旧的卡死弹 ANR。
- * 所以这里先 await 把旧应用停干净，再开新窗口。
+ *   - 两 ứng dụng同时抢同一cái模拟器của前台 → 旧của卡死弹 ANR。
+ * 所以这里先 await 把旧Áp dụng停干净，再开新窗口。
  */
 async function openAppWindow(pkg, tip) {
-  // 只有「切到另一个应用」才需要关旧的；重复点同一个走复用路径，不打断。
+  // 只Có「切到另一 ứng dụng」才Cần关旧của；重复点同一cái走复DùngĐường dẫn，不打断。
   if (currentAppPkg && currentAppPkg !== pkg && appWin && appWin.isOpen) {
     const prev = currentAppPkg;
     try {
-      // 先摘画面再停进程：独立窗口模式下模拟器原生窗口是用户正看着的那扇，
-      // park 把它藏好，避免销毁宿主时在桌面留下黑窗。
+      // 先摘画面再停进程：独立窗口模式下模拟器原生窗口是Dùng户正看着của那扇，
+      // park 把它藏好，避免销毁宿主时在Màn hình nền留下黑窗。
       await appWin.close({ keepApp: true });
       await runtime.endApp(prev, { onIdle: onContainerActive }).catch(() => {});
       appLog(`switch: closed ${prev} before launching ${pkg}`);
@@ -501,36 +501,36 @@ async function openAppWindow(pkg, tip) {
   const land = wantLandscapeFor(pkg);
   const p0 = portraitSize();
   const detached = displaySettings().windowEmbed === false;
-  // 面板方向和应用方向不一致 → beforeStart 会重启一次运行时（约 40 秒）。
+  // 面板方向和Áp dụng方向不一致 → beforeStart 会重启一次Bộ chạy(khoảng 40 giây)。
   const willRestart = land !== !!displaySettings().landscape;
-  // 独立窗口模式下壳窗口平时不显示，但**等待期间**必须给用户一个可见的交代：
-  //   - 有开机动画（首次启动）时由动画负责；
-  //   - 没有动画（切换应用）时必须把壳窗口显示出来，否则桌面上 40 秒什么都没有，
-  //     用户会以为程序崩了。
+  // 独立窗口模式下壳窗口平时不显示，但**等待期间**必须给Dùng户一cái可见của交代：
+  //   - Có开机动画（首次启动）时由动画负责；
+  //   - 没Có动画（切换Áp dụng）时必须把壳窗口显示出来，否则Màn hình nền上 40 秒什么都没Có，
+  //     Dùng户会以为程序崩了。
   const splashVisible = !!(splashWin && !splashWin.isDestroyed());
   const label = (rec && rec.label) || pkg;
-  // 先把这个应用的身份切过去，再开窗口：任务栏才会沿用快捷方式里那个应用的图标
+  // 先把这 ứng dụngcủa身份切过去，再开窗口：任务栏才会沿Dùng快捷方式里那 ứng dụngcủa图标
   setAumid(`${APP_AUMID}.${pkg}`);
   appWin.open({
     pkg,
     label,
     iconPath: rec && rec.icoPath,
-    // 横屏时窗口按横比例开，否则竖窗口里塞横画面会留出大片黑边
+    // Màn ngang时窗口按横比例开，否则竖窗口里塞横画面会留出Lớn片黑边
     portrait: land ? { w: p0.h, h: p0.w } : p0,
-    // 全屏有两种来路：显式选了「全屏」模式，或者勾了「启动时自动全屏」。
-    // 后者以前是个死开关（只在默认设置里声明，没有任何代码读它），这里补上。
+    // 全屏Có两种来路：显式Chọn了「全屏」模式，或者勾了「启动时Tự động toàn màn hình」。
+    // 后者以前是cái死开关（只在默认Cài đặt里声明，没Có任何代码读它），这里补上。
     fullscreen: displaySettings().mode === 'fullscreen'
       || displaySettings().autoFullscreenOnLaunch === true,
     detached,
     showWhileWaiting: detached && !splashVisible,
   });
   appWin.setIcon(rec && rec.icoPath);
-  // 打开时按已保存的方向初始化（物理面板方向在 doctor.lcdFor 里决定）
+  // Mở时按Đã lưucủa方向初始化（物理面板方向在 doctor.lcdFor 里决定）
   appWin.setState({
-    // 需要重启换面板时，直接把「为什么慢」写在提示里，别让用户对着 40 秒空屏猜
+    // Cần重启换面板时，直接把「为什么慢」写在提示里，别让Dùng户对着 40 秒Trống屏猜
     tip: willRestart
-      ? `正在为《${String(label).slice(0, 20)}》切换到${land ? '横屏' : '竖屏'}（重启安卓环境，约 40 秒，只需一次）…`
-      : (tip || '正在启动安卓运行时…'),
+      ? `Đang xử lý cho “${String(label).slice(0, 20)}” chuyển sang${land ? 'Màn ngang' : 'Màn dọc'}(khởi động lại môi trường Android, khoảng 40 giây, chỉ cần một lần)…`
+      : (tip || 'Đang khởi động bộ chạy Android…'),
     ready: false,
     landscape: land,
   });
@@ -551,25 +551,25 @@ async function toggleDisplayMode() {
     else appWin.win.unmaximize();
     appWin.scheduleFit(6);
     // 注意：这里**不再**顺手把面板方向也切了。
-    // 全屏和横屏是两件事：面板方向现在由「应用自己声明的方向」决定
-    // （见 wantLandscapeFor）。以前 F11 会连带重启运行时切横屏，结果竖屏应用
-    // 被塞进横屏面板 → 两侧黑边 → 用户以为「全屏没生效」。
+    // 全屏和Màn ngang是两件事：面板方向Hiện由「Áp dụng自己声明của方向」决定
+    // （见 wantLandscapeFor）。以前 F11 会连带重启Bộ chạy切Màn ngang，结果Màn dọcÁp dụng
+    // 被塞进Bảng màn ngang → 两侧黑边 → Dùng户以là “全屏没生效」。
   }
   return next.display.mode;
 }
 
-/** 首次运行把 adb / emulator / 系统镜像一次装完，不再分 1~5 步 */
+/** 首次运行把 adb / emulator / Ảnh hệ thống一次装完，不再分 1~5 步 */
 let deploying = false;
 async function autoDeploy({ force = false } = {}) {
   if (deploying || !store.getSettings().autoDeploy) return { ok: false, error: 'skipped' };
-  // 下载失败冷却：以前只要 checkEnv() 还缺组件，每次启动 ApkStart 都会重新
-  // 拉一遍 1.5GB 的运行时包，用户看到的就是「一直重复下载」。
-  // 失败后记一个时间戳，30 分钟内不再自动重试；用户手动点「一键部署」时
+  // Tải thất bại冷却：以前只要 checkEnv() 还Thiếu组件，每次启动 ApkStart 都会重新
+  // 拉一遍 1.5GB củaBộ chạy包，Dùng户看到của就是「一直重复下载」。
+  // Thất bại后记一cái时间戳，30 phút内不再Tự động重试；Dùng户手动点「一键部署」时
   // force=true 可以立刻重试。成功或人为强制都清掉冷却。
   const COOLDOWN_MS = 30 * 60 * 1000;
   const lastFail = Number(store.getSettings().runtime.deployFailedAt || 0);
   if (!force && lastFail && Date.now() - lastFail < COOLDOWN_MS) {
-    appLog(`autoDeploy 冷却中（上次失败于 ${new Date(lastFail).toISOString()}），跳过自动重试`);
+    appLog(`autoDeploy Đang nghỉ (lần thất bại trước lúc ${new Date(lastFail).toISOString()}), bỏ qua tự thử lại`);
     return { ok: false, error: 'cooldown', cooldown: true, until: lastFail + COOLDOWN_MS };
   }
   deploying = true;
@@ -582,45 +582,45 @@ async function autoDeploy({ force = false } = {}) {
   try {
     const env = await runtime.provisioner.checkEnv();
     const needEngine = !env.emulator.ok || !env.sysimg.ok;
-    // 随包自带运行时（完整版安装包 / 微软商店版）：**一律不联网**。
+    // 随包自带Bộ chạy（完整版Gói cài đặt / 微软商店版）：**一律不联网**。
     // 镜像已经在包里（压缩形态），第一次开机由 engine.ensure() 就地展开；
-    // 这里再下一套 1.5GB 纯属浪费，也正是用户抱怨的「装完还在下镜像」。
+    // 这里再下一套 1.5GB 纯属浪费，也正是Dùng户抱怨của「装完还在下镜像」。
     if (bundledRuntimeDir && env.adb.ok && env.emulator.ok && env.sysimg.ok) {
-      appLog(`autoDeploy 跳过：运行时随包内置（${bundledRuntimeDir}），无需联网`
-        + (env.needsExtract ? '，镜像将在首次启动时本地展开' : ''));
+      appLog(`autoDeploy Bỏ qua: bộ chạy đã tích hợp sẵn trong gói (${bundledRuntimeDir}), không cần mạng`
+        + (env.needsExtract ? ', ảnh hệ thống sẽ được giải nén cục bộ ở lần khởi động đầu' : ''));
       return { ok: true, source: 'bundled', needsExtract: !!env.needsExtract };
     }
     if (bundledRuntimeDir && !env.emulator.ok) {
-      appLog(`autoDeploy 跳过联网下载：运行时目录随包内置（${bundledRuntimeDir}），交给诊断流程`);
+      appLog(`autoDeploy Bỏ qua tải qua mạng: thư mục bộ chạy đã tích hợp sẵn trong gói (${bundledRuntimeDir}), chuyển cho quy trình chẩn đoán`);
       return { ok: false, error: 'bundled', bundled: true };
     }
-    // 轻量版优先用「本项目 GitHub 的运行时整包」：一个文件搞定 emulator + 系统镜像，
+    // 轻量版优先Dùng「本mục目 GitHub củaToàn bộ gói bộ chạy」：一cái文件搞定 emulator + Ảnh hệ thống，
     // 下载源和更新源统一在 GitHub 上（国内比 dl.google.com 稳得多）。
-    // 整包拿不到（没网 / 还没发过该资产 / 被限流）再逐个从官方源装。
+    // 整包拿不到（没网 / 还没发过该资产 / 被限流）再逐cái从官方源装。
     if (needEngine && store.getSettings().runtime.preferGithubRuntime !== false) {
       try {
-        progress({ message: '正在从 GitHub 下载运行时…' });
+        progress({ message: 'Đang tải bộ chạy từ GitHub…' });
         await runtime.provisioner.installRuntimePack(progress);
         const afterPack = await runtime.provisioner.checkEnv();
         if (afterPack.emulator.ok && afterPack.sysimg.ok) {
           succeeded = true;
           return { ok: true, source: 'github' };
         }
-        progress({ message: '运行时整包不完整，改用官方源补齐…' });
+        progress({ message: 'Gói bộ chạy không đầy đủ, chuyển sang nguồn chính thức để bổ sung…' });
       } catch (e) {
-        progress({ message: `GitHub 运行时不可用（${e.message}），改用官方源…` });
+        progress({ message: `GitHub Bộ chạy không khả dụng (${e.message}), chuyển sang nguồn chính thức…` });
       }
     }
     if (!env.adb.ok) {
-      progress({ message: '正在准备 adb…' });
+      progress({ message: 'Đang chuẩn bị adb…' });
       await runtime.provisioner.installAdb(progress);
     }
     if (!env.emulator.ok) {
-      progress({ message: '正在准备 Android 运行时…' });
+      progress({ message: 'Đang chuẩn bị bộ chạy Android…' });
       await runtime.provisioner.installEmulator(progress);
     }
     if (!env.sysimg.ok) {
-      progress({ message: '正在准备 Android 系统镜像…' });
+      progress({ message: 'Đang chuẩn bị ảnh hệ thống Android…' });
       await runtime.provisioner.installSystemImage(progress);
     }
     const after = await runtime.provisioner.checkEnv();
@@ -629,10 +629,10 @@ async function autoDeploy({ force = false } = {}) {
   } catch (e) {
     return { ok: false, error: e.message };
   } finally {
-    // 只有「真失败」才进冷却；部署成功要把旧失败记录清掉。
+    // 只Có「真Thất bại」才进冷却；部署成功要把旧Thất bại记录清掉。
     try {
       store.saveSettings({ runtime: { deployFailedAt: succeeded ? 0 : Date.now() } });
-    } catch (_) { /* 设置写不进去不影响本次结果 */ }
+    } catch (_) { /* Cài đặt写不进去不影响本次结果 */ }
     deploying = false;
   }
 }
@@ -644,7 +644,7 @@ function launcherInfo() {
   return { target: process.execPath, args: `"${APP_ROOT}"`, cwd: APP_ROOT };
 }
 
-/** 递归复制目录内容（best-effort，不删源；用于共享目录改路径时一次性搬迁旧文件） */
+/** 递归复制目录内容（best-effort，不删源；Dùng于Tổng享目录改Đường dẫn时一次性搬迁旧文件） */
 function copyDirContents(src, dest) {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
@@ -654,17 +654,17 @@ function copyDirContents(src, dest) {
     try {
       if (entry.isDirectory()) copyDirContents(s, d);
       else fs.copyFileSync(s, d);
-    } catch (_) { /* 单文件失败不影响其余 */ }
+    } catch (_) { /* 单文件Thất bại不影响其余 */ }
   }
 }
 
-/** 以管理员权限启用一个 Windows 可选功能（如 VirtualMachinePlatform / HypervisorPlatform） */
+/** 以管理员权限启Dùng一cái Windows 可Chọn功能（如 VirtualMachinePlatform / HypervisorPlatform） */
 /**
- * 提权开启一个 Windows 可选功能。
+ * 提权开启一cái Windows 可Chọn功能。
  *
  * 返回 { ok, cancelled, code, feature }：
- *   cancelled 用 1223（ERROR_CANCELLED）区分「用户在 UAC 里点了否」和「真的失败」——
- *   以前两者都是 ok:false，UI 只能笼统说「未能开启」，用户完全不知道自己点了取消。
+ *   cancelled Dùng 1223（ERROR_CANCELLED）区分「Dùng户在 UAC 里点了否」和「真củaThất bại」——
+ *   以前两者都是 ok:false，UI 只能笼统说「Không bật được」，Dùng户完全不知道自己点了Hủy。
  */
 function enableWindowsFeature(feature) {
   return new Promise((resolve) => {
@@ -678,21 +678,21 @@ function enableWindowsFeature(feature) {
     proc.on('exit', (code) => resolve({
       ok: code === 0, cancelled: code === 1223, restart: true, code, feature,
     }));
-    proc.on('error', () => resolve({ ok: false, feature, error: '无法启动 PowerShell' }));
+    proc.on('error', () => resolve({ ok: false, feature, error: 'Không thể khởi động PowerShell' }));
   });
 }
 
 /**
- * 开启系统自带的 WHPX（Windows Hypervisor Platform）。
+ * 开启系统自带của WHPX（Windows Hypervisor Platform）。
  *
- * 注意：真正让 Android 模拟器用上 WHPX 的功能叫
+ * 注意：真正让 Android 模拟器Dùng上 WHPX của功能叫
  * **「Windows 虚拟机监控程序平台」(HypervisorPlatform)**；
- * 「虚拟机平台」(VirtualMachinePlatform) 是 WSL2 用的，单独开它 WHPX 仍然不可用。
- * 两个都开一次，覆盖不同机器上的差异（顺序上先开真正需要的那个）。
+ * 「虚拟机平台」(VirtualMachinePlatform) 是 WSL2 Dùngcủa，单独开它 WHPX 仍然Không khả dụng。
+ * 两cái都开一次，覆盖不同机器上của差异（顺序上先开真正Cầncủa那cái）。
  *
- * 也不再拿 WinHvPlatform.dll 是否存在当开关：那个 DLL 在现代 Windows 上本来就在
- * （实测本机 WinHvPlatform.dll 存在，但跑的是 AEHD）——用它判断「能不能开 WHPX」
- * 只会把真正需要开的机器挡在门外。
+ * 也不再拿 WinHvPlatform.dll 是否存在当开关：那cái DLL 在现代 Windows 上本来就在
+ * （实测Máy này WinHvPlatform.dll 存在，但跑của是 AEHD）——Dùng它判断「能不能开 WHPX」
+ * 只会把真正Cần开của机器挡在门外。
  */
 async function enableWhpxFeatures() {
   const steps = [];
@@ -703,10 +703,10 @@ async function enableWhpxFeatures() {
   return { ok: steps.some((s) => s.ok), cancelled: steps.every((s) => s.cancelled), steps };
 }
 
-/** 商店版专用的手动引导文案：MSIX 包固定 mediumIL，提权通常拿不到 */
-const MSIX_ACCEL_HINT = '商店版无法自行提权。请手动开启一次：'
-  + '按 Win+R → 输入 optionalfeatures → 勾选「Windows 虚拟机监控程序平台」'
-  + '（HypervisorPlatform，WHPX 真正需要的那个），确定后重启电脑。';
+/** 商店版专Dùngcủa手动引导文案：MSIX 包固定 mediumIL，提权通常拿不到 */
+const MSIX_ACCEL_HINT = 'Bản Store không tự nâng quyền được. Hãy bật thủ công một lần:'
+  + 'Nhấn Win+R → nhập optionalfeatures → tick “Nền tảng Hypervisor của Windows”'
+  + '(HypervisorPlatform, thứ WHPX thực sự cần), sau khi xác nhận hãy khởi động lại máy.';
 
 // ---------------- 主窗口 ----------------
 
@@ -734,15 +734,15 @@ function createWindow({ show = true } = {}) {
   mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'));
   if (show) mainWindow.once('ready-to-show', () => mainWindow.show());
 
-  // 冒烟测试时把渲染进程的报错打到 stdout：界面空白、按钮点了没反应，
-  // 十有八九是 app.js 里某个 id 改动后抛了异常，正常运行看不到。
+  // 冒烟测试时把渲染进程của报错打到 stdout：界面Trống白、按钮点了没反应，
+  // 十Có八九是 app.js 里某cái id 改动后抛了异常，正常运行看不到。
   if (process.argv.includes('--smoke')) {
     mainWindow.webContents.on('console-message', (_e, level, message, line, source) => {
       if (level >= 2) console.log(`[renderer] ${message} (${String(source).split('/').pop()}:${line})`);
     });
   }
 
-  // 外链一律交给系统浏览器（公众号/GitHub 等），绝不把应用窗口导航走
+  // 外链一律交给系统Duyệt器（公众号/GitHub 等），绝不把Cửa sổ ứng dụng导航走
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//i.test(url)) shell.openExternal(url);
     return { action: 'deny' };
@@ -757,7 +757,7 @@ function createWindow({ show = true } = {}) {
     if (quitting) return;
     e.preventDefault();
     mainWindow.hide();
-    notify('ApkStart 仍在后台运行', '点击托盘图标可重新打开；右键托盘可退出。');
+    notify('ApkStart Vẫn đang chạy nền', 'Bấm biểu tượng ở khay hệ thống để mở lại; bấm chuột phải vào khay để thoát.');
   });
 
   if (IS_DEV) mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -765,7 +765,7 @@ function createWindow({ show = true } = {}) {
 }
 
 function showWindow() {
-  // 回到管理窗口 = 回到 ApkStart 自己的身份（不然任务栏会沿用上一个应用的图标）
+  // 回到管理窗口 = 回到 ApkStart 自己của身份（不然任务栏会沿Dùng上一 ứng dụngcủa图标）
   setAumid(APP_AUMID);
   if (!mainWindow) createWindow();
   if (mainWindow.isMinimized()) mainWindow.restore();
@@ -796,11 +796,11 @@ function buildTray() {
   }
   const refresh = () => {
     const apps = store.getApps().slice(0, 8);
-    // 独立窗口模式主界面是隐藏的，托盘就成了唯一随时可达的入口 ——
-    // 「关闭当前应用」必须放这里，否则用户根本没法关掉正在跑的应用。
-    // 判断「有没有应用在跑」要同时看 currentAppPkg 和 runtime.activeApps：
-    // endApp 会从 activeApps 里删掉包名，所以关掉后这里自动变 false。
-    // 但 currentAppPkg 可能还指着上一个应用（endApp 不清它），所以要双重判断。
+    // 独立窗口模式主界面是隐藏của，托盘就成了唯一随时Truy cập đượccủa入口 ——
+    // 「Đóng ứng dụng hiện tại」必须放这里，否则Dùng户根本没法关掉正在跑củaÁp dụng。
+    // 判断「Có没CóÁp dụng在跑」要同时看 currentAppPkg 和 runtime.activeApps：
+    // endApp 会从 activeApps 里删掉包名，所以关掉后这里Tự động变 false。
+    // 但 currentAppPkg 可能还指着上一 ứng dụng（endApp 不清它），所以要双重判断。
     const hasRunning = currentAppPkg && runtime && runtime.activeApps
       ? runtime.activeApps.includes(currentAppPkg)
       : false;
@@ -808,36 +808,36 @@ function buildTray() {
       ? ((store.getApp(currentAppPkg) || {}).label || currentAppPkg)
       : '';
     const menu = Menu.buildFromTemplate([
-      { label: '打开 ApkStart', click: () => showWindow() },
+      { label: 'Mở ApkStart', click: () => showWindow() },
       { type: 'separator' },
       ...(apps.length
         ? apps.map((a) => ({ label: a.label, click: () => runLaunch(a.package) }))
-        : [{ label: '还没有安装应用', enabled: false }]),
+        : [{ label: 'Chưa cài ứng dụng nào', enabled: false }]),
       { type: 'separator' },
       {
-        label: hasRunning ? `关闭当前应用（${runningLabel}）` : '关闭当前应用',
+        label: hasRunning ? `Đóng ứng dụng hiện tại (${runningLabel}）` : 'Đóng ứng dụng hiện tại',
         enabled: !!hasRunning,
         click: () => {
           const pkg = currentAppPkg;
           if (!pkg) return;
-          // 复用 app:stop 的同一条路径，不在两处写同样的逻辑
+          // 复Dùng app:stop của同一条Đường dẫn，不在两处写同样của逻辑
           stopApp(pkg).then(() => refresh());
         },
       },
       {
-        label: displaySettings().landscape ? '切回竖屏（需重启运行时）' : '切换横屏（需重启运行时）',
+        label: displaySettings().landscape ? 'Quay về dọc (cần khởi động lại bộ chạy)' : 'Chuyển sang ngang (cần khởi động lại bộ chạy)',
         enabled: !!currentAppPkg,
         click: () => { restartForOrientation(!displaySettings().landscape).catch(() => {}); },
       },
       {
-        label: displaySettings().mode === 'fullscreen' ? '切回竖屏窗口' : '全屏（自适应屏幕）',
+        label: displaySettings().mode === 'fullscreen' ? 'Quay về cửa sổ dọc' : 'Toàn màn hình (tự thích ứng màn hình)',
         click: () => { toggleDisplayMode(); },
       },
-      { label: '重建桌面/开始菜单快捷方式', click: () => { installer.ensureShortcuts().catch(() => {}); } },
-      { label: '同步共享目录', click: () => sharer.sync() },
-      { label: '设置', click: () => { showWindow(); send('ui:navigate', 'settings'); } },
+      { label: 'Tạo lại lối tắt màn hình nền/Start Menu', click: () => { installer.ensureShortcuts().catch(() => {}); } },
+      { label: 'Đồng bộ thư mục chia sẻ', click: () => sharer.sync() },
+      { label: 'Cài đặt', click: () => { showWindow(); send('ui:navigate', 'settings'); } },
       {
-        label: updateInfo && updateInfo.hasUpdate ? `发现新版本 ${updateInfo.tag}` : '检查更新',
+        label: updateInfo && updateInfo.hasUpdate ? `Có phiên bản mới ${updateInfo.tag}` : 'Kiểm tra cập nhật',
         click: async () => {
           showWindow();
           send('ui:navigate', 'settings');
@@ -846,22 +846,22 @@ function buildTray() {
           if (info && info.hasUpdate && info.asset) {
             const r = await dialog.showMessageBox(mainWindow || undefined, {
               type: 'question',
-              title: '发现新版本',
-              message: `ApkStart ${info.tag} 已发布，当前版本 v${app.getVersion()}。现在更新吗？`,
+              title: 'Có phiên bản mới',
+              message: `ApkStart ${info.tag} Đã phát hành, phiên bản hiện tại v${app.getVersion()}. Cập nhật ngay bây giờ?`,
               detail: (info.notes || '').slice(0, 600),
-              buttons: ['立即更新', '稍后'],
+              buttons: ['Cập nhật ngay', 'Lúc khác'],
               defaultId: 0,
               cancelId: 1,
             });
             if (r.response === 0) runUpdate();
           } else if (info && !info.hasUpdate) {
-            notify('已是最新版本', `ApkStart v${app.getVersion()}`);
+            notify('Đã là phiên bản mới nhất', `ApkStart v${app.getVersion()}`);
           }
         },
       },
       { type: 'separator' },
       {
-        label: '退出',
+        label: 'Thoát',
         click: async () => {
           try { appWin.close({ keepApp: true }); } catch (_) { /* ignore */ }
           quitting = true;
@@ -871,9 +871,9 @@ function buildTray() {
     ]);
     tray.setContextMenu(menu);
   };
-  tray.setToolTip('ApkStart — 安卓应用运行器');
-  // Windows 托盘的惯例是单击就打开主窗口（双击当然也可以）。
-  // 之前只绑了 double-click，用户单击没反应，会以为托盘图标坏了。
+  tray.setToolTip('ApkStart — Trình chạy ứng dụng Android');
+  // Windows 托盘của惯例是单击就Mở主窗口（双击当然也可以）。
+  // 之前只绑了 double-click，Dùng户单击没反应，会以为托盘图标坏了。
   // 右键才出菜单，所以这里单击直接 showWindow 不会和菜单冲突。
   tray.on('click', () => showWindow());
   tray.on('double-click', () => showWindow());
@@ -881,30 +881,30 @@ function buildTray() {
   setInterval(refresh, 5000).unref?.();
 }
 
-// ---------------- 核心动作 ----------------
+// ---------------- nhân心动作 ----------------
 
-let installBusy = null;   // 正在安装的文件路径：双击 APK 连点会走 second-instance，不能并发装
+let installBusy = null;   // Đang cài đặtcủa文件Đường dẫn：双击 APK 连点会走 second-instance，不能并发装
 let lastInstallErr = { msg: '', at: 0 };
 
 async function runInstall(filePath) {
   showWindow();
-  // 同一个包正在装（用户连点了几次图标 / 拖了好几次）→ 只提示一次，别重复跑一遍安装
+  // 同一cái包正在装（Dùng户连点了几次图标 / 拖了好几次）→ 只提示一次，别重复跑一遍Cài đặt
   if (installBusy) {
     if (installBusy === filePath) {
-      send('toast', { type: 'info', message: '这个 APK 正在安装中，请稍等…' });
-      return { ok: false, error: '正在安装中' };
+      send('toast', { type: 'info', message: 'APK này đang được cài, vui lòng đợi…' });
+      return { ok: false, error: 'Đang cài đặt' };
     }
-    send('toast', { type: 'info', message: '已有安装任务在进行，请等它装完。' });
-    return { ok: false, error: '已有安装任务在进行' };
+    send('toast', { type: 'info', message: 'Đã có tác vụ cài đặt đang chạy, vui lòng đợi cài xong.' });
+    return { ok: false, error: 'Đã có tác vụ cài đặt đang chạy' };
   }
   installBusy = filePath;
   send('install:start', { file: filePath });
   try {
     const result = await installer.install(filePath, (p) => send('install:progress', p));
     send('install:done', result);
-    // 新建的桌面图标要让资源管理器立刻刷新，否则用户会以为「没创建快捷方式」
+    // 新建củaMàn hình nền图标要让资源管理器立刻Làm mới，否则Dùng户会以là “没Tạo快捷方式」
     windowctl.refreshShell().catch(() => {});
-    notify('安装完成', `${result.app.label} 已安装${result.app.shortcutPath ? '，桌面快捷方式已创建' : ''}`);
+    notify('Cài đặt hoàn tất', `${result.app.label} Đã cài đặt${result.app.shortcutPath ? ', đã tạo lối tắt trên màn hình nền' : ''}`);
     return result;
   } catch (e) {
     send('install:error', { message: e.message, file: filePath });
@@ -913,9 +913,9 @@ async function runInstall(filePath) {
     const now = Date.now();
     if (e.message !== lastInstallErr.msg || now - lastInstallErr.at > 8000) {
       lastInstallErr = { msg: e.message, at: now };
-      // 窗口在前台时用户已经看到界面里的提示，不必再弹系统通知
+      // 窗口在前台时Dùng户已经看到界面trong提示，不必再弹系统通知
       if (!mainWindow || !mainWindow.isVisible() || mainWindow.isMinimized()) {
-        notify('安装失败', e.message.slice(0, 120));
+        notify('Cài đặt thất bại', e.message.slice(0, 120));
       }
     }
     throw e;
@@ -925,33 +925,33 @@ async function runInstall(filePath) {
 }
 
 /**
- * 下载并安装新版本，然后由 update-apply 脚本接管「替换 + 重启」。
- * 界面与托盘菜单共用这一条路径。
+ * 下载并Cài đặt新版本，然后由 update-apply 脚本接管「替换 + 重启」。
+ * 界面与托盘菜单TổngDùng这一条Đường dẫn。
  */
 async function runUpdate() {
-  if (updateBusy) return { ok: false, error: '正在更新中' };
-  // 商店（MSIX）版不能自更新：安装目录 C:\Program Files\WindowsApps 是只读的，
-  // 覆盖 exe 不仅会失败，还可能让包完整性校验失效、应用直接起不来。
+  if (updateBusy) return { ok: false, error: 'Đang cập nhật' };
+  // 商店（MSIX）版不能自更新：Cài đặt目录 C:\Program Files\WindowsApps 是只读của，
+  // 覆盖 exe 不仅会Thất bại，还可能让包完整性校验失效、Áp dụng直接起不来。
   // 更新走 Microsoft Store（ms-windows-store: 协议）。
   if (store.STORE_BUILD) {
     shell.openExternal('ms-windows-store://downloadsandupdates').catch(() => {});
-    return { ok: false, error: '商店版更新由 Microsoft Store 负责，已打开商店的「下载和更新」', manual: true };
+    return { ok: false, error: 'Bản Store do Microsoft Store cập nhật, đã mở mục “Tải xuống và cập nhật” của Store', manual: true };
   }
   updateBusy = true;
   const sendProgress = (p) => send('update:progress', p);
   try {
     const info = updateInfo && updateInfo.hasUpdate ? updateInfo : await updater.check();
     updateInfo = info;
-    if (!info.hasUpdate) return { ok: false, error: '已经是最新版本' };
+    if (!info.hasUpdate) return { ok: false, error: 'Đã là phiên bản mới nhất' };
     if (!info.asset) {
       shell.openExternal(info.htmlUrl || Updater.repoUrl()).catch(() => {});
-      return { ok: false, error: '该版本没有可直接安装的包，已打开 GitHub 发布页', manual: true };
+      return { ok: false, error: 'Phiên bản này không có gói cài đặt trực tiếp, đã mở trang phát hành GitHub', manual: true };
     }
-    sendProgress({ stage: 'download', percent: 0, message: '准备下载…' });
+    sendProgress({ stage: 'download', percent: 0, message: 'Đang chuẩn bị tải…' });
     const job = await updater.prepare(info);
-    sendProgress({ stage: 'apply', percent: 100, message: '正在替换程序并重启…' });
+    sendProgress({ stage: 'apply', percent: 100, message: 'Đang thay chương trình và khởi động lại…' });
     updater.apply(job);
-    // 给界面一点时间显示「即将重启」，然后走正常退出流程（before-quit 会把模拟器窗口藏好）
+    // 给界面一点时间显示「即将重启」，然后走Thoát bình thường流程（before-quit 会把模拟器窗口藏好）
     setTimeout(() => { quitting = true; app.quit(); }, 900);
     return { ok: true, version: info.version, mode: job.mode };
   } catch (e) {
@@ -965,17 +965,17 @@ async function runUpdate() {
 /**
  * 启动串行化。
  *
- * 一次启动最长要 80 秒（换面板重启 + 冷启动）。这期间用户完全可能再点一个应用、
- * 或者双击同一个图标两次、或者托盘菜单里点一下 —— 以前这些都会真的并发跑第二遍：
- * openAppWindow 会把正在启动的那个应用关掉（close + endApp），而虚拟机正在重启，
- * 结果两边一起失败，日志里是 `cmd: Can't find service: activity` / `device not found`，
- * 用户看到的是「点了没反应，然后弹回主界面」。
+ * 一次启动最长要 80 秒（换面板重启 + Khởi động nguội）。这期间Dùng户完全可能再点一 ứng dụng、
+ * 或者双击同一cái图标两次、或者托盘菜单里点一下 —— 以前这些都会真của并发跑第二遍：
+ * openAppWindow 会把正在启动của那 ứng dụng关掉（close + endApp），而虚拟机正在重启，
+ * 结果两边一起Thất bại，Nhật ký里是 `cmd: Can't find service: activity` / `device not found`，
+ * Dùng户看到của是「点了没反应，然后弹回主界面」。
  *
- * 现在：同一个应用 → 直接复用进行中的那次（连点等于一次）；换应用 → 等前一次
- * 收尾再开始，而不是把它的运行时抽走。
+ * Hiện：同一 ứng dụng → 直接复Dùng进行中của那次（连点等于一次）；换Áp dụng → 等前一次
+ * 收尾再开始，而不是把它củaBộ chạy抽走。
  */
 let launchInFlight = null;
-// 「软件模拟」提醒每个进程只弹一次，避免每次切应用都来一条系统通知
+// 「Giả lập phần mềm」提醒每cái进程只弹一次，避免每次切Áp dụng都来一条系统通知
 let accelWarned = false;
 
 async function runLaunch(pkg) {
@@ -984,7 +984,7 @@ async function runLaunch(pkg) {
       appLog(`launch reused in-flight ${pkg}`);
       return launchInFlight.promise;
     }
-    appLog(`launch queued ${pkg}（等待 ${launchInFlight.pkg} 启动完成）`);
+    appLog(`launch queued ${pkg}(đang chờ ${launchInFlight.pkg} khởi động xong)`);
     await launchInFlight.promise.catch(() => {});
   }
   const entry = { pkg };
@@ -998,21 +998,21 @@ async function runLaunch(pkg) {
 async function launchOne(pkg) {
   const t0 = Date.now();
   const mark = (s) => appLog(`launch ${pkg} ${s} +${Date.now() - t0}ms`);
-  // 「提前接画面」的状态：进程一出现就接，但最终成败要等回调回来才知道。
-  // 放在函数作用域，供后面的最终判定使用。
+  // 「Nhận hình sớm」của状态：进程一出现就接，但最终成败要等回调回来才知道。
+  // 放在函数作Dùng域，供后面của最终判定使Dùng。
   let attachDoneEarly = false;
   let earlyAttachOk = false;
   appLog(`launch start ${pkg}`);
   try {
-    // 0) 先把管理窗口收起来，再去开应用窗口。
+    // 0) 先把管理窗口收起来，再去开Cửa sổ ứng dụng。
     // 顺序很重要：以前是 openAppWindow() 之后、armAgent() 之后才 hide()，
-    // 而 armAgent 要等窗口代理冷启动（300~600ms），这段里「管理窗口 +
-    // 应用窗口(+ 开机动画)」是同时在屏幕上的 —— 用户看到的就是多个窗口乱飞。
+    // 而 armAgent 要等窗口代理Khởi động nguội（300~600ms），这段里「管理窗口 +
+    // Cửa sổ ứng dụng(+ 开机动画)」是同时在屏幕上của —— Dùng户看到của就是多cái窗口乱飞。
     if (mainWindow && mainWindow.isVisible() && !IS_DEV) mainWindow.hide();
-    // 1) 再把「应用窗口」打开显示启动动画：整个过程看不到安卓桌面，也看不到模拟器窗口
-    await openAppWindow(pkg, '正在启动安卓运行时…');
-    // 开机阶段把模拟器主窗 + qemu / netsimd 的控制台黑窗藏起来，避免任何闪现。
-    // 压制是常驻的（embed 后它会自动跳过被嵌入的那一个窗口，见 appwin.embed）。
+    // 1) 再把「Cửa sổ ứng dụng」Mở显示启动动画：整cái过程看不到安卓Màn hình nền，也看不到模拟器窗口
+    await openAppWindow(pkg, 'Đang khởi động bộ chạy Android…');
+    // 开机阶段把模拟器主窗 + qemu / netsimd của控制台黑窗藏起来，避免任何闪现。
+    // 压制是常驻của（embed 后它会Tự động跳过被嵌入của那一cái窗口，见 appwin.embed）。
     // 这里必须 await：不等压制生效就往下走，黑窗会在启动瞬间露出来。
     if (winAgent) { try { await armAgent(winAgent); } catch (_) { /* ignore */ } }
 
@@ -1023,70 +1023,70 @@ async function launchOne(pkg) {
         if (typeof splashProgress === 'function') splashProgress({ message: m });
       },
       onMark: mark,
-      // 应用进程一出现就把画面接上去，不等后面那 4 秒的「确认不会崩」观察期。
-      // 那 4 秒对稳定性有意义，但用户看到的是「点了没反应」；先让他看到应用在加载，
-      // 观感差别很大（实测点开到出画面 7.2s → 约 3s）。
-      // 这里故意不 await：接画面和存活判定并行，谁先完成都不影响另一边。
+      // Áp dụng进程一出现就把画面接上去，不等后面那 4 秒của「Xác nhận不会崩」观察期。
+      // 那 4 秒对稳定性Có意义，但Dùng户看到của是「点了没反应」；先让他看到Áp dụng在加载，
+      // 观感差别很Lớn（实测点开到出画面 7.2s → 约 3s）。
+      // 这里故意不 await：接画面和存活判定并行，谁先Hoàn tất都不影响另一边。
       onAppUp: () => {
         attachDoneEarly = true;
-        mark('app up (提前接画面)');
+        mark('app up (Nhận hình sớm)');
         attachAppWindow()
           .then((ok) => {
             earlyAttachOk = ok;
             mark(`early attach=${ok}`);
-            // 画面已接到用户眼前 → 开机动画可以淡出了。
+            // 画面已接到Dùng户眼前 → 开机动画可以淡出了。
             // 放在这里而不是 launch ok 之后，是因为 early attach 时模拟器窗口
-            // 已经 show 出来了；如果等 launch ok（还要再等 4 秒存活确认），
-            // splash 和模拟器窗口会同时可见好几秒，用户看到 splash 被「顶上去」。
+            // 已经 show 出来了；如果等 launch ok（还要再等 4 秒存活Xác nhận），
+            // splash 和模拟器窗口会同时可见好几秒，Dùng户看到 splash 被「顶上去」。
             if (ok && typeof splashDone === 'function') splashDone();
           })
           .catch(() => { earlyAttachOk = false; });
-        // 应用刚起来时 Activity 还在重建，会按自己声明的方向（portrait）再转一次，
-        // 把刚锁好的方向覆盖掉 —— 这就是「平板/横屏模式下画面总是 90 度躺着」。
-        // 等它稳定后补一次方向自愈（读 init/cur，只有真躺倒才写）。
+        // Áp dụng刚起来时 Activity 还在重建，会按自己声明của方向（portrait）再转一次，
+        // 把刚锁好của方向覆盖掉 —— 这就是「平板/Màn ngang模式下画面总是 90 度躺着」。
+        // 等它稳定后补一次方向自愈（读 init/cur，只Có真躺倒才写）。
         setTimeout(() => {
           runtime._healOrientation?.().catch(() => {});
-          // 顺带记下这个应用真正的方向（清单里全是 sensor 的应用只能这样学）
+          // 顺带记下这 ứng dụng真正của方向（清单里全是 sensor củaÁp dụng只能这样学）
           learnAppOrientation(pkg).catch(() => {});
         }, 1800);
       },
-      // 启动前先把面板方向校正到设置要求的那个。
-      // 横屏只能靠物理面板（hw.lcd.width/height 互换）+ 重启实现，而这一项是在
-      // 开机时写进 config.ini 的。如果用户改了「横屏」设置、但虚拟机还以竖屏面板
-      // 跑着（预热的场景很常见），光靠 wm size / wm user-rotation 只会让画面躺倒。
-      // 所以这里发现不一致就先重启一次，reloadApp=false 让下面照常启动应用。
+      // 启动前先把面板方向校正到Cài đặt要求của那 mục.
+      // Màn ngang只能靠物理面板（hw.lcd.width/height 互换）+ 重启实现，而这一mục是在
+      // 开机时写进 config.ini của。如果Dùng户改了「Màn ngang」Cài đặt、但虚拟机还以Bảng màn dọc
+      // 跑着（预热của场景很常见），光靠 wm size / wm user-rotation 只会让画面躺倒。
+      // 所以这里Phát hiện不一致就先重启一次，reloadApp=false 让下面照常启动Áp dụng。
       beforeStart: async (rt) => {
         mark('engine ready');
-        // 面板方向必须和应用自己的声明方向一致，否则 Android 只会给一个信箱式
-        // 窄条（两侧全黑）。wantLandscapeFor 会把「设置里的强制模式 / 单应用覆盖 /
-        // APK 清单解析出的方向」合起来算，见函数注释。
+        // 面板方向必须和Áp dụng自己của声明方向一致，否则 Android 只会给一cái信箱式
+        // 窄条（两侧全黑）。wantLandscapeFor 会把「Cài đặttrong强制模式 / 单Áp dụng覆盖 /
+        // APK 清单解析出của方向」合起来算，见函数注释。
         const wantLand = wantLandscapeFor(pkg);
         const cur = runtime.emulator && typeof runtime.emulator.panelLandscape === 'function'
           ? runtime.emulator.panelLandscape()
           : null;
         if (cur !== null && cur !== wantLand) {
-          mark(`orientation mismatch (panel=${cur ? 'landscape' : 'portrait'}, want=${wantLand}) 重启校正`);
-          appWin.setState({ tip: wantLand ? '正在切换到横屏…' : '正在切换到竖屏…' });
-          // restartForOrientation 重启运行时后返回新的 rt（旧 client 已失效）。
-          // 把它返回给 installer.launch，后续的 resetDisplayOverrides / startApp
-          // 都用新 client，否则全部静默失败（catch 吞掉，应用起不来画面）。
+          mark(`orientation mismatch (panel=${cur ? 'landscape' : 'portrait'}, want=${wantLand}) Khởi động lại để chỉnh`);
+          appWin.setState({ tip: wantLand ? 'Đang chuyển sang màn ngang…' : 'Đang chuyển sang màn dọc…' });
+          // restartForOrientation 重启Bộ chạy后返回新của rt（旧 client 已失效）。
+          // 把它返回给 installer.launch，后续của resetDisplayOverrides / startApp
+          // 都Dùng新 client，否则全部静默Thất bại（catch 吞掉，Áp dụng起不来画面）。
           const newRt = await restartForOrientation(wantLand, { reloadApp: false }).catch(() => null);
           mark('orientation fixed');
           if (newRt && newRt.ok) return newRt;
         }
-        appWin.setState({ tip: '正在打开应用…' });
+        appWin.setState({ tip: 'Đang mở ứng dụng…' });
         // 沉浸式 + 关动画 + 收起锁屏：只做一次，之后每次启动都秒进
         await rt.client.prepareForeground().catch(() => {});
         mark('foreground ready');
-        // 没有重启就返回 null（installer 用原来的 rt）
+        // 没Có重启就返回 null（installer Dùng原来của rt）
         return null;
       },
     });
     mark('app started');
 
-    // 2) 应用真的活下来了，才把画面接到用户眼前（否则用户会看到闪一下的桌面/崩溃页）
-    // 但如果 onAppUp 已经把画面接上了（提前接管），这里只做一次「确认」，不重复接 ——
-    // 重复接在独立窗口模式下会把刚摆好的窗口再隐藏/显示一遍，画面会闪。
+    // 2) Áp dụng真của活下来了，才把画面接到Dùng户眼前（否则Dùng户会看到闪一下củaMàn hình nền/崩溃页）
+    // 但如果 onAppUp 已经把画面接上了（提前接管），这里只做一次「Xác nhận」，不重复接 ——
+    // 重复接在独立窗口模式下会把刚摆好của窗口再隐藏/显示一遍，画面会闪。
     let embedded;
     if (attachDoneEarly) {
       embedded = !!earlyAttachOk;
@@ -1094,16 +1094,16 @@ async function launchOne(pkg) {
     } else {
       embedded = await attachAppWindow();
     }
-    // 日志措辞要分清两种模式：独立窗口模式下 embedded=true 的意思是
-    // 「画面已经接到用户眼前（在模拟器原生窗口里）」，而不是「嵌进我们的窗口」。
-    // 否则看日志的人会以为设置没生效。
+    // Nhật ký措辞要分清两种模式：独立窗口模式下 embedded=true của意思是
+    // 「画面已经接到Dùng户眼前（在模拟器原生窗口里）」，而不是「嵌进我们của窗口」。
+    // 否则看Nhật kýcủa人会以为Cài đặt没生效。
     const attachMode = displaySettings().windowEmbed === false ? 'detached' : 'embed';
     if (!embedded) appLog(`attach failed (${attachMode}): ${appWin.lastEmbedError || 'unknown'}`);
     mark(`${attachMode}=${embedded}`);
-    // 嵌入完成后把窗口从别的窗口底下抬出来。否则上层窗口（浏览器等）会盖住安卓画面，
-    // 用户看到的是「黑屏 / 画面没填满」，鼠标也点不到应用（全被上层窗口吃掉）。
-    // 短暂 topmost 再立刻撤销，只借用一次置顶把 Z 序抬到最前，不会长期霸占顶层。
-    // 独立窗口模式跳过：那时画面在模拟器自己的窗口里，把空壳窗口显示出来只会挡住它。
+    // 嵌入Hoàn tất后把窗口从别của窗口底下抬出来。否则上层窗口（Duyệt器等）会盖住安卓画面，
+    // Dùng户看到của是「黑屏 / 画面没填满」，鼠标也点不到Áp dụng（全被上层窗口吃掉）。
+    // 短暂 topmost 再立刻撤销，只借Dùng一次置顶把 Z 序抬到最前，不会长期霸占顶层。
+    // 独立窗口模式跳过：那时画面在模拟器自己của窗口里，把Trống壳窗口显示出来只会挡住它。
     const detachedMode = displaySettings().windowEmbed === false;
     if (appWin.isOpen && !detachedMode) {
       try {
@@ -1113,35 +1113,35 @@ async function launchOne(pkg) {
         appWin.win.focus();
         setTimeout(() => {
           if (appWin.isOpen) {
-            try { appWin.win.setAlwaysOnTop(false); } catch (_) { /* 窗口已关 */ }
+            try { appWin.win.setAlwaysOnTop(false); } catch (_) { /* 窗口Đã tắt */ }
           }
         }, 700);
-      } catch (_) { /* 窗口可能刚关闭 */ }
+      } catch (_) { /* 窗口可能刚Đóng */ }
     }
     appWin.setState({ ready: true, tip: '' });
-    // 容器会话：环境已经就绪，这里只做「按应用裁剪 + 打开后台轮询」，
-    // 不再为这个 App 重新引导一遍 Android。鼠标键位钩子由窗口 focus 事件
-    // 按设置决定，失焦即卸载。
+    // 容器会话：环境已经Sẵn sàng，这里只做「按Áp dụng裁剪 + Mở后台轮询」，
+    // 不再为这cái App 重新引导一遍 Android。Phím chuột钩子由窗口 focus 事件
+    // 按Cài đặt决定，失焦即Gỡ cài đặt。
     deviceSize.value = null;
     appWin.refreshPointer();
     await runtime.beginApp(pkg, { onActive: onContainerActive }).catch(() => {});
-    // 游戏/低延迟模式：让窗口代理降频扫描，减少全桌面 EnumWindows 造成的整机卡顿
+    // 游戏/低延迟模式：让窗口代理降频扫描，减少全Màn hình nền EnumWindows 造成của整机卡顿
     if (winAgent) {
       const game = store.getSettings().engine?.priorityMode === 'game';
       winAgent.setPerformanceMode(game).catch(() => {});
     }
     send('app:launched', { package: pkg, engine: r.engine });
     appLog(`launch ok ${pkg} ${attachMode}=${embedded}`);
-    // 软件模拟下第一次启动应用时提醒一次：这时候用户已经开始等了，横幅/自检项
-    // 都在设置里，很可能压根没看到。系统通知能盖在应用窗口上面，是最有效的告知点。
+    // Giả lập phần mềm下第一次启动Áp dụng时提醒一lần:这时候Dùng户已经开始等了，横幅/自检mục
+    // 都在Cài đặt里，很可能压根没看到。系统通知能盖在Cửa sổ ứng dụng上面，是最Có效của告知点。
     if (!accelWarned) {
       runtime.provisioner.emulatorAccel().then((a) => {
         if (!a || a.ok) return;
         accelWarned = true;
-        notify('正在以软件模拟运行（很慢）', store.STORE_BUILD
-          ? '开启「Windows 虚拟机监控程序平台」后重启一次，速度可提升 5~10 倍。'
-            + '设置 → 环境自检 → 修复 会直接打开该窗口。'
-          : '设置 → 环境自检 → 修复 可一键开启（需管理员授权），之后重启一次。');
+        notify('Đang chạy bằng giả lập phần mềm (rất chậm)', store.STORE_BUILD
+          ? 'Sau khi bật “Nền tảng Hypervisor của Windows” và khởi động lại một lần, tốc độ có thể tăng 5~10  lần.'
+            + 'Cài đặt → Tự kiểm tra môi trường → Sửa sẽ mở thẳng cửa sổ này.'
+          : 'Cài đặt → Tự kiểm tra môi trường → Sửa để bật bằng một cú nhấp (cần quyền quản trị), sau đó khởi động lại một lần.');
       }).catch(() => {});
     }
     // 兜底：如果 early attach 没触发 splashDone（比如嵌入模式），这里补一次
@@ -1150,20 +1150,20 @@ async function launchOne(pkg) {
   } catch (e) {
     appLog(`launch failed ${pkg}: ${e && (e.stack || e.message)}`);
     try { appWin.close({ keepApp: true }); } catch (_) { /* ignore */ }
-    // 启动失败也把模拟器窗口继续压住（不要让它以「独立的模拟器窗口」形式露出来），
-    // 下次点应用还是走同一条隐藏 → embed 的路径。
+    // Khởi động thất bại也把模拟器窗口Tiếp tục压住（不要让它以「独立của模拟器窗口」形式露出来），
+    // 下次点Áp dụng还是走同一条隐藏 → embed củaĐường dẫn。
     if (winAgent) armAgent(winAgent).catch(() => {});
     showWindow();
-    send('toast', { type: 'error', message: `启动失败：${e.message}` });
+    send('toast', { type: 'error', message: `Khởi động thất bại:${e.message}` });
     return { ok: false, error: e.message };
   }
 }
 
 /**
- * 容器有/无应用窗口时的后台任务开关。
- * 文件同步每 8 秒要遍历共享目录并走一次 adb find/stat，通知桥也在轮询；
- * 以前从 ApkStart 一启动就无条件开跑，哪怕一个 Android 应用都没打开。
- * 现在只在容器里真的有应用时才开，关掉最后一个窗口立刻停。
+ * 容器Có/无Cửa sổ ứng dụng时của后台任务开关。
+ * 文件同步每 8 秒要遍历Tổng享目录并走一次 adb find/stat，通知桥也在轮询；
+ * 以前从 ApkStart 一启动就无条件开跑，哪怕一cái Android Áp dụng都没Mở。
+ * Hiện只在容器里真củaCóÁp dụng时才开，关掉最后一cái窗口立刻停。
  */
 function onContainerActive(on) {
   if (on) {
@@ -1176,21 +1176,21 @@ function onContainerActive(on) {
 }
 
 /**
- * 关掉一个正在运行的安卓应用 —— 托盘菜单和右键菜单共用这一条路径。
+ * 关掉一cáiĐang chạycủaỨng dụng Android —— 托盘菜单和右键菜单TổngDùng这一条Đường dẫn。
  *
  * 做了三件事：
- *  1. forceStop 应用进程（endApp 的停放逻辑也在这步之后）
+ *  1. forceStop Áp dụng进程（endApp của停放逻辑也在这步之后）
  *  2. 收掉画面：嵌入模式关壳窗口；独立模式先把模拟器窗口藏了再关壳
- *     （顺序很重要：先销毁壳窗口会让模拟器窗口在桌面闪一下再被 park）
- *  3. 清 currentAppPkg，让托盘菜单的「关闭当前应用」立刻变灰
+ *     （顺序很重要：先销毁壳窗口会让模拟器窗口在Màn hình nền闪一下再被 park）
+ *  3. 清 currentAppPkg，让托盘菜单của「Đóng ứng dụng hiện tại」立刻变灰
  *
- * @param {string} pkg 要关闭的应用包名
+ * @param {string} pkg 要ĐóngcủaGói ứng dụng名
  * @param {object} [opts] { keepWindow } keepWindow=true 时不收窗口
  * @returns {Promise<{ok:boolean, pkg?:string, error?:string}>}
  */
 async function stopApp(pkg, opts = {}) {
   const target = pkg || currentAppPkg;
-  if (!target) return { ok: false, error: '没有正在运行的应用' };
+  if (!target) return { ok: false, error: 'Không có ứng dụng nào đang chạy' };
   const detached = displaySettings().windowEmbed === false;
   try {
     await runtime.endApp(target, { onIdle: (idle) => onContainerActive(idle) }).catch(() => {});
@@ -1198,7 +1198,7 @@ async function stopApp(pkg, opts = {}) {
 
     if (!opts.keepWindow) {
       // 独立窗口模式：先把模拟器窗口藏掉，再关壳窗口。
-      // 反过来会在桌面留下一个闪了闪又消失的模拟器窗口。
+      // 反过来会在Màn hình nền留下一cái闪了闪又消失của模拟器窗口。
       if (detached && appWin && appWin.isOpen) {
         try { await appWin.agent.hide(); } catch (_) { /* ignore */ }
       }
@@ -1207,7 +1207,7 @@ async function stopApp(pkg, opts = {}) {
       }
     }
 
-    // 清掉当前应用标记：托盘菜单、右键菜单的「关闭应用」都据此变灰
+    // 清掉当前Áp dụng标记：托盘菜单、右键菜单của「Đóng ứng dụng」都据此变灰
     if (currentAppPkg === target) currentAppPkg = null;
 
     try { send('apps:changed'); } catch (_) { /* ignore */ }
@@ -1218,7 +1218,7 @@ async function stopApp(pkg, opts = {}) {
   }
 }
 
-/** 通知桥：只在有应用窗口时轮询，关掉窗口就停，避免空转 */
+/** 通知桥：只在CóCửa sổ ứng dụng时轮询，关掉窗口就停，避免Trống转 */
 function startNotifier() {
   if (!notifier) {
     notifier = new NotifyBridge({
@@ -1252,7 +1252,7 @@ function registerIpc() {
     packaged: app.isPackaged,
   }));
 
-  // 启动方式（开机自启 / 双击打开）：欢迎卡据此决定是否自动弹出
+  // 启动方式（开机自启 / 双击Mở）：欢迎卡据此决定是否Tự động弹出
   ipcMain.handle('app:startupInfo', () => {
     const a = parseArgs(process.argv);
     return {
@@ -1264,10 +1264,10 @@ function registerIpc() {
     };
   });
 
-  // 选文件夹（用于把运行时/镜像/已装应用挪到非系统盘）
+  // Chọn文件夹（Dùng于把Bộ chạy/镜像/Ứng dụng đã cài挪到Không phải系统盘）
   ipcMain.handle('dialog:openDir', async (_e, defaultPath) => {
     const r = await dialog.showOpenDialog(mainWindow, {
-      title: '选择数据存放目录',
+      title: 'Chọn thư mục lưu dữ liệu',
       defaultPath: defaultPath || store.DATA_DIR,
       properties: ['openDirectory', 'createDirectory'],
     });
@@ -1282,7 +1282,7 @@ function registerIpc() {
     try {
       const c = runtime.client();
       if (await c.isOnline()) running = await c.runningPackages();
-    } catch (_) { /* 运行时未启动时忽略 */ }
+    } catch (_) { /* Bộ chạy chưa khởi động时忽略 */ }
     return apps
       .map((a) => ({
         ...a,
@@ -1297,8 +1297,8 @@ function registerIpc() {
 
   ipcMain.handle('apk:pick', async () => {
     const r = await dialog.showOpenDialog(mainWindow, {
-      title: '选择要安装的 APK',
-      filters: [{ name: 'Android 应用', extensions: ['apk', 'apks', 'xapk'] }],
+      title: 'Chọn mục cần cài APK',
+      filters: [{ name: 'Android Áp dụng', extensions: ['apk', 'apks', 'xapk'] }],
       properties: ['openFile', 'multiSelections'],
     });
     if (r.canceled) return [];
@@ -1315,11 +1315,11 @@ function registerIpc() {
   ipcMain.handle('app:launch', async (_e, pkg) => runLaunch(pkg));
 
   /**
-   * 关掉一个正在运行的安卓应用。
+   * 关掉一cáiĐang chạycủaỨng dụng Android。
    *
-   * 以前根本没有这个入口：endApp 只在「应用窗口被关闭」时触发，而独立窗口模式下
-   * 那个窗口是隐藏的、永远不会被关，所以应用一旦起来就关不掉，
-   * 用户只能退到托盘退出整个 ApkStart（连虚拟机一起没了）。
+   * 以前根本没Có这cái入口：endApp 只在「Cửa sổ ứng dụng被Đóng」时触发，而独立窗口模式下
+   * 那cái窗口是隐藏của、永远不会被关，所以Áp dụng一旦起来就关不掉，
+   * Dùng户只能退到托盘Thoát整cái ApkStart（连虚拟机一起没了）。
    */
   ipcMain.handle('app:stop', async (_e, pkg, opts = {}) => stopApp(pkg, opts));
 
@@ -1330,7 +1330,7 @@ function registerIpc() {
 
   ipcMain.handle('app:shortcut', async (_e, pkg) => {
     const appRecord = store.getApp(pkg);
-    if (!appRecord) throw new Error('应用不存在');
+    if (!appRecord) throw new Error('Ứng dụng không tồn tại');
     const p = installer.createShortcut(appRecord);
     store.upsertApp({ package: pkg, shortcutPath: p });
     return { ok: true, path: p };
@@ -1359,9 +1359,9 @@ function registerIpc() {
   });
 
   /**
-   * 内存 / CPU / 数据分区这几项会直接决定虚拟机怎么开、能装多大的游戏，
-   * 保存前统一收敛一次：手改 settings.json、旧版本残留的离谱值都在这里被拉回来，
-   * 免得开机时 qemu 因为 -memory 32 直接退出，或者分区填到比磁盘还大。
+   * Bộ nhớ / CPU / 数据Phân vùng这几mục会直接决定虚拟机怎么开、能装多Lớncủa游戏，
+   * 保存前统一收敛一lần:手改 settings.json、旧版本残留của离谱值都在这里被拉回来，
+   * 免得开机时 qemu 因为 -memory 32 直接Thoát，或者Phân vùng填到比磁盘还Lớn。
    */
   const sanitizeResourcePatch = (patch) => {
     if (!patch || !patch.engine) return patch;
@@ -1386,21 +1386,21 @@ function registerIpc() {
     const next = store.saveSettings(patch);
     if (patch && patch.autoStart !== undefined) applyAutoStart();
     if (patch && patch.display && appWin && appWin.isOpen) {
-      // 竖屏基准尺寸变了：只影响后续打开的窗口大小，不打断正在跑的应用
+      // Màn dọc基准尺寸变了：只影响后续Mởcủa窗口LớnNhỏ，不打断正在跑củaÁp dụng
       appWin.portrait = portraitSize();
     }
-    // 打开「开始菜单快捷方式」时立刻补齐，不用等下次安装
+    // Mở「开始菜单快捷方式」时立刻补齐，不Dùng等下次Cài đặt
     if (patch && (patch.createStartMenuShortcut === true || patch.createShortcutOnInstall === true)) {
       installer.ensureShortcuts().catch(() => {});
     }
-    // 鼠标键位变了：立刻按当前焦点重装/卸载钩子，不用等下次切窗口
+    // Phím chuột变了：立刻按当前焦点重装/Gỡ cài đặt钩子，不Dùng等下次切窗口
     if (patch && patch.engine && (
       'mouseRightBack' in patch.engine || 'mouseWheelMode' in patch.engine || 'mouseSideButtons' in patch.engine
     )) {
       refreshPointerMapping();
     }
-    // 换了更新源 / 镜像前缀 / 整包地址：之前那套「谁最快」的结论不再成立，清掉测速缓存；
-    // 运行时整包 / 引擎 / 镜像的地址还缓存在 provisioner._cache 里，不清掉就要重启进程才生效。
+    // 换了更新源 / 镜像前缀 / 整包地址：之前那套「谁最快」của结论不再成立，清掉测速缓存；
+    // Toàn bộ gói bộ chạy / Engine / 镜像của地址还缓存在 provisioner._cache 里，不清掉就要重启进程才生效。
     if (patch && patch.runtime && (
       'sourcePreference' in patch.runtime || 'mirrorPrefix' in patch.runtime
       || 'autoMirror' in patch.runtime || 'runtimePackUrl' in patch.runtime
@@ -1416,11 +1416,11 @@ function registerIpc() {
   });
 
   /**
-   * 修改本机共享目录：把旧目录里已有的文件一次性迁到新目录（best-effort，不删旧文件），
-   * 再保存设置。Sharer 每次同步都动态读 store.getSettings().sharedDir，无需重启即可生效。
+   * 修改Thư mục chia sẻ của máy：把旧目录里已Cócủa文件一次性迁到新目录（best-effort，不删旧文件），
+   * 再保存Cài đặt。Sharer 每次同步都动态读 store.getSettings().sharedDir，无需重启即可生效。
    */
   ipcMain.handle('settings:setSharedDir', async (_e, dir) => {
-    if (!dir || !dir.trim()) return { ok: false, error: '目录不能为空' };
+    if (!dir || !dir.trim()) return { ok: false, error: 'Thư mục không được để trống' };
     const newDir = dir.trim();
     const oldDir = store.getSettings().sharedDir;
     try {
@@ -1433,7 +1433,7 @@ function registerIpc() {
     }
   });
 
-  // ---------------- 显示模式 / 快捷方式 / 一键部署 ----------------
+  // ---------------- Chế độ hiển thị / 快捷方式 / 一键部署 ----------------
 
   ipcMain.handle('display:state', () => ({
     ...displaySettings(),
@@ -1448,7 +1448,7 @@ function registerIpc() {
       const full = next.display.mode === 'fullscreen';
       if (full && !appWin.win.isMaximized()) appWin.win.maximize();
       if (!full && appWin.win.isMaximized()) appWin.win.unmaximize();
-      // 全屏 = 平板横屏排版（见 toggleDisplayMode 的说明）
+      // 全屏 = 平板Màn ngang排版（见 toggleDisplayMode của说明）
       appWin.setLandscape(full).catch(() => {});
       appWin.scheduleFit();
     }
@@ -1458,23 +1458,23 @@ function registerIpc() {
   ipcMain.handle('display:toggle', () => toggleDisplayMode());
 
   ipcMain.handle('shortcut:rebuild', async () => ({ ok: true, fixed: await installer.ensureShortcuts() }));
-  // 用户手动点「一键部署」时强制重试，绕过失败冷却
+  // Dùng户手动点「一键部署」时强制重试，绕过Thất bại冷却
   ipcMain.handle('runtime:autoDeploy', (_e, opts = {}) => autoDeploy({ force: !!opts.force }));
-  // 关闭「深度裁剪」时把被 pm disable-user 的系统包恢复回来
+  // Đóng「深度裁剪」时把被 pm disable-user của系统包恢复回来
   ipcMain.handle('settings:restoreSystem', async () => runtime.restoreSystemApps());
-  // 鼠标键位改变：只同步配置，不再无条件卸载（右键返回/滚轮可能仍需要钩子）
+  // Phím chuột改变：只同步配置，不再无条件Gỡ cài đặt（右键返回/滚轮可能仍Cần钩子）
   ipcMain.handle('settings:refreshPointer', async () => { refreshPointerMapping(); return true; });
-  // 兼容旧界面：语义已改为「按设置重新同步」
+  // Tương thích旧界面：语义已改là “按Cài đặt重新同步」
   ipcMain.handle('settings:unhook', async () => { refreshPointerMapping(); return true; });
 
-  // ---------------- 本机体检 / 自动配置 ----------------
-  // 探测能自动做的（内存、核心、画质、渲染后端）就自动做；
-  // 必须管理员权限的（开 Windows 功能、装 AEHD）给按钮；只能进 BIOS 的说清楚怎么改。
+  // ---------------- Máy nàyKiểm tra sức khỏe / Tự cấu hình ----------------
+  // 探测能Tự động做của（Bộ nhớ、nhân心、画质、渲染后端）就Tự động做；
+  // 必须管理员权限của（开 Windows 功能、装 AEHD）给按钮；只能进 BIOS của说清楚怎么改。
 
   ipcMain.handle('preflight:run', async () => {
     const preflight = require('./core/preflight');
     let accel = { ok: false, kind: 'none' };
-    try { accel = await runtime.provisioner.emulatorAccel(); } catch (_) { /* 运行时还没部署 */ }
+    try { accel = await runtime.provisioner.emulatorAccel(); } catch (_) { /* Bộ chạy还没部署 */ }
     const hw = await preflight.collect({ accel });
     const edition = store.STORE_BUILD ? 'store' : 'installer';
     const report = preflight.evaluate({ hw, settings: store.getSettings(), edition });
@@ -1482,8 +1482,8 @@ function registerIpc() {
   });
 
   /**
-   * 应用体检推荐：写设置 + 把这台机器的补丁落成一份驱动。
-   * 只写 preflight 明确列出的几个安全项（内存 / 核心 / 画质 / 渲染后端 / 是否锁软件模拟）。
+   * Áp dụngKiểm tra sức khỏe推荐：写Cài đặt + 把这台机器của补丁落成一份Trình điều khiển。
+   * 只写 preflight 明确列出của几cái安全mục（Bộ nhớ / nhân心 / 画质 / 渲染后端 / 是否锁Giả lập phần mềm）。
    */
   ipcMain.handle('preflight:apply', async () => {
     const preflight = require('./core/preflight');
@@ -1496,8 +1496,8 @@ function registerIpc() {
     const patch = sanitizeResourcePatch(report.patch);
     const next = store.saveSettings(patch);
 
-    // 把这台机器的参数固化成驱动：以后每次开机都按它来，不用重复体检。
-    // 校验一遍再落盘 —— 体检生成的内容同样不能绕过白名单。
+    // 把这台机器của参数固化成Trình điều khiển：以后每次开机都按它来，不Dùng重复Kiểm tra sức khỏe。
+    // 校验一遍再落盘 —— Kiểm tra sức khỏe生成của内容同样不能绕过白名单。
     let driverFile = '';
     let driverError = '';
     try {
@@ -1513,7 +1513,7 @@ function registerIpc() {
       driverError = e.message;
     }
 
-    appLog(`体检自动配置：${JSON.stringify(patch.engine)} driver=${driverFile || '(未写入)'}`);
+    appLog(`Cấu hình tự động theo kiểm tra:${JSON.stringify(patch.engine)} driver=${driverFile || '(Chưa ghi)'}`);
     return {
       ok: true,
       settings: store.getSettings(),
@@ -1524,11 +1524,11 @@ function registerIpc() {
     };
   });
 
-  // ---------------- 驱动（兼容补丁） ----------------
-  // 一个驱动就是一份 JSON：声明「匹配哪些机器」+「命中后改哪些启动参数」。
-  // 这里只做「读目录 / 校验 / 匹配 / 导入 / 导出模板 / 开关」，不执行任何代码。
+  // ---------------- Trình điều khiển（Bản vá tương thích） ----------------
+  // 一cáiTrình điều khiển就是一份 JSON：声明「匹配哪些机器」+「命中后改哪些启动参数」。
+  // 这里只做「读目录 / 校验 / 匹配 / 导入 / 导出模板 / 开关」，Không chạy bất kỳ mã nào。
 
-  /** 组装当前机器画像 + 全部驱动 + 匹配结果（给设置页用） */
+  /** 组装当前机器画像 + 全部Trình điều khiển + 匹配结果（给Cài đặt页Dùng） */
   async function driverOverview() {
     const drv = require('./core/drivers');
     const doctor = require('./core/doctor');
@@ -1537,7 +1537,7 @@ function registerIpc() {
     const disabled = (s.drivers && s.drivers.disabled) || [];
     const state = (s.drivers && s.drivers.state) || {};
     let accel = { ok: false, kind: 'none' };
-    try { accel = await runtime.provisioner.emulatorAccel(); } catch (_) { /* 没装运行时 */ }
+    try { accel = await runtime.provisioner.emulatorAccel(); } catch (_) { /* 没装Bộ chạy */ }
     let emulatorVersion = '';
     try { emulatorVersion = (await runtime.provisioner.emulatorVersion()).version || ''; } catch (_) { /* ignore */ }
     let osBuild = 0;
@@ -1592,17 +1592,17 @@ function registerIpc() {
   ipcMain.handle('drivers:import', async () => {
     const drv = require('./core/drivers');
     const r = await dialog.showOpenDialog(mainWindow, {
-      title: '选择驱动文件（.json）',
-      filters: [{ name: '驱动 JSON', extensions: ['json'] }],
+      title: 'Chọn tệp trình điều khiển (.json)',
+      filters: [{ name: 'Trình điều khiển JSON', extensions: ['json'] }],
       properties: ['openFile'],
     });
     if (r.canceled || !r.filePaths.length) return { ok: false, canceled: true };
     const out = drv.importDriver(r.filePaths[0], drv.userDir(store));
     if (out.ok) {
-      // 导入即启用：用户特意导入的补丁，默认应该立刻生效
+      // 导入即启Dùng: dùng户特意导入của补丁，默认应该立刻生效
       const s = store.getSettings();
       store.saveSettings({ drivers: { state: { ...(s.drivers.state || {}), [out.driver.id]: true } } });
-      send('runtime:log', `已导入驱动：${out.driver.name} v${out.driver.version}`);
+      send('runtime:log', `Đã nhập trình điều khiển:${out.driver.name} v${out.driver.version}`);
     }
     return { ...out, overview: await driverOverview() };
   });
@@ -1612,9 +1612,9 @@ function registerIpc() {
     const overview = await driverOverview();
     const tpl = drv.templateFromHost(overview.host);
     const r = await dialog.showSaveDialog(mainWindow, {
-      title: '导出本机驱动模板',
+      title: 'Xuất mẫu trình điều khiển của máy này',
       defaultPath: path.join(drv.userDir(store), `${tpl.id}.json`),
-      filters: [{ name: '驱动 JSON', extensions: ['json'] }],
+      filters: [{ name: 'Trình điều khiển JSON', extensions: ['json'] }],
     });
     if (r.canceled || !r.filePath) return { ok: false, canceled: true };
     fs.mkdirSync(path.dirname(r.filePath), { recursive: true });
@@ -1624,7 +1624,7 @@ function registerIpc() {
 
   ipcMain.handle('drivers:setEnabled', async (_e, { id, enabled } = {}) => {
     const did = String(id || '');
-    if (!did) return { ok: false, error: '缺少驱动 id' };
+    if (!did) return { ok: false, error: 'Thiếu trình điều khiển id' };
     const s = store.getSettings();
     const prev = (s.drivers && s.drivers.state) || {};
     store.saveSettings({ drivers: { state: { ...prev, [did]: !!enabled } } });
@@ -1643,12 +1643,12 @@ function registerIpc() {
   });
   ipcMain.handle('runtime:log', () => runtime.bootLog);
 
-  // ---------------- 诊断 / 瘦身 ----------------
+  // ---------------- Chẩn đoán / 瘦身 ----------------
 
   ipcMain.handle('doctor:profile', async () => {
     const doctor = require('./core/doctor');
-    // 已经开机就用实跑参数；没开机也要按「真实引擎版本 + 真实加速状态」推导，
-    // 否则设置页会显示已弃用的 swiftshader_indirect / 软件模拟，和实跑不一致。
+    // 已经开机就Dùng实跑参数；没开机也要按「真实Engine版本 + 真实Tăng tốc状态」推导，
+    // 否则Cài đặt页会显示已弃Dùngcủa swiftshader_indirect / Giả lập phần mềm，和实跑不一致。
     let p = runtime.emulator.profile;
     if (!p) {
       const env = await runtime.provisioner.checkEnv();
@@ -1669,87 +1669,87 @@ function registerIpc() {
   });
 
   /**
-   * 系统问题自动校验：启动前/运行中自动检查常见导致「装不上、起不来」的根因，
-   * 并给出可操作的修复建议（在首页横幅 + 设置面板里展示，按问题一键修复）。
+   * 系统问题Tự động校验：启动前/Đang chạyTự động检查常见导致「装不上、起不来」của根因，
+   * 并给出可操作củaSửa建议（在首页横幅 + Cài đặt面板里展示，按问题一键Sửa）。
    */
   ipcMain.handle('doctor:selfCheck', async () => {
     const doctor = require('./core/doctor');
     const issues = [];
-    // 这两个值在 try 内赋值、在 try 外返回，必须在作用域外声明
+    // 这两cái值在 try 内赋值、在 try 外返回，必须在作Dùng域外声明
     let accel = { ok: false };
     let free = 0;
     try {
       if (!doctor.vcRedistOk()) {
         issues.push({
-          code: 'vcRedist', severity: 'error', title: '缺少 VC++ 运行库（x64）',
-          hint: '安卓运行时依赖微软 VC++ 2015-2022，缺失会导致模拟器无法启动（0xc0000135）。', fix: 'vcRedist',
+          code: 'vcRedist', severity: 'error', title: 'Thiếu thư viện VC++ (x64)',
+          hint: 'Bộ chạy Android cần Microsoft VC++ 2015-2022; thiếu sẽ khiến trình giả lập không khởi động được (0xc0000135).', fix: 'vcRedist',
         });
       }
       accel = await runtime.provisioner.emulatorAccel().catch(() => ({ ok: false }));
       if (!accel.ok) {
-        // 商店版和安装版的补救路径完全不同，提示必须分开写：
-        //   - 商店（MSIX）版不能装内核驱动、也通常拿不到管理员授权 → 只能引导用户
-        //     自己去「启用或关闭 Windows 功能」里勾「Windows 虚拟机监控程序平台」；
-        //   - 安装版/便携版可以一键提权开启（失败还能退 AEHD 驱动）。
-        // 以前两种版本共用一句话，商店用户看到的是「建议安装 AEHD 驱动」——
-        // 而商店版根本装不了驱动，等于指了一条死路。
+        // 商店版和Cài đặt版của补救Đường dẫn完全不同，提示必须分开写：
+        //   - 商店（MSIX）版不能装内nhânTrình điều khiển、也通常拿不到管理员授权 → 只能引导Dùng户
+        //     自己去「启Dùng或Đóng Windows 功能」里勾「Windows 虚拟机监控程序平台」；
+        //   - Cài đặt版/便携版可以一键提权开启（Thất bại还能退 AEHD Trình điều khiển）。
+        // 以前两种版本TổngDùng一句话，商店Dùng户看到của是「建议Cài đặt AEHD Trình điều khiển」——
+        // 而商店版根本装不了Trình điều khiển，等于指了一条死路。
         issues.push(store.STORE_BUILD
           ? {
             code: 'accel',
             severity: 'error',
-            title: '需要开启「Windows 虚拟机监控程序平台」',
-            hint: '没有它只能跑纯软件模拟，开机会慢到几分钟。'
+            title: 'Cần bật “Windows Hypervisor Platform”',
+            hint: 'Không có nó thì chỉ chạy được giả lập phần mềm thuần, khởi động chậm đến vài phút.'
               + MSIX_ACCEL_HINT
-              + '（商店版无法代你提权，需要你手动操作一次，之后重启。）',
+              + '(bản Store không thể nâng quyền thay bạn, cần bạn thao tác thủ công một lần, sau đó khởi động lại.)',
             fix: 'virtualization',
           }
           : {
             code: 'accel',
             severity: 'warn',
-            title: '未启用硬件加速',
-            hint: `${accel.note || '将回退软件模拟（能跑但很慢）。'}`
-              + '点右侧「修复」会自动开启（需要管理员授权，可能要重启一次）；'
-              + '失败时会自动改装 AEHD 驱动。',
+            title: 'Chưa bật tăng tốc phần cứng',
+            hint: `${accel.note || 'Sẽ quay về trình giả lập phần mềm (chạy được nhưng rất chậm).'}`
+              + 'Bấm “Sửa” bên phải sẽ tự bật (cần quyền quản trị, có thể phải khởi động lại một lần);'
+              + 'Nếu thất bại sẽ tự động cài lại trình điều khiển AEHD.',
             fix: 'virtualization',
           });
       }
       free = doctor.freeDiskMB(runtime.provisioner.paths().root);
       if (free && free < 8192) {
         issues.push({
-          code: 'disk', severity: free < 2048 ? 'error' : 'warn', title: '运行时磁盘空间紧张',
-          hint: `「${runtime.provisioner.paths().root}」所在盘仅剩 ${free} MB，运行时与镜像可能撑爆硬盘。`, fix: 'disk',
+          code: 'disk', severity: free < 2048 ? 'error' : 'warn', title: 'Dung lượng ổ đĩa của bộ chạy sắp hết',
+          hint: `「${runtime.provisioner.paths().root}” nằm trên ổ chỉ còn ${free} MB, vì nó sẽ hiện ra trên ứng dụng đang chạy`, fix: 'disk',
         });
       }
       const rtDir = runtime.provisioner.paths().root;
       if (!doctor.isAsciiPath(rtDir)) {
         issues.push({
-          code: 'pathRuntime', severity: 'warn', title: '运行时目录含中文/特殊字符',
-          hint: '部分运行时组件对中文路径敏感，可能引发启动失败。建议改到纯英文目录。', fix: 'path',
+          code: 'pathRuntime', severity: 'warn', title: 'Thư mục bộ chạy chứa tiếng Trung/ký tự đặc biệt',
+          hint: 'Một số thành phần bộ chạy nhạy với đường dẫn tiếng Trung, có thể làm khởi động lỗi. Nên chuyển sang thư mục chỉ có chữ Latin.', fix: 'path',
         });
       }
       const env = await runtime.provisioner.checkEnv().catch(() => ({}));
       if (!env.adb || !env.adb.ok) {
-        issues.push({ code: 'adb', severity: 'error', title: 'adb 工具链缺失', hint: '无法连接安卓运行时。', fix: 'deploy' });
+        issues.push({ code: 'adb', severity: 'error', title: 'adb Thiếu bộ công cụ', hint: 'Không thể kết nối bộ chạy Android.', fix: 'deploy' });
       }
       if (!env.emulator || !env.emulator.ok) {
-        issues.push({ code: 'emulator', severity: 'error', title: '运行时引擎未安装', hint: '需要先部署运行时引擎（约 440MB）。', fix: 'deploy' });
+        issues.push({ code: 'emulator', severity: 'error', title: 'Chưa cài lõi bộ chạy', hint: 'Cần triển khai lõi bộ chạy trước (khoảng 440MB).', fix: 'deploy' });
       }
       if (!env.sysimg || !env.sysimg.ok) {
-        issues.push({ code: 'sysimg', severity: 'warn', title: '系统镜像未就绪', hint: '需要先下载 Android 系统镜像（约 1.5GB）。', fix: 'deploy' });
+        issues.push({ code: 'sysimg', severity: 'warn', title: 'Ảnh hệ thống chưa sẵn sàng', hint: 'Cần tải ảnh hệ thống Android trước (khoảng 1.5GB).', fix: 'deploy' });
       }
-      // 残留锁文件：会让下一次启动被判定为「AVD 已被占用」而 FATAL
+      // 残留锁文件：会让下一次启动被判定là “AVD 已被占Dùng」而 FATAL
       const avdHome = runtime.provisioner.paths().avdHome;
       let locked = false;
       try { for (const f of fs.readdirSync(avdHome)) { if (/\.lock$/i.test(f)) { locked = true; break; } } } catch (_) { /* ignore */ }
       if (locked) {
-        issues.push({ code: 'lock', severity: 'warn', title: '检测到上次残留的锁文件', hint: '可能导致下一次启动被判定为「AVD 已被占用」。', fix: 'lock' });
+        issues.push({ code: 'lock', severity: 'warn', title: 'Phát hiện tệp khóa còn sót từ lần trước', hint: 'Có thể khiến lần khởi động sau bị coi là “AVD đang bị chiếm dụng”.', fix: 'lock' });
       }
-    } catch (_) { /* 自检失败不阻断使用 */ }
+    } catch (_) { /* 自检Thất bại不阻断使Dùng */ }
     return { issues, accel, free };
   });
 
   // 微软 VC++ 2015-2022 x64 运行库：安卓模拟器（Qt6）与 qemu 都依赖它。
-  // 缺了在「其他电脑」上会直接起不来（0xc0000135 / MSVCP140 缺失）。
+  // Thiếu了在「其他电脑」上会直接起不来（0xc0000135 / MSVCP140 Thiếu失）。
   function vcRedistInstaller() {
     const p = runtime.provisioner.paths();
     const cands = [
@@ -1767,7 +1767,7 @@ function registerIpc() {
     if (!file) return { ok: false, reason: 'no-installer' };
     const { spawn } = require('child_process');
     await new Promise((resolve) => {
-      // 用 RunAs 提权安装（VC++ 是系统级组件，需要管理员）；/quiet 静默 /norestart 不重启
+      // Dùng RunAs 提权Cài đặt（VC++ 是系统级组件，Cần管理员）；/quiet 静默 /norestart 不重启
       const ps = spawn('powershell.exe', ['-NoProfile', '-Command',
         `Start-Process -FilePath "${file}" -ArgumentList '/quiet','/norestart' -Verb RunAs -Wait`],
       { windowsHide: true, stdio: 'ignore' });
@@ -1780,14 +1780,14 @@ function registerIpc() {
 
   ipcMain.handle('runtime:usage', () => runtime.usage());
 
-  // 通用确认框（渲染层统一走这里，避免各处自己拼 dialog 文案）
+  // 通DùngXác nhận框（渲染层统一走这里，避免各处自己拼 dialog 文案）
   ipcMain.handle('app:confirm', async (_e, opts = {}) => {
     const { response } = await dialog.showMessageBox(mainWindow || undefined, {
       type: opts.type || 'question',
-      title: opts.title || '确认',
+      title: opts.title || 'Xác nhận',
       message: opts.message || '',
       detail: opts.detail || '',
-      buttons: ['取消', opts.okLabel || '确定'],
+      buttons: ['Hủy', opts.okLabel || 'OK'],
       defaultId: 1,
       cancelId: 0,
       noLink: true,
@@ -1797,28 +1797,28 @@ function registerIpc() {
 
   /**
    * 资源分配总览：宿主上限、当前分配、数据盘余量。
-   * 由运行时自己的 resources() 回答，界面只认这个结构。
+   * 由Bộ chạy自己của resources() 回答，界面只认这cái结构。
    */
   ipcMain.handle('engine:resources', async () => {
     try {
       const backend = runtime.backend;
       if (backend && typeof backend.resources === 'function') return await backend.resources();
-      return { backend: backend ? backend.id : '', ok: false, note: '运行时未就绪，暂时读不到资源分配' };
+      return { backend: backend ? backend.id : '', ok: false, note: 'Bộ chạy chưa sẵn sàng, tạm thời chưa đọc được phân bổ tài nguyên' };
     } catch (e) {
       return { ok: false, error: e.message };
     }
   });
 
   /**
-   * 就地扩容做不到时（quickboot 差量盘）走这条：按目标容量重建 /data。
-   * 会清空已装应用与存档 —— 调用方必须已经让用户明确确认过。
+   * 就地扩容做不到时（quickboot 差量盘）走这条：按Mục tiêu容量重建 /data。
+   * 会清TrốngỨng dụng đã cài与存档 —— 调Dùng方必须已经让Dùng户明确Xác nhận过。
    */
   ipcMain.handle('runtime:resetAndResize', async (_e, gb) => {
     const res = require('./core/resources');
     const doctor = require('./core/doctor');
     const freeMB = doctor.freeDiskMB(runtime.provisioner.paths().root);
     const want = res.clampDataGB(gb, freeMB).gb;
-    if (!want) return { ok: false, error: '目标容量不合法' };
+    if (!want) return { ok: false, error: 'Dung lượng mục tiêu không hợp lệ' };
     store.saveSettings({ engine: { dataPartitionGB: want } });
     await runtime.stop().catch(() => {});
     const r = await runtime.resetAndroidData().catch((e) => ({ ok: false, error: e.message }));
@@ -1826,8 +1826,8 @@ function registerIpc() {
     return { ok: !!(r && r.ok), wantGB: want, ...r };
   });
 
-  // 数据分区（/data）容量：应用、游戏与它们的更新包都装在这里。
-  // 「游戏更新提示空间不足」几乎都是这一项太小，扩容是就地做的，不丢数据。
+  // 数据Phân vùng（/data）容量：Áp dụng、游戏与它们của更新包都装在这里。
+  // 「游戏更新提示Không đủ dung lượng」几乎都是这一mục太Nhỏ，扩容是就地做của，不丢数据。
   ipcMain.handle('runtime:dataInfo', () => {
     const doctor = require('./core/doctor');
     const b = runtime.backend;
@@ -1849,7 +1849,7 @@ function registerIpc() {
       return { ok: true, auto: true, ...info };
     }
     const mb = Math.round(want * 1024);
-    // 镜像正被 qemu 占着时不能改，先停容器（应用会跟着退出，属于预期）
+    // 镜像正被 qemu 占着时不能改，先停容器（Áp dụng会跟着Thoát，属于预期）
     let stopped = false;
     try {
       const online = await runtime.client().isOnline().catch(() => false);
@@ -1861,7 +1861,7 @@ function registerIpc() {
     try {
       const r = runtime.emulator.resizeDataPartition(mb);
       appLog(`data partition -> ${want}GB: ${JSON.stringify(r)}`);
-      if (r && r.ok) notify('数据分区已调整', `安卓可用空间约 ${want} GB${stopped ? '（运行时已重启）' : ''}`);
+      if (r && r.ok) notify('Đã điều chỉnh phân vùng dữ liệu', `Dung lượng trống của Android khoảng ${want} GB${stopped ? '(bộ chạy đã khởi động lại)' : ''}`);
       return { ok: !!(r && r.ok), stopped, ...r, ...runtime.emulator.dataInfo() };
     } catch (e) {
       return { ok: false, error: e.message };
@@ -1869,28 +1869,28 @@ function registerIpc() {
   });
 
   ipcMain.handle('runtime:cleanup', async (_e, opts = {}) => {
-    // 明确两次确认：先给清单，用户确认后才真正删；且只清理 ApkStart 自己的运行时目录
+    // 明确两次Xác nhận：先给清单，Dùng户Xác nhận后才真正删；且只Dọn dẹp ApkStart 自己củaBộ chạy目录
     const pass = { apply: false, aggressive: !!opts.aggressive, includeSnapshots: !!opts.includeSnapshots };
     if (!opts.apply) return runtime.cleanup(pass);
     const preview = await runtime.cleanup(pass);
     const { response } = await dialog.showMessageBox(mainWindow, {
       type: 'warning',
-      buttons: ['取消', `清理 ${preview.candidates.length} 项`],
+      buttons: ['Hủy', `Dọn dẹp ${preview.candidates.length} mục`],
       defaultId: 0,
       cancelId: 0,
-      title: '确认清理运行时缓存',
-      message: `将释放约 ${(preview.candidates.reduce((n, c) => n + c.size, 0) / 1048576).toFixed(0)} MB`,
+      title: 'Xác nhận dọn bộ nhớ đệm của bộ chạy',
+      message: `Sẽ giải phóng khoảng ${(preview.candidates.reduce((n, c) => n + c.size, 0) / 1048576).toFixed(0)} MB`,
       detail: (opts.includeSnapshots
-        ? '会先停止运行时，再删除旧镜像、当前 AVD 的快速启动快照、锁文件和非活动 AVD 的缓存。已安装的应用本身保留（只清快照），'
-        : '只删除旧镜像、旧快照、锁文件和非活动 AVD 的缓存，已安装的应用会保留。')
-        + '此操作不可撤销，建议先导出诊断报告。',
+        ? 'Sẽ dừng bộ chạy trước, rồi xóa ảnh hệ thống cũ, snapshot khởi động nhanh của AVD hiện tại, tệp khóa và bộ nhớ đệm của các AVD không hoạt động. Bản thân các ứng dụng đã cài được giữ lại (chỉ xóa snapshot),'
+        : 'Chỉ xóa ảnh hệ thống cũ, snapshot cũ, tệp khóa và bộ nhớ đệm của AVD không hoạt động; ứng dụng đã cài được giữ lại.')
+        + 'Thao tác này không thể hoàn tác, nên xuất báo cáo chẩn đoán trước.',
     });
     if (response !== 1) return { ...preview, cancelled: true };
     return runtime.cleanup({ apply: true, aggressive: !!opts.aggressive, includeSnapshots: !!opts.includeSnapshots });
   });
 
-  // 彻底重置安卓数据：清空 /data 用户分区 + 已装应用 + 快速启动快照，
-  // AVD 还原成「刚装好系统」的干净状态。会真实删除数 GB 数据，UI 必须二次确认。
+  // 彻底Đặt lại dữ liệu Android：清Trống /data Dùng户Phân vùng + Ứng dụng đã cài + 快速启动快照，
+  // AVD 还原成「刚装好系统」của干净状态。会真实Xóa数 GB 数据，UI 必须二次Xác nhận。
   ipcMain.handle('runtime:resetData', async () => {
     try {
       const r = await runtime.resetAndroidData();
@@ -1901,8 +1901,8 @@ function registerIpc() {
     }
   });
 
-  // 修复虚拟机网络：重置 /data（保留应用清单，点开应用会自动重装）。
-  // 典型场景：安卓里所有联网页面一直黑屏，其实是 wlan0 没起来、没有默认路由。
+  // Sửa虚拟机网络：重置 /data（保留Áp dụng清单，点开Áp dụng会Tự động重装）。
+  // 典型场景：安卓里所Có联网页面一直黑屏，其实是 wlan0 没起来、没Có默认路由。
   ipcMain.handle('runtime:repairNetwork', async () => {
     try {
       const r = await runtime.repairNetwork({
@@ -1914,7 +1914,7 @@ function registerIpc() {
     }
   });
 
-  // 只做网络体检，不动任何数据（设置页用来显示当前状态）
+  // 只做网络Kiểm tra sức khỏe，不动任何数据（Cài đặt页Dùng来显示当前状态）
   ipcMain.handle('runtime:checkNetwork', async () => {
     try {
       const network = await runtime.emulator.checkNetwork(runtime.adbPath());
@@ -1926,7 +1926,7 @@ function registerIpc() {
 
   // ---------------- 旧版本残留 ----------------
 
-  /** 只扫描、不删除：先把「能找到什么」原样给界面，由用户决定 */
+  /** 只扫描、不Xóa：先把「能Tìm thấy什么」原样给界面，由Dùng户决定 */
   ipcMain.handle('leftovers:scan', () => {
     try {
       const installDir = path.dirname(app.getPath('exe'));
@@ -1950,7 +1950,7 @@ function registerIpc() {
     }
   });
 
-  // ---------------- 运行时自举 ----------------
+  // ---------------- Bộ chạy自举 ----------------
 
   ipcMain.handle('provision:installEmulator', async () => {
     try {
@@ -1996,7 +1996,7 @@ function registerIpc() {
     }
   });
 
-  /** 提权安装 AEHD 驱动：弹出 UAC，用户确认后静默安装 */
+  /** 提权Cài đặt AEHD Trình điều khiển：弹出 UAC，Dùng户Xác nhận后静默Cài đặt */
   ipcMain.handle('provision:enableAccel', async () => {
     try {
       const p = runtime.provisioner.paths();
@@ -2005,7 +2005,7 @@ function registerIpc() {
         const r = await runtime.provisioner.installAehd(
           (x) => send('provision:progress', { ...x, component: 'aehd' }),
         );
-        if (!fs.existsSync(bat)) throw new Error(r.error || 'AEHD 驱动包未就绪');
+        if (!fs.existsSync(bat)) throw new Error(r.error || 'AEHD Gói trình điều khiển chưa sẵn sàng');
       }
 
       await new Promise((resolve, reject) => {
@@ -2016,7 +2016,7 @@ function registerIpc() {
           windowsHide: true,
         });
         proc.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(
-          code === 2 ? '已取消管理员授权（需要点「是」才能安装驱动）' : `驱动安装失败（退出码 ${code}）`,
+          code === 2 ? 'Đã hủy cấp quyền quản trị (cần bấm “Có” mới cài được trình điều khiển)' : `Cài trình điều khiển thất bại (mã thoát ${code}）`,
         ))));
         proc.on('error', (e) => reject(e));
       });
@@ -2029,20 +2029,20 @@ function registerIpc() {
   });
 
   /**
-   * 自动开启虚拟化：用户无需手动去「Windows 功能」面板。
-   * 优先启用系统自带的「虚拟机平台」（WHPX）功能；若该 DLL 都不存在（老系统），
-   * 退而安装并启用 Google 的 AEHD 驱动。两种方式都需要管理员提权。
+   * Tự động开启虚拟化: dùng户无需手动去「Windows 功能」面板。
+   * 优先启Dùng系统自带của「虚拟机平台」（WHPX）功能；若该 DLL 都Không tồn tại（老系统），
+   * 退而Cài đặt并启Dùng Google của AEHD Trình điều khiển。两种方式都Cần管理员提权。
    */
   ipcMain.handle('provision:enableVirtualization', async () => {
     try {
       const accel = await runtime.provisioner.emulatorAccel();
-      if (accel.ok) return { ok: true, already: true, accel, note: '硬件加速已可用，无需额外操作' };
+      if (accel.ok) return { ok: true, already: true, accel, note: 'Tăng tốc phần cứng đã dùng được, không cần thao tác thêm' };
 
-      // ---------------- 商店（MSIX）版：只能走系统自带的 WHPX ----------------
-      // MSIX 包由 AppX 部署模型拉起，固定 mediumIL，既不能装内核驱动（AEHD），
+      // ---------------- 商店（MSIX）版：只能走系统自带của WHPX ----------------
+      // MSIX 包由 AppX 部署模型拉起，固定 mediumIL，既不能装内nhânTrình điều khiển（AEHD），
       // 通常也拿不到管理员授权。所以这里只尝试 WHPX，拿不到就退回「手动开启」
-      // 的引导 —— 以前的实现直接用 Start-Process -Verb RunAs，商店用户点了
-      // 注定失败，横幅上的「未启用硬件加速」永远消不掉。
+      // của引导 —— 以前của实现直接Dùng Start-Process -Verb RunAs，商店Dùng户点了
+      // 注定Thất bại，横幅上của「Chưa bật tăng tốc phần cứng」永远消不掉。
       if (store.STORE_BUILD) {
         const whpx = await enableWhpxFeatures();
         runtime.provisioner.invalidateEnvCache?.();
@@ -2050,7 +2050,7 @@ function registerIpc() {
           return {
             ok: true, restartNeeded: true, steps: whpx.steps,
             accel: await runtime.provisioner.emulatorAccel().catch(() => accel),
-            note: '已请求开启「Windows 虚拟机监控程序平台」，重启电脑后硬件加速才会生效',
+            note: 'Đã yêu cầu bật “Nền tảng Hypervisor của Windows”, tăng tốc phần cứng chỉ có hiệu lực sau khi khởi động lại máy',
           };
         }
         return {
@@ -2063,9 +2063,9 @@ function registerIpc() {
         };
       }
 
-      // ---------------- 安装版 / 便携版 ----------------
-      // 先试 WHPX（系统自带，无需下载）；失败（用户点了否 / 系统不支持）再退 AEHD 驱动。
-      // AEHD 需要联网拿驱动包，所以放在后面。
+      // ---------------- Cài đặt版 / 便携版 ----------------
+      // Thử trước WHPX（系统自带，无需下载）；Thất bại（Dùng户点了否 / 系统Không hỗ trợ）再退 AEHD Trình điều khiển。
+      // AEHD Cần联网拿Trình điều khiển包，所以放在后面。
       const whpx = await enableWhpxFeatures();
       runtime.provisioner.invalidateEnvCache?.();
       if (whpx.ok) {
@@ -2073,23 +2073,23 @@ function registerIpc() {
           ok: true, restartNeeded: true, steps: whpx.steps,
           accel: await runtime.provisioner.emulatorAccel().catch(() => accel),
           note: whpx.steps.some((s) => s.cancelled)
-            ? '已开启「Windows 虚拟机监控程序平台」，重启电脑后生效'
-            : '已开启「Windows 虚拟机监控程序平台」，重启电脑后生效',
+            ? 'Đã bật “Nền tảng Hypervisor của Windows”, có hiệu lực sau khi khởi động lại máy'
+            : 'Đã bật “Nền tảng Hypervisor của Windows”, có hiệu lực sau khi khởi động lại máy',
         };
       }
       if (whpx.cancelled) {
         return {
           ok: false,
           cancelled: true,
-          error: '你取消了管理员授权，硬件加速没有改动。可以再点一次「修复」，或手动开启「Windows 虚拟机监控程序平台」。',
+          error: 'Bạn đã hủy cấp quyền quản trị, tăng tốc phần cứng không thay đổi. Có thể bấm “Sửa” lại, hoặc tự bật “Windows Hypervisor Platform”.',
         };
       }
 
-      // WHPX 开不起来：改用 Google 的 AEHD 驱动（装完即用，不用重启）
+      // WHPX 开不起来：改Dùng Google của AEHD Trình điều khiển（装完即Dùng，不Dùng重启）
       const ae = await runtime.provisioner.installAehd(
         (x) => send('provision:progress', { ...x, component: 'aehd' }),
       ).catch((e) => ({ ok: false, error: e.message }));
-      if (!ae.ok) return { ok: false, error: ae.error || 'AEHD 驱动包准备失败' };
+      if (!ae.ok) return { ok: false, error: ae.error || 'AEHD Chuẩn bị gói trình điều khiển thất bại' };
       const bat = path.join(runtime.provisioner.paths().aehdDir, 'silent_install.bat');
       await new Promise((resolve, reject) => {
         const { spawn: sp } = require('child_process');
@@ -2097,13 +2097,13 @@ function registerIpc() {
         const ps = `try { $p = Start-Process -FilePath '${esc}' -WorkingDirectory '${path.dirname(bat).replace(/'/g, "''")}' -Verb RunAs -Wait -PassThru; exit $p.ExitCode } catch { exit 2 }`;
         const proc = sp('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true });
         proc.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(
-          code === 2 ? '已取消管理员授权（需要点「是」才能安装驱动）' : `驱动安装失败（退出码 ${code}）`,
+          code === 2 ? 'Đã hủy cấp quyền quản trị (cần bấm “Có” mới cài được trình điều khiển)' : `Cài trình điều khiển thất bại (mã thoát ${code}）`,
         ))));
         proc.on('error', (e) => reject(e));
       });
       runtime.provisioner.invalidateEnvCache?.();
       const after = await runtime.provisioner.emulatorAccel();
-      return { ok: after.ok, accel: after, note: after.ok ? 'AEHD 硬件加速已启用' : after.note };
+      return { ok: after.ok, accel: after, note: after.ok ? 'AEHD Đã bật tăng tốc phần cứng' : after.note };
     } catch (e) {
       return { ok: false, error: e.message };
     }
@@ -2148,8 +2148,8 @@ function registerIpc() {
 
   ipcMain.handle('provision:importIso', async () => {
     const r = await dialog.showOpenDialog(mainWindow, {
-      title: '选择 Android-x86 / Bliss OS 系统镜像',
-      filters: [{ name: '系统镜像', extensions: ['iso', 'img'] }],
+      title: 'Chọn ảnh hệ thống Android-x86 / Bliss OS',
+      filters: [{ name: 'Ảnh hệ thống', extensions: ['iso', 'img'] }],
       properties: ['openFile'],
     });
     if (r.canceled) return { ok: false, canceled: true };
@@ -2162,8 +2162,8 @@ function registerIpc() {
 
   ipcMain.handle('provision:importDisk', async () => {
     const r = await dialog.showOpenDialog(mainWindow, {
-      title: '选择已安装 Android 的虚拟磁盘',
-      filters: [{ name: '虚拟磁盘', extensions: ['qcow2', 'img', 'vmdk', 'raw'] }],
+      title: 'Chọn ổ đĩa ảo đã cài Android',
+      filters: [{ name: 'Ổ đĩa ảo', extensions: ['qcow2', 'img', 'vmdk', 'raw'] }],
       properties: ['openFile'],
     });
     if (r.canceled) return { ok: false, canceled: true };
@@ -2214,7 +2214,7 @@ function registerIpc() {
     const l = launcherInfo();
     const icoPath = path.join(store.ICON_DIR, 'apkstart.ico');
     if (!fs.existsSync(icoPath)) {
-      // 优先用随包分发的多尺寸品牌 ICO，缺失时从 Logo PNG 现算
+      // 优先Dùng随包分发của多尺寸品牌 ICO，Thiếu失时从 Logo PNG 现算
       if (fs.existsSync(APPICON_FILE)) fs.copyFileSync(APPICON_FILE, icoPath);
       else {
         const { pngToIco } = require('./core/shortcut');
@@ -2234,7 +2234,7 @@ function registerIpc() {
     shell.openPath(dir);
   });
 
-  /** 清理上次残留的 AVD 锁文件：会让下次启动被误判为「AVD 已被占用」而 FATAL */
+  /** Dọn dẹpLần trước残留của AVD 锁文件：会让下次启动被误判là “AVD 已被占Dùng」而 FATAL */
   ipcMain.handle('app:clearLocks', async () => {
     try {
       const avdHome = runtime.provisioner.paths().avdHome;
@@ -2251,29 +2251,29 @@ function registerIpc() {
   });
 
   /**
-   * 一键卸载 ApkStart 本体：
-   * 1) 先取消 .apk 文件关联（避免卸载后双击 APK 指向已删除的程序）
-   * 2) 安装版：启动 NSIS 卸载程序（它会自行请求管理员/确认），随后退出本程序
-   * 3) 便携版（旁加载 / 免安装）：没有 uninstaller.exe，返回提示让用户手动删除程序与数据目录
+   * Gỡ cài đặt một chạm ApkStart 本体：
+   * 1) 先Hủy .apk 文件关联（避免Gỡ cài đặt后双击 APK 指向已Xóacủa程序）
+   * 2) Cài đặt版：启动 NSIS Gỡ cài đặt程序（它会自行请求管理员/Xác nhận），随后Thoát本程序
+   * 3) 便携版（旁加载 / 免Cài đặt）：没Có uninstaller.exe，返回提示让Dùng户手动Xóa程序与数据目录
    */
   ipcMain.handle('app:removeSelf', async () => {
     try {
-      try { await assoc.unregisterAssociation(); } catch (_) { /* 取消关联失败不影响卸载 */ }
+      try { await assoc.unregisterAssociation(); } catch (_) { /* Hủy关联Thất bại不影响Gỡ cài đặt */ }
       const exeDir = path.dirname(process.execPath);
-      // 和 updater.flavor 用同一套识别规则：electron-builder 生成的是
+      // 和 updater.flavor Dùng同一套识别规则：electron-builder 生成của是
       // "Uninstall ApkStart.exe"，旧代码只找 "uninstaller.exe"，
-      // 导致安装版点「一键卸载」被误判成便携版、只弹提示不真卸载（issue #51）。
+      // 导致Cài đặt版点「Gỡ cài đặt một chạm」被误判成便携版、只弹提示不真Gỡ cài đặt（issue #51）。
       const unName = findUninstaller(exeDir);
       if (!unName) {
         return { ok: true, portable: true, dataDir: store.DATA_DIR, exeDir };
       }
       const uninstaller = path.join(exeDir, unName);
       const { spawn } = require('child_process');
-      // 卸载前先收掉常驻的模拟器：qemu 会锁住 resources\runtime 里的 exe/dll，
-      // NSIS 删不掉就会留下半个安装目录。这里只针对「真的在卸载」，不影响日常退出。
+      // Gỡ cài đặt前先收掉常驻của模拟器：qemu 会锁住 resources\runtime trong exe/dll，
+      // NSIS 删不掉就会留下半cáiCài đặt目录。这里只针对「真của在Gỡ cài đặt」，不影响日常Thoát。
       try { await runtime?.emulator?.killOrphanProcesses(); } catch (_) { /* ignore */ }
-      // 先让本程序退出，再由一个独立进程延迟 2 秒拉起卸载器：
-      // 运行中的 exe 会锁住安装目录里的文件，直接拉起卸载器容易删不干净。
+      // 先让本程序Thoát，再由一cái独立进程延迟 2 秒拉起Gỡ cài đặt器：
+      // Đang chạycủa exe 会锁住Cài đặt目录trong文件，直接拉起Gỡ cài đặt器容易删不干净。
       const cmd = `ping 127.0.0.1 -n 3 >nul & start "" "${uninstaller}"`;
       spawn('cmd.exe', ['/c', cmd], { detached: true, stdio: 'ignore', windowsHide: true }).unref();
       setTimeout(() => app.quit(), 300);
@@ -2286,12 +2286,12 @@ function registerIpc() {
   ipcMain.handle('shell:open', (_e, url) => shell.openExternal(url));
 
   /**
-   * 打开「启用或关闭 Windows 功能」对话框。
+   * Mở「启Dùng或Đóng Windows 功能」对话框。
    *
-   * 为什么不用 ms-settings:optionalfeatures：Win11 那个页面是「可选功能」列表，
-   * 里面**没有**「Windows 虚拟机监控程序平台」，用户会白找一圈。经典对话框
-   * optionalfeatures.exe 才有那一项（WHPX 真正需要的功能）。
-   * 打开它本身不需要管理员权限，点「确定」时才 UAC。
+   * 为什么不Dùng ms-settings:optionalfeatures：Win11 那cái页面是「可Chọn功能」列表，
+   * 里面**没Có**「Windows 虚拟机监控程序平台」，Dùng户会白找一圈。经典对话框
+   * optionalfeatures.exe 才Có那一mục（WHPX 真正Cầncủa功能）。
+   * Mở它本身不Cần管理员权限，点「OK」时才 UAC。
    */
   ipcMain.handle('provision:openWindowsFeatures', () => {
     try {
@@ -2300,7 +2300,7 @@ function registerIpc() {
       spawn(exe, [], { detached: true, stdio: 'ignore' }).unref();
       return { ok: true };
     } catch (e) {
-      // 极少见：被组策略挡住 / 文件缺失。退到设置页，至少给用户一个入口
+      // 极少见：被组策略挡住 / 文件Thiếu失。退到Cài đặt页，至少给Dùng户一cái入口
       shell.openExternal('ms-settings:optionalfeatures').catch(() => {});
       return { ok: false, error: e.message };
     }
@@ -2315,30 +2315,30 @@ function registerIpc() {
   ipcMain.handle('window:close', () => mainWindow?.close());
   ipcMain.handle('window:hide', () => mainWindow?.hide());
 
-  // ---------------- 应用窗口（只有 旋转 / 最小化 / 最大化 / 关闭） ----------------
+  // ---------------- Cửa sổ ứng dụng（只Có 旋转 / Thu nhỏ / Phóng to / Đóng） ----------------
 
   const winOf = (e) => BrowserWindow.fromWebContents(e.sender);
 
   ipcMain.handle('shell:state', () => ({ ...appWin.state, iconUrl: appWin.iconUrl || '' }));
-  // 独立窗口模式下画面在模拟器原生窗口里，壳窗口是隐藏的 —— 按钮必须作用到真正
-  // 可见的那一扇。统一交给 appWin 判断模式处理，避免对隐藏窗口 maximize/minimize。
+  // 独立窗口模式下画面在模拟器原生窗口里，壳窗口是隐藏của —— 按钮必须作Dùng到真正
+  // 可见của那一扇。统一交给 appWin 判断模式处理，避免对隐藏窗口 maximize/minimize。
   ipcMain.handle('shell:minimize', () => appWin.minimize());
   ipcMain.handle('shell:maximize', () => appWin.toggleMaximize());
-  // 关闭必须走 appWin.close()：它会先把模拟器窗口从宿主上摘下来、再停掉安卓应用。
-  // 老实现直接 win.close()，绕过了这段收尾 —— 窗口是没了，但安卓侧的进程还在跑，
-  // 就是用户说的「点关闭关不掉应用」。
+  // Đóng必须走 appWin.close()：它会先把模拟器窗口从宿主上摘下来、再停掉Ứng dụng Android。
+  // 老实现直接 win.close()，绕过了这段收尾 —— 窗口是没了，但安卓侧của进程还在跑，
+  // 就是Dùng户说của「点Đóng关不掉Áp dụng」。
   ipcMain.handle('shell:close', () => {
     if (appWin && appWin.isOpen) { appWin.close(); return { ok: true }; }
     return { ok: false };
   });
-  // 标题栏的旋转按钮 = 「这个应用我要横着/竖着用」。
-  // 以前它只是把全局 landscape 翻一下，于是点红果的旋转按钮会把**所有**应用
-  // 都带到横屏面板上去，红果自己反而被信箱化。现在写成该应用自己的覆盖值，
-  // 别的应用不受影响（设置里的「强制」模式仍然优先）。
+  // 标题栏của旋转按钮 = 「这 ứng dụng我要横着/竖着Dùng」。
+  // 以前它只是把全局 landscape 翻一下，于是点红果của旋转按钮会把**所Có**Áp dụng
+  // 都带到Bảng màn ngang上去，红果自己反而被信箱化。Hiện写成该Áp dụng自己của覆盖值，
+  // 别củaÁp dụng不受影响（Cài đặttrong「强制」模式仍然优先）。
   ipcMain.handle('shell:rotate', () => {
     const pkg = appWin && appWin.pkg;
     // 以「面板实际方向」为基准取反，而不是 appWin.state.landscape
-    //（后者是「期望方向」，在启动切换面板的过程中可能还没落地）。
+    //（后者是「期望方向」，在启动切换面板của过程中可能还没落地）。
     const next = !displaySettings().landscape;
     if (pkg) {
       store.upsertApp({ package: pkg, orientationOverride: next ? 'landscape' : 'portrait' });
@@ -2350,7 +2350,7 @@ function registerIpc() {
   ipcMain.handle('shell:back', async () => { await runtime.client().keyBack(); });
   ipcMain.handle('shell:forward', async () => { await runtime.client().keyForward(); });
 
-  // ---------------- 安卓系统设置（不用进安卓桌面） ----------------
+  // ---------------- Cài đặt hệ thống Android (không cần vào màn hình chính Android) ----------------
 
   ipcMain.handle('android:status', async () => {
     try { return { ok: true, ...(await androidSet.status()) }; } catch (e) { return { ok: false, error: e.message }; }
@@ -2365,7 +2365,7 @@ function registerIpc() {
         case 'animations': return { ok: true, ...(await androidSet.setAnimations(!!value)) };
         case 'fontScale': return { ok: true, ...(await androidSet.setFontScale(value)) };
         case 'density': return { ok: true, ...(await androidSet.setDensity(value)) };
-        default: return { ok: false, error: `未知设置项 ${key}` };
+        default: return { ok: false, error: `Mục cài đặt không xác định ${key}` };
       }
     } catch (e) { return { ok: false, error: e.message }; }
   });
@@ -2405,7 +2405,7 @@ function registerIpc() {
   ipcMain.handle('keymap:setMap', (_e, pkg, mappings) => {
     if (!keymapEngine) return { ok: false };
     keymapEngine.setMap(pkg, mappings);
-    // 持久化到设置
+    // 持久化到Cài đặt
     const maps = { ...(store.getSettings().engine.keymaps || {}) };
     if (mappings && mappings.length) maps[pkg] = mappings;
     else delete maps[pkg];
@@ -2432,7 +2432,7 @@ function registerIpc() {
 
   ipcMain.handle('app:updateCheck', async (_e, opts = {}) => {
     try {
-      // 用户主动点「检查更新」→ 跳过缓存，必定重新问一次两个源
+      // Dùng户主动点「Kiểm tra cập nhật」→ 跳过缓存，必定重新问一次两cái源
       const info = await updater.check({ force: opts.force !== false });
       updateInfo = info;
       return { ok: true, ...info };
@@ -2442,8 +2442,8 @@ function registerIpc() {
   });
 
   ipcMain.handle('app:updateOpen', (_e, url) => {
-    // GitHub 和 Gitee 的发布页都允许直接打开：检查更新失败时界面就是靠这个
-    // 让用户手动去下载，只放行 github.com 会把国内用户挡在门外。
+    // GitHub 和 Gitee của发布页都允许直接Mở：Kiểm tra cập nhậtThất bại时界面就是靠这cái
+    // 让Dùng户手动去下载，只放行 github.com 会把国内Dùng户挡在门外。
     const raw = String(url || '');
     const ok = /^https:\/\/(github\.com|gitee\.com)\//i.test(raw);
     const target = ok ? raw : Updater.repoUrl();
@@ -2477,20 +2477,20 @@ if (!gotLock) {
   app.whenReady().then(async () => {
     store.ensureDirs();
     // Windows 任务栏身份（AppUserModelID）
-    // 不设的话 Windows 只能按 exe 路径猜身份：任务栏固定项、跳转列表、通知来源
-    // 都会落到 "Electron" 上 —— 用户看到的就是「图标/名字是默认的那个」。
-    // 注意这里是「当前进程」的身份，切到某个安卓应用时会换成那个应用自己的
-    // AUMID（见 openAppWindow），否则任务栏固定项和正在运行的窗口对不上，
-    // 固定项显示的还是 ApkStart 的图标。
+    // 不设của话 Windows 只能按 exe Đường dẫn猜身份：任务栏固定mục、跳转列表、通知来源
+    // 都会落到 "Electron" 上 —— Dùng户看到của就是「图标/名字是默认của那cái」。
+    // 注意这里是「当前进程」của身份，切到某cáiỨng dụng Android时会换成那 ứng dụng自己của
+    // AUMID（见 openAppWindow），否则任务栏固定mục和Đang chạycủa窗口对不上，
+    // 固定mục显示của还是 ApkStart của图标。
     setAumid(APP_AUMID);
     runtime = new Runtime(APP_ROOT);
-    // 启动即留一行痕迹：出问题时用户把 app.log 发过来就能看到版本与数据目录
+    // 启动即留一行痕迹：出问题时Dùng户把 app.log 发过来就能看到版本与数据目录
     appLog(`start v${app.getVersion()} data=${store.DATA_DIR} pid=${process.pid}`);
 
     // ---- 开机动画窗口 ----
     // 仿抖音 DSH 风格：Logo 渐显 + 进度条 + 状态文字。
-    // 首次安装时额外显示配置步骤介绍；非首次只显示精简动画。
-    // 安卓环境就绪后淡出关闭，应用秒进。
+    // 首次Cài đặt时额外显示配置步骤介绍；Không phải首次只显示精简动画。
+    // 安卓环境Sẵn sàng后淡出Đóng，Áp dụng秒进。
     const isFirstRun = !store.getSettings().runtime.installed;
     try {
       // 屏幕居中
@@ -2512,15 +2512,15 @@ if (!gotLock) {
           contextIsolation: true, nodeIntegration: false, sandbox: false,
         },
       });
-      // 用 screen-saver 级别确保不被模拟器窗口盖住（之前 alwaysOnTop 默认 level
-      // 和 agent 的 SetForegroundWindow 抢 z-order，导致 splash 被顶到后面）
+      // Dùng screen-saver 级别确保不被模拟器窗口盖住（之前 alwaysOnTop 默认 level
+      // 和 agent của SetForegroundWindow 抢 z-order，导致 splash 被顶到后面）
       splashWin.setAlwaysOnTop(true, 'screen-saver');
       splashWin.loadFile(path.join(__dirname, 'ui', 'splash.html'));
       splashWin.once('ready-to-show', () => splashWin.show());
-      // IPC：版本号、首次运行标记、关闭
+      // IPC：版本号、首次运行标记、Đóng
       ipcMain.handle('splash:version', () => app.getVersion());
       ipcMain.handle('splash:isFirstRun', () => isFirstRun);
-      // 组件是否随包自带：开机动画据此换文案，别对已经内置镜像的用户说「正在下载」
+      // 组件是否随包自带：开机动画据此换文案，别对已经内置镜像củaDùng户说「Đang tải xuống」
       ipcMain.handle('splash:bundled', () => !!bundledRuntimeDir);
       ipcMain.on('splash:close', () => {
         if (splashWin && !splashWin.isDestroyed()) splashWin.close();
@@ -2530,12 +2530,12 @@ if (!gotLock) {
       appLog(`splash window failed: ${e.message}`);
       splashWin = null;
     }
-    // 向 splash 推送进度 / 完成信号（模块级变量，见文件顶部说明）
+    // 向 splash 推送进度 / Hoàn tất信号（模块级变量，见文件顶部说明）
     splashProgress = (p) => {
       if (splashWin && !splashWin.isDestroyed()) splashWin.webContents.send('splash:progress', p);
     };
-    // 淡出信号只发一次；同时挂一个「保险丝」：splash 自己 2.5 秒内没关掉
-    // （渲染进程卡住 / IPC 丢失）就由主进程强关，绝不把启动画面留在桌面上。
+    // 淡出信号只发一次；同时挂一cái「保险丝」：splash 自己 2.5 秒内没关掉
+    // （渲染进程卡住 / IPC 丢失）就由主进程强关，绝不把启动画面留在Màn hình nền上。
     let splashDoneSent = false;
     splashDone = () => {
       if (splashDoneSent) return;
@@ -2549,8 +2549,8 @@ if (!gotLock) {
         splashWin = null;
       }, 2500).unref?.();
     };
-    // 兜底超时：任何路径都没触发 splashDone（例如启动失败卡住）也要收掉，
-    // 否则 splash 会一直悬在屏幕中央 —— 这就是「多个窗口」最刺眼的一幕。
+    // 兜底Hết thời gian：任何Đường dẫn都没触发 splashDone（Ví dụKhởi động thất bại卡住）也要收掉，
+    // 否则 splash 会一直悬在屏幕中央 —— 这就是「多cái窗口」最刺眼của一幕。
     setTimeout(() => { if (!splashDoneSent) splashDone(); }, 180000).unref?.();
 
     const l = launcherInfo();
@@ -2560,8 +2560,8 @@ if (!gotLock) {
       cwd: l.cwd,
       isDev: IS_DEV,
       desktopDir: app.getPath('desktop'),
-      // Windows 搜索索引的是开始菜单里的 .lnk，只放桌面会「搜不到应用」；
-      // Linux 那边对应的是 freedesktop 的应用菜单目录。
+      // Windows 搜索索引của是开始菜单trong .lnk，只放Màn hình nền会「搜不到Áp dụng」；
+      // Linux 那边对应của是 freedesktop củaÁp dụng菜单目录。
       startMenuDir: process.platform === 'win32'
         ? path.join(app.getPath('appData'), 'Microsoft', 'Windows', 'Start Menu', 'Programs')
         : path.join(process.env.HOME || app.getPath('home'), '.local', 'share', 'applications'),
@@ -2570,21 +2570,21 @@ if (!gotLock) {
     sharer = new Sharer(runtime);
     androidSet = new AndroidSettings(runtime);
 
-    // ---- 按键映射引擎 ----
+    // ---- 按键映射Engine ----
     const keymapEngine = new KeymapEngine({
       execInput: (cmd) => runtime.client().shell(cmd, { timeout: 4000 }),
       getSize: () => {
-        // 用当前面板尺寸（横屏 1280x720 / 竖屏 720x1280）
+        // Dùng当前面板尺寸（Màn ngang 1280x720 / Màn dọc 720x1280）
         const land = !!(store.getSettings().display || {}).landscape;
         return land ? { width: 1280, height: 720 } : { width: 720, height: 1280 };
       },
     });
-    // 从设置里加载每应用的映射表
+    // 从Cài đặt里加载每Áp dụngcủa映射表
     const savedMaps = (store.getSettings().engine || {}).keymaps || {};
     for (const [pkg, mappings] of Object.entries(savedMaps)) {
       if (Array.isArray(mappings) && mappings.length) keymapEngine.setMap(pkg, mappings);
     }
-    // 默认启用（用户可在设置里关）
+    // 默认启Dùng（Dùng户可在Cài đặt里关）
     keymapEngine.enable(store.getSettings().engine.keymapEnabled !== false);
 
     updater = new Updater({
@@ -2592,62 +2592,62 @@ if (!gotLock) {
       exePath: process.execPath,
       isPackaged: app.isPackaged,
       dataDir: store.DATA_DIR,
-      // 让更新器能读到「只走 GitHub / 只走 Gitee / 自动选快」和镜像前缀设置
+      // 让更新器能读到「只走 GitHub / 只走 Gitee / Tự độngChọn快」和镜像前缀Cài đặt
       settings: () => store.getSettings(),
       onProgress: (p) => send('update:progress', p),
     });
 
-    // 滚轮合并器：一个时间窗内的滚动只注入一条 input swipe，走常驻 adb shell。
+    // 滚轮合并器：一cái时间窗内của滚动只注入一条 input swipe，走常驻 adb shell。
     wheelRouter = new pointer.WheelRouter({
       getSize: getDeviceSize,
       inject: (cmd) => runtime.client().input(cmd),
     });
 
-    // 窗口代理：只负责内嵌模拟器窗口。全局鼠标钩子只在应用窗口前台时按配置安装。
+    // 窗口代理：只负责内嵌模拟器窗口。全局鼠标钩子只在Cửa sổ ứng dụng前台时按配置Cài đặt。
     winAgent = new WinAgent();
     appWin = new AppWindow({
       agent: winAgent,
-      // 旋转要改 Android 的逻辑分辨率，交给 adb 客户端做
+      // 旋转要改 Android của逻辑分辨率，交给 adb 客户端做
       setOrientation: async (landscape) => {
         deviceSize.value = null;
         return runtime.client().setOrientation(landscape);
       },
-      // 传 getter：设置页改了键位，下一次窗口 focus / 刷新就生效，不用重启
+      // 传 getter：Cài đặt页改了键位，下一次窗口 focus / Làm mới就生效，不Dùng重启
       pointerConfig: () => pointer.pointerOptions(store.getSettings()),
-      // 画面窗口由窗口代理按进程作用域自己找（自带 emulator 的窗口就是我们拉起来的）
+      // 画面窗口由窗口代理按进程作Dùng域自己找（自带 emulator của窗口就是我们拉起来của）
       windowTargets: () => null,
     });
     appWin.onCloseApp((pkg) => {
-      // 关窗口 = 停这个应用；最后一个窗口关掉时容器停放（降优先级、停轮询），
-      // 但 Android 环境留着，下次点开是秒进而非重新冷启动。
+      // 关窗口 = 停这 ứng dụng；最后一cái窗口关掉时容器停放（降优先级、停轮询），
+      // 但 Android 环境留着，下次点开是秒进而Không phải重新Khởi động nguội。
       runtime?.endApp(pkg, { onIdle: onContainerActive }).catch(() => {});
-      // 外部关闭（Alt+F4 / 任务栏关闭）也要清当前应用标记，否则托盘菜单
-      // 还显示「关闭当前应用（xxx）」但点了没反应（应用已经停了）。
+      // 外部Đóng（Alt+F4 / 任务栏Đóng）也要清当前Áp dụng标记，否则托盘菜单
+      // 还显示「Đóng ứng dụng hiện tại (xxx）」但点了没反应（Áp dụng已经停了）。
       if (currentAppPkg === pkg) currentAppPkg = null;
       try { send('apps:changed'); } catch (_) { /* ignore */ }
     });
 
-    // 「哪些窗口才算我们的」= 运行时目录 + 随包的 engine 目录。
-    // 窗口代理只允许碰这些进程创建的窗口 —— 别的 Qt 应用（微信 4.x 就是 Qt6，
-    // 窗口类名和模拟器一模一样）一个都不许动，见 agent.ps1 的 SetScope。
+    // 「哪些窗口才算我们của」= Bộ chạy目录 + 随包của engine 目录。
+    // 窗口代理只允许碰这些进程Tạocủa窗口 —— 别của Qt Áp dụng（微信 4.x 就是 Qt6，
+    // 窗口类名和模拟器一模一样）一cái都不许动，见 agent.ps1 của SetScope。
     const agentScope = () => {
       const dirs = [];
       try { dirs.push(runtime.provisioner.root); } catch (_) { /* ignore */ }
       try { dirs.push(path.join(APP_ROOT, 'engine')); } catch (_) { /* ignore */ }
       return dirs.filter(Boolean);
     };
-    // 范围存在代理进程的内存里，代理一重建就没了 —— 所以每次开机压制前都重发一次。
+    // 范围存在代理进程củaBộ nhớ里，代理一重建就没了 —— 所以每次开机压制前都重发一次。
     armAgent = async (agent) => {
       if (!agent) return { ok: false };
       const dirs = agentScope();
-      // 第二个参数是本进程 pid：代理据此拒绝把窗口嵌进「不是我们的」窗口
+      // 第二cái参数是本进程 pid：代理据此拒绝把窗口嵌进「不是我们của」窗口
       await agent.scope(dirs, process.pid).catch(() => null);
-      if (!dirs.length) appLog('agent scope 为空：不压制任何窗口（避免误伤其他软件）');
+      if (!dirs.length) appLog('agent scope Để trống: không chặn cửa sổ nào (tránh ảnh hưởng phần mềm khác)');
       return agent.bootHide().catch(() => ({ ok: false }));
     };
 
-    // 代理进程意外退出后会重建，事件监听必须一起重新挂上（旧版会在这里丢掉
-    // 右键返回与滚轮，表现是「用一会儿就没反应了」）。
+    // 代理进程意外Thoát后会重建，事件监听必须一起重新挂上（旧版会在这里丢掉
+    // 右键返回与滚轮，表现是「Dùng一会儿就没反应了」）。
     const attachAgentEvents = (agent) => {
       agent.on('back', () => { runtime.client().keyBack().catch(() => {}); });
       agent.on('forward', () => { runtime.client().keyForward().catch(() => {}); });
@@ -2659,21 +2659,21 @@ if (!gotLock) {
         winAgent = next;
         appWin.agent = next;
         attachAgentEvents(next);
-        // 新代理没有范围信息，不补这一下它就什么窗口都不敢碰
+        // 新代理没Có范围信息，不补这一下它就什么窗口都不敢碰
         armAgent(next).catch(() => {});
       });
     };
     attachAgentEvents(winAgent);
 
-    // 命令窗压制的「闸门」必须在模拟器进程创建之前打开。
+    // 命令窗压制của「闸门」必须在模拟器进程Tạo之前Mở。
     // 旧实现是「等 ApkStart 起来 4 秒后再藏」，而模拟器在这之前就已经把
-    // qemu 控制台窗口创建出来了 —— 用户看到的就是一次一闪而过的黑框。
+    // qemu 控制台窗口Tạo出来了 —— Dùng户看到của就是一次一闪而过của黑框。
     runtime.emulator.onBeforeSpawn = async () => {
       if (!winAgent) return;
       await armAgent(winAgent);
     };
-    // 窗口代理是个 PowerShell 常驻进程，冷启动约 300~600ms。
-    // 提前拉起，别等到真正要藏窗口的那一刻才开始等。
+    // 窗口代理是cái PowerShell 常驻进程，Khởi động nguội约 300~600ms。
+    // 提前拉起，别等到真正要藏窗口của那一刻才开始等。
     winAgent.ensure().then(() => armAgent(winAgent)).catch(() => {});
 
     registerIpc();
@@ -2681,9 +2681,9 @@ if (!gotLock) {
     buildTray();
     applyAutoStart();
 
-    // 老版本安装的应用没有 orientation 字段（那时还没这个功能）。
-    // 不补的话「跟随应用」对它们只能退回「当前面板方向」，红果这类竖屏应用
-    // 在横屏面板下依旧是两侧黑边。这里用随包的离线 APK 清单解析补一次，
+    // 老版本Cài đặtcủaÁp dụng没Có orientation 字段（那时还没这cái功能）。
+    // 不补của话「跟随Áp dụng」对它们只能退回「Hướng bảng hiện tại」，红果这类Màn dọcÁp dụng
+    // 在Bảng màn ngang下依旧是两侧黑边。这里Dùng随包của离线 APK 清单解析补一次，
     // 只读中央目录 + AndroidManifest，几百毫秒且只跑一次。
     try {
       const { parseApk } = require('./core/apk');
@@ -2697,34 +2697,34 @@ if (!gotLock) {
             store.upsertApp({ package: app.package, orientation: meta.orientation });
             filled.push(`${app.label}=${meta.orientation}`);
           }
-        } catch (_) { /* 解析失败的应用跳过，不影响启动 */ }
+        } catch (_) { /* 解析Thất bạicủaÁp dụng跳过，不影响启动 */ }
       }
       if (filled.length) appLog(`orientation backfill: ${filled.join(', ')}`);
     } catch (_) { /* ignore */ }
 
-    // 磁盘余量：小于 3GB 时安卓根本起不来（写镜像/快照都会失败）。
-    // 与其让用户看着「打不开」不明所以，不如开门见山告诉他往哪儿改。
+    // 磁盘余量：Nhỏ于 3GB 时安卓根本起不来（写镜像/快照都会Thất bại）。
+    // 与其让Dùng户看着「打不开」不明所以，不如开门见山告诉他往哪儿改。
     {
       const doctor = require('./core/doctor');
       const freeMB = doctor.freeDiskMB(store.DATA_DIR);
       if (freeMB && freeMB < 3072) {
         appLog(`LOW_DISK free=${freeMB}MB dir=${store.DATA_DIR}`);
         setTimeout(() => {
-          notify('磁盘空间不足', `只剩 ${(freeMB / 1024).toFixed(1)} GB。请到「设置 → 系统集成」把安卓数据目录/运行时目录改到其他盘，或先清理磁盘。`);
-          send('toast', { type: 'error', message: `磁盘只剩 ${(freeMB / 1024).toFixed(1)} GB，安卓可能无法启动（设置 → 系统集成 可换盘）` });
+          notify('Không đủ dung lượng ổ đĩa', `Chỉ còn ${(freeMB / 1024).toFixed(1)} GB. Vào “Cài đặt → Tích hợp hệ thống” để chuyển thư mục dữ liệu Android/thư mục bộ chạy sang ổ khác, hoặc dọn đĩa trước.`);
+          send('toast', { type: 'error', message: `Ổ đĩa chỉ còn ${(freeMB / 1024).toFixed(1)} GB, Android có thể không khởi động được (Cài đặt → Tích hợp hệ thống để đổi ổ)` });
         }, 3000).unref?.();
       }
     }
 
-    // 老版本只建过桌面快捷方式 / 图标是 null：启动即自动补齐，不用用户操作
+    // 老版本只建过Màn hình nền快捷方式 / 图标是 null：启动即Tự động补齐，不DùngDùng户操作
     installer.ensureShortcuts().then((fixed) => {
       if (fixed && fixed.length) {
         windowctl.refreshShell().catch(() => {});
-        notify('快捷方式已补齐', fixed.join('、'));
+        notify('Đã bổ sung lối tắt', fixed.join('、'));
       }
     }).catch(() => {});
 
-    // F11 全屏 / 窗口切换；全局快捷键只在 ApkStart 活着时有效
+    // F11 全屏 / 窗口切换；全局快捷键只在 ApkStart 活着时Có效
     try {
       globalShortcut.register('F11', () => { toggleDisplayMode(); });
     } catch (_) { /* ignore */ }
@@ -2733,19 +2733,19 @@ if (!gotLock) {
     if (args.apk) runInstall(args.apk).catch(() => {});
     else if (args.launch) await runLaunch(args.launch);
     else {
-      // 没有直接启动应用：splash 在主窗口 ready 后淡出
+      // 没Có直接启动Áp dụng：splash 在主窗口 ready 后淡出
       if (typeof splashDone === 'function') {
         setTimeout(() => splashDone(), 800);
       }
     }
 
-    // 预热：像 WSA / 应用宝电脑版那样把安卓环境常驻。
-    // 打开 ApkStart 时就在后台把它引导好（窗口全程隐藏），之后点应用只剩一次 am start。
-    // 只有「已经装过应用 + 有可用运行时」才预热，避免第一次使用/纯管理场景白占内存。
+    // Làm nóng:像 WSA / Áp dụng宝电脑版那样把安卓环境常驻。
+    // Mở ApkStart 时就在后台把它引导好（窗口全程隐藏），之后点Áp dụngChỉ còn一次 am start。
+    // 只Có「已经装过Áp dụng + CóKhả dụngBộ chạy」才预热，避免第一次使Dùng/纯管理场景白占Bộ nhớ。
     const prewarmEnabled = store.getSettings().engine.prewarm !== false;
     if (prewarmEnabled && !args.launch && store.getApps().length > 0) {
-      // 1.2 秒就够窗口画完第一帧了。以前等 4 秒，用户这时已经点了应用，
-      // 结果「点开」和「预热」抢同一个 AVD 锁，反而更慢。
+      // 1.2 秒就够窗口画完第一帧了。以前等 4 秒，Dùng户这时已经点了Áp dụng，
+      // 结果「点开」和「预热」抢同一cái AVD 锁，反而更慢。
       setTimeout(async () => {
         try {
           const env = await runtime.provisioner.checkEnv();
@@ -2753,7 +2753,7 @@ if (!gotLock) {
             appLog(`prewarm skipped: not ready (adb=${env.adb.ok} emu=${env.emulator.ok} img=${env.sysimg.ok})`);
             return;
           }
-          // 开机阶段把模拟器窗口与 qemu 控制台藏起来，用户不该看到任何窗
+          // 开机阶段把模拟器窗口与 qemu 控制台藏起来，Dùng户不该看到任何窗
           // 注意要 await：不等它生效就去 spawn，黑窗一定会露出来。
           if (winAgent) { try { await armAgent(winAgent); } catch (_) { /* ignore */ } }
           const t0 = Date.now();
@@ -2762,31 +2762,31 @@ if (!gotLock) {
           if (r && r.ok) appLog(`prewarm ready in ${Date.now() - t0}ms`);
           else {
             appLog(`prewarm failed: ${r && (r.error || r.skipped)}`);
-            // 预热失败也继续压住模拟器窗口：它可能只是慢，过一会儿就起来了，
-            // 用户不该因为「预热失败」在桌面上看到一台模拟器。
+            // 预热Thất bại也Tiếp tục压住模拟器窗口：它可能只是慢，过一会儿就起来了，
+            // Dùng户不该因là “预热Thất bại」在Màn hình nền上看到一台模拟器。
             if (winAgent) armAgent(winAgent).catch(() => {});
           }
-        } catch (e) { appLog(`prewarm error: ${e && e.message}`); /* 预热失败不影响后续正常打开 */ }
+        } catch (e) { appLog(`prewarm error: ${e && e.message}`); /* 预热Thất bại不影响后续正常Mở */ }
       }, 1200).unref?.();
     } else {
       appLog(`prewarm off (enabled=${prewarmEnabled} launch=${!!args.launch} apps=${store.getApps().length})`);
     }
 
-    // 首次运行的组件部署延后 20 秒：冷启动那段时间磁盘/CPU 已经打满，
-    // 再并发下载解压只会让桌面更卡。真有应用要打开时 ensure() 自会准备。
+    // 首次运行của组件部署延后 20 秒：Khởi động nguội那段时间磁盘/CPU 已经打满，
+    // 再并发下载Giải nén只会让Màn hình nền更卡。真CóÁp dụng要Mở时 ensure() 自会准备。
     setTimeout(() => {
       autoDeploy().then((r) => {
-        if (r && r.ok) send('toast', { type: 'ok', message: '运行时已自动准备完成' });
+        if (r && r.ok) send('toast', { type: 'ok', message: 'Bộ chạy đã tự chuẩn bị xong' });
       }).catch(() => {});
     }, 20000).unref?.();
 
-    // 启动 8 秒后静默查一次新版本（打包后才有意义）。发现新版本只提示，
-    // 绝不自动下载 —— 更新是用户点「立即更新」才做的事。
-    // 商店（MSIX）版跳过：安装目录是只读的 WindowsApps，自更新既写不进去也不
+    // 启动 8 秒后静默查一次新版本（打包后才Có意义）。Có phiên bản mới只提示，
+    // 绝不Tự động下载 —— 更新是Dùng户点「Cập nhật ngay」才做của事。
+    // 商店（MSIX）版跳过：Cài đặt目录是只读của WindowsApps，自更新既写不进去也不
     // 合规，更新统一由 Microsoft Store 负责。
     if (app.isPackaged && !store.STORE_BUILD) {
-      // issue #98：先检查「上次已下载解压、但替换/重启没落地的更新」。
-      // 命中就直接用本地载荷重放替换+重启，绝不再下一遍包——这是更新死循环的根治。
+      // issue #98：先检查「Lần trướcĐã tải xuốngGiải nén、但替换/重启没落地của更新」。
+      // 命中就直接Dùng本地载荷重放替换+重启，绝不再下一遍包——这是更新死循环của根治。
       // 放在查新版本之前，避免 resumable 与新一轮 check 抢进度条。
       let resuming = false;
       try {
@@ -2794,36 +2794,36 @@ if (!gotLock) {
         if (job) {
           resuming = true;
           appLog(`resuming pending update ${job.version} from cached payload`);
-          send('update:progress', { stage: 'apply', percent: 100, message: '正在完成上次未完成的更新…' });
+          send('update:progress', { stage: 'apply', percent: 100, message: 'Đang hoàn tất bản cập nhật dang dở lần trước…' });
           updater.apply(job);
           setTimeout(() => { quitting = true; app.quit(); }, 900);
         }
       } catch (e) { appLog(`resume check failed: ${e.message}`); }
-      // 命中续做就不再并行发起新一轮查新版本；但不能用 return 跳出整个启动回调。
+      // 命中续做就不再并行发起新一轮查新版本；但不能Dùng return 跳出整cái启动回调。
       if (!resuming) setTimeout(() => {
         updater.check().then((info) => {
           updateInfo = info;
           send('update:state', info);
           if (info.hasUpdate) {
             appLog(`update available ${info.tag} (current v${app.getVersion()}, asset=${info.asset ? info.asset.name : 'none'})`);
-            // 不再单独弹系统通知：启动时的提醒统一收到应用内的「欢迎卡」里，
-            // 避免开机自启时又冒一个右下角气泡（用户反馈的「小弹窗」之一）。
+            // 不再单独弹系统通知：启动时của提醒统一收到Áp dụng内của「欢迎卡」里，
+            // 避免开机自启时又冒一cái右下角气泡（Dùng户反馈của「Nhỏ弹窗」之一）。
           }
         }).catch((e) => appLog(`update check failed: ${e.message}`));
       }, 8000).unref?.();
     }
 
-    // 文件同步 / 通知轮询不再无条件常驻：只在容器里真的有应用窗口时才跑
+    // 文件同步 / 通知轮询不再无条件常驻：只在容器里真củaCóCửa sổ ứng dụng时才跑
     // （见 onContainerActive）。
 
-    // 冒烟测试：截图后退出，用于自动化验证界面是否正常渲染
+    // 冒烟测试：截图后Thoát，Dùng于Tự động化验证界面是否正常渲染
     if (process.argv.includes('--smoke') && mainWindow) {
       const out = process.argv[process.argv.indexOf('--smoke') + 1] || 'smoke.png';
       mainWindow.webContents.once('did-finish-load', () => {
         setTimeout(async () => {
           try {
             if (process.argv.includes('--setup')) {
-              // 运行时面板已并入设置：--setup 与 --settings 等价，直接打开设置截图
+              // Bộ chạy面板已并入Cài đặt：--setup 与 --settings 等价，直接Mở cài đặt截图
               await mainWindow.webContents.executeJavaScript(
                 "document.getElementById('btnSettings').click(); true;",
               );
@@ -2858,28 +2858,28 @@ if (!gotLock) {
             };
             await snap(out);
             if (process.argv.includes('--perf')) {
-              // 拍一张「性能与资源占用」区（设置页里控件最多的一块）
+              // 拍一张「Hiệu năng và tài nguyên」区（Cài đặt页里控件最多của一块）
               await mainWindow.webContents.executeJavaScript(
                 "document.getElementById('perfGroup').scrollIntoView({ block: 'start' }); true;",
               );
               await snap(out.replace(/\.png$/i, '-perf.png'));
             }
             if (process.argv.includes('--download')) {
-              // 拍一张「下载与更新源」区
+              // 拍一张「Nguồn tải và cập nhật」区
               await mainWindow.webContents.executeJavaScript(
                 "document.getElementById('downloadGroup').scrollIntoView({ block: 'start' }); true;",
               );
               await snap(out.replace(/\.png$/i, '-download.png'));
             }
             if (process.argv.includes('--settings')) {
-              // 再拍一张「关于」区（二维码 / GitHub / Powered by）
+              // 再拍一张「Giới thiệu」区（二维码 / GitHub / Powered by）
               await mainWindow.webContents.executeJavaScript(
                 "document.getElementById('aboutGroup').scrollIntoView({ block: 'center' }); true;",
               );
               await snap(out.replace(/\.png$/i, '-about.png'));
             }
           } catch (e) {
-            console.error('[smoke] 截图失败', e);
+            console.error('[smoke] Chụp ảnh màn hình thất bại', e);
           }
           quitting = true;
           app.quit();
@@ -2891,18 +2891,18 @@ if (!gotLock) {
   });
 
   app.on('window-all-closed', () => {
-    // 正常关闭窗口时只隐藏到托盘（close 事件已拦截），
-    // 走到这里说明是真正要退出，必须放行，否则进程会残留并占住单实例锁。
+    // 正常Đóng窗口时只隐藏到托盘（close 事件已拦截），
+    // 走到这里说明是真正要Thoát，必须放行，否则进程会残留并占住单实例锁。
     if (quitting) app.exit(0);
   });
 
   let quitReady = false;
   app.on('before-quit', (e) => {
     quitting = true;
-    // 退出前必须先让窗口代理把模拟器窗口「摘下 + 藏好」。这一步是异步的
-    // （要等代理回包），所以第一次 before-quit 先拦下来，收尾完成再真正退出。
-    // 少了这一步，宿主窗口一销毁，Windows 会把模拟器子窗口重挂到桌面并显示出来——
-    // 表现就是「关掉 ApkStart 之后，桌面上还留着一个 Android Emulator 黑窗」。
+    // Thoát前必须先让窗口代理把模拟器窗口「摘下 + 藏好」。这一步是异步của
+    // （要等代理回包），所以第一次 before-quit 先拦下来，收尾Hoàn tất再真正Thoát。
+    // 少了这一步，宿主窗口一销毁，Windows 会把模拟器子窗口重挂到Màn hình nền并显示出来——
+    // 表现就是「关掉 ApkStart 之后，Màn hình nền上还留着一cái Android Emulator 黑窗」。
     if (!quitReady) {
       e.preventDefault();
       quitReady = true;
@@ -2913,7 +2913,7 @@ if (!gotLock) {
         try { winAgent?.dispose(); } catch (_) { /* ignore */ }
         try { wheelRouter?.dispose(); } catch (_) { /* ignore */ }
         runtime?.dispose();
-        // 隐藏的图标解码窗口也算一个窗口，不关掉会让 window-all-closed 永远不触发
+        // 隐藏của图标解码窗口也算一cái窗口，不关掉会让 window-all-closed 永远不触发
         try { if (decodeWindow && !decodeWindow.isDestroyed()) decodeWindow.destroy(); } catch (_) { /* ignore */ }
         app.quit();
       };

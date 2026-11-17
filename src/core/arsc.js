@@ -1,11 +1,11 @@
 'use strict';
 /**
  * resources.arsc 解析器（精简版）
- * 用途：把 AndroidManifest 里的 @0x7f... 资源引用还原成
- *       应用名（字符串）和图标文件路径（res/... 下的 png）。
+ * Dùng途：把 AndroidManifest trong @0x7f... 资源引Dùng还原成
+ *       Áp dụng名（字符串）和图标文件Đường dẫn（res/... 下của png）。
  *
  * 只解析 ResTable / ResTable_package / ResTable_type 三层结构，
- * 足以覆盖 99% 的应用名与图标场景。
+ * 足以覆盖 99% củaÁp dụng名与图标场景。
  */
 
 const RES_TABLE_TYPE = 0x0002;
@@ -61,7 +61,7 @@ function parseConfig(buf, off) {
   return cfg;
 }
 
-/** 为不同用途的取值打分：字符串偏好默认配置，图片偏好高密度 */
+/** 为不同Dùng途của取值打分：字符串偏好默认配置，图片偏好高密度 */
 function score(cfg, prefer) {
   let s = 0;
   if (prefer === 'file') {
@@ -86,7 +86,7 @@ class ResTable {
 
   _parse() {
     const buf = this.buf;
-    if (buf.readUInt16LE(0) !== RES_TABLE_TYPE) throw new Error('resources.arsc 格式错误');
+    if (buf.readUInt16LE(0) !== RES_TABLE_TYPE) throw new Error('resources.arsc Sai định dạng');
     const headerSize = buf.readUInt16LE(2);
     const total = buf.readUInt32LE(4);
     const pkgCount = buf.readUInt32LE(8);
@@ -117,7 +117,7 @@ class ResTable {
     try {
       if (typeStringsOff) typeStrings = readStringPool(buf, start + typeStringsOff);
       if (keyStringsOff) keyStrings = readStringPool(buf, start + keyStringsOff);
-    } catch (_) { /* 容错：缺字符串池不影响主流程 */ }
+    } catch (_) { /* 容错：Thiếu字符串池不影响主流程 */ }
 
     const types = new Map(); // typeId -> [{ config, entries: Map }]
     let pos = start + headerSize;
@@ -152,7 +152,7 @@ class ResTable {
     const entriesBase = start + entriesStart;
 
     if (flags & 0x01) {
-      // FLAG_SPARSE：entryCount 个 (idx:u16, offset:u16)
+      // FLAG_SPARSE：entryCount cái (idx:u16, offset:u16)
       for (let i = 0; i < entryCount; i++) {
         const idx = buf.readUInt16LE(offsetsBase + i * 4);
         const off = buf.readUInt16LE(offsetsBase + i * 4 + 2) * 4;
@@ -192,7 +192,7 @@ class ResTable {
   }
 
   /**
-   * 解析资源引用
+   * 解析资源引Dùng
    * @param {number} ref 0xPPTTEEEE
    * @param {'string'|'file'|'any'} prefer
    * @param {number} depth

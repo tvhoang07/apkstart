@@ -1,18 +1,18 @@
 'use strict';
 /**
- * 双源（GitHub / Gitee）+ 镜像前缀的统一下载来源管理。
+ * 双源（GitHub / Gitee）+ 镜像前缀của统一下载来源管理。
  *
- * 国内直连 GitHub 有两个坑：
- *   1. api.github.com 经常几十秒才响应，甚至直接超时 —— 表现是「检查更新转圈」；
+ * 国内直连 GitHub Có两cái坑：
+ *   1. api.github.com 经常几十秒才响应，甚至直接Hết thời gian —— 表现是「Kiểm tra cập nhật转圈」；
  *   2. 资产下载（objects.githubusercontent.com）单连接限速，常在 100KB/s 上下 ——
- *      1.5 GB 的运行时包要下 4 个小时。
+ *      1.5 GB củaBộ chạy包要下 4 cáiNhỏ时。
  *
- * 所以这里不预设「谁是主源」，而是每次用真实字节测速：
- *   - 版本信息：GitHub / Gitee 两边**并发**问，谁先给出更高版本用谁的；
+ * 所以这里不预设「谁是主源」，而是每次Dùng真实byte测速：
+ *   - 版本信息：GitHub / Gitee 两边**并发**问，谁先给出更高版本Dùng谁của；
  *   - 下载地址：把「GitHub 直连 / Gitee 同名资产 / 镜像前缀拼接」全部列出来，
- *     每个地址真下 128KB，按实测速度排序，取最快的那个。
+ *     每cái地址真下 128KB，按实测速度排序，取最快của那 mục.
  *
- * 测速结果在内存里缓存 30 分钟（同一进程内反复检查更新/下多个组件不必重复测）。
+ * 测速结果在Bộ nhớ里缓存 30 phút（同一进程内反复Kiểm tra cập nhật/下多cái组件不必重复测）。
  */
 const https = require('https');
 const http = require('http');
@@ -38,24 +38,24 @@ const SOURCES = {
   },
 };
 
-/** 已知可用的 GitHub 加速前缀。只在用户开启 autoMirror 且未自定义时参与测速。 */
+/** 已知Khả dụngcủa GitHub Tăng tốc前缀。只在Dùng户开启 autoMirror 且未自定义时参与测速。 */
 const KNOWN_MIRRORS = [
   'https://ghfast.top/',
   'https://gh-proxy.com/',
 ];
 
 /**
- * 一次测速的采样字节数。
- * 128KB 太小：握手 + TLS 就有几百毫秒，测出来的「速度」其实主要在测延迟，
- * 会把「延迟高但带宽大」的源误判成慢。256KB 能把两者分开，流量也可以接受。
+ * 一次测速của采样byte数。
+ * 128KB 太Nhỏ：握手 + TLS 就Có几百毫秒，测出来của「速度」其实主要在测延迟，
+ * 会把「延迟高但带宽Lớn」của源误判成慢。256KB 能把两者分开，流量也可以接受。
  */
 const SAMPLE_BYTES = 256 * 1024;
 
 function openUrl(url, { timeout = 10000, headers = {}, redirects = 0, followRedirect = true } = {}) {
   return new Promise((resolve, reject) => {
-    if (redirects > 6) return reject(new Error('重定向次数过多'));
+    if (redirects > 6) return reject(new Error('Quá nhiều lần chuyển hướng'));
     let u;
-    try { u = new URL(url); } catch (_) { return reject(new Error('地址无效')); }
+    try { u = new URL(url); } catch (_) { return reject(new Error('Địa chỉ không hợp lệ')); }
     const mod = u.protocol === 'http:' ? http : https;
     const req = mod.request(url, {
       method: 'GET',
@@ -74,13 +74,13 @@ function openUrl(url, { timeout = 10000, headers = {}, redirects = 0, followRedi
       }
       resolve(res);
     });
-    req.on('timeout', () => req.destroy(new Error('连接超时')));
+    req.on('timeout', () => req.destroy(new Error('Hết thời gian kết nối')));
     req.on('error', reject);
     req.end();
   });
 }
 
-/** 取一小段 JSON（带重定向、超时、大小上限） */
+/** 取一Nhỏ段 JSON（带重定向、Hết thời gian、LớnNhỏ上限） */
 async function getJson(url, timeout = 10000) {
   const res = await openUrl(url, { timeout });
   if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -102,7 +102,7 @@ async function getJson(url, timeout = 10000) {
 }
 
 /**
- * 真下载一小段字节来测速度。
+ * 真下载一Nhỏ段byte来测速度。
  * @returns {Promise<{url:string, ok:boolean, speed:number, got:number, ms:number, error?:string}>}
  */
 function measure(url, { bytes = SAMPLE_BYTES, timeoutMs = 9000 } = {}) {
@@ -117,8 +117,8 @@ function measure(url, { bytes = SAMPLE_BYTES, timeoutMs = 9000 } = {}) {
       settled = true;
       try { req?.destroy(); } catch (_) { /* ignore */ }
       const now = Date.now();
-      // 吞吐只算「开始收到字节之后」的时间：TLS 握手 + DNS 那几百毫秒是固定开销，
-      // 对 1.4GB 的包几乎不影响总耗时，混进速度里会把判断带偏。
+      // 吞吐只算「开始收到byte之后」của时间：TLS 握手 + DNS 那几百毫秒是固定开销，
+      // 对 1.4GB của包几乎不影响总耗时，混进速度里会把判断带偏。
       const span = Math.max(1, now - (firstAt || t0));
       resolve({
         url,
@@ -149,7 +149,7 @@ function measure(url, { bytes = SAMPLE_BYTES, timeoutMs = 9000 } = {}) {
         got += c.length;
         if (got >= bytes) { clearTimeout(timer); done(true); }
       });
-      // 资产本身比样本还小：读到 EOF 也算成功
+      // 资产本身比样本还Nhỏ：读到 EOF 也算成功
       res.on('end', () => { clearTimeout(timer); done(got > 0); });
       res.on('error', (e) => { clearTimeout(timer); done(false, e.message); });
     }).catch((e) => { clearTimeout(timer); done(false, e.message); });
@@ -164,10 +164,10 @@ function withMirror(url, prefix) {
 }
 
 /**
- * Gitee 发行版附件单文件上限 100MB，安装包 105~110MB 装不下，所以发布时切成
- * xxx.zip.part1 / xxx.zip.part2。这里把分片还原成一个逻辑资产：
+ * Gitee 发行版附件单文件上限 100MB，Gói cài đặt 105~110MB 装不下，所以发布时切成
+ * xxx.zip.part1 / xxx.zip.part2。这里把Phân mảnh还原成一cái逻辑资产：
  *   { name: 'xxx.zip', size: 总和, parts: [{index, size, urls:[...]}] }
- * 分片必须从 part1 开始连续，否则视为残缺、丢弃（宁可用整包，也不下一个坏包）。
+ * Phân mảnh必须从 part1 开始连续，否则视为残Thiếu、丢弃（宁Khả dụng整包，也不下一cái坏包）。
  */
 function groupParts(assets) {
   const groups = new Map();
@@ -195,15 +195,15 @@ function groupParts(assets) {
     g.parts.sort((x, y) => x.index - y.index);
     const contiguous = g.parts.every((p, i) => p.index === i + 1);
     g.size = g.parts.reduce((n, p) => n + (Number(p.size) || 0), 0);
-    // 注意：Gitee 的发行版资产条目只有 name/url，**没有 size**。
-    // 以「size>0」作为完整性条件会把整组分片判成残缺而丢弃（实测踩过），
-    // 所以这里只要求「分片连续 + 每个分片有地址」；大小未知时进度按已收字节显示。
+    // 注意：Gitee của发行版资产条目只Có name/url，**没Có size**。
+    // 以「size>0」作为完整性条件会把整组Phân mảnh判成残Thiếu而丢弃（实测踩过），
+    // 所以这里只要求「Phân mảnh连续 + 每cáiPhân mảnhCó地址」；LớnNhỏKhông rõ时进度按已收byte显示。
     if (!contiguous || !g.parts.every((p) => p.urls.length)) g.broken = true;
   }
   return { list: out.filter((a) => !a.broken), broken: [...groups.values()].filter((g) => g.broken).map((g) => g.name) };
 }
 
-/** mirrors 列表：用户自定义优先，其次内置（autoMirror 关掉就只用自定义的） */
+/** mirrors 列表: dùng户自定义优先，其次内置（autoMirror 关掉就Chỉ dùng自定义của） */
 function mirrorList(settings) {
   const r = (settings && settings.runtime) || {};
   const custom = String(r.mirrorPrefix || process.env.APKSTART_MIRROR || '').trim();
@@ -217,30 +217,30 @@ class Sources {
     this.settings = typeof settingsFn === 'function' ? settingsFn : () => ({});
     this._rankCache = new Map();   // url -> {at, speed, ok}
     this._rankTtl = 30 * 60 * 1000;
-    // 版本检查结果缓存：Gitee 的匿名调用限流很紧（连续几次就 403），
-    // 而「有没有新版本」本来也不需要秒级新鲜度。
+    // 版本检查结果缓存：Gitee của匿名调Dùng限流很紧（连续几次就 403），
+    // 而「Có没Có新版本」本来也不Cần秒级新鲜度。
     this._relCache = { at: 0, key: '', value: null };
     this._relTtl = 10 * 60 * 1000;
-    // 熔断：某个源被限流/报错后，一段时间内直接跳过它，不再每次启动都撞墙
+    // 熔断：某cái源被限流/报错后，一段时间内直接跳过它，不再每次启动都撞墙
     this._blocked = new Map();     // sourceId -> until(ms)
     this._blockMs = 15 * 60 * 1000;
   }
 
-  /** 该源是否处于熔断期；返回 null 表示可用，否则返回给用户看的原因 */
+  /** 该源是否处于熔断期；返回 null 表示Khả dụng，否则返回给Dùng户看của原因 */
   blockedReason(id) {
     const until = this._blocked.get(id) || 0;
     if (until <= Date.now()) return null;
-    return `暂时跳过（${Math.ceil((until - Date.now()) / 60000)} 分钟内不再尝试）`;
+    return `Tạm bỏ qua (${Math.ceil((until - Date.now()) / 60000)}  phút sẽ không thử lại)`;
   }
 
-  /** 各源的最新 release（并发，任何一个失败都不影响另一个） */
+  /** 各源của最新 release（并发，任何一cáiThất bại都不影响另一cái） */
   /**
-   * 不依赖 API 的兜底：直接跟随 `/releases/latest` 的 302 拿到 tag。
+   * 不依赖 API của兜底：直接跟随 `/releases/latest` của 302 拿到 tag。
    *
-   * 为什么必须有这一条：GitHub 的匿名 API 每个 IP 每小时只有 60 次，
-   * Gitee 的匿名 API 更紧（实测连点几次就 403 Rate Limit Exceeded）。
-   * 公司/校园网、运营商 NAT 出口下，用户很容易「检查更新失败」——
-   * 而 `releases/latest` 这个网页跳转是走 CDN 的，不消耗 API 额度。
+   * 为什么必须Có这一条：GitHub của匿名 API 每cái IP 每Nhỏ时只Có 60 次，
+   * Gitee của匿名 API 更紧（实测连点几次就 403 Rate Limit Exceeded）。
+   * 公司/校园网、运营商 NAT 出口下，Dùng户很容易「Kiểm tra cập nhậtThất bại」——
+   * 而 `releases/latest` 这cái网页跳转是走 CDN của，不消耗 API 额度。
    *
    * 拿到 tag 之后资产名可以按发布约定拼出来：
    *   ApkStart-<tag>-win64-portable.zip / ApkStart-<version>-Setup.exe / ApkStart-runtime-<tag>.zip
@@ -255,7 +255,7 @@ class Sources {
     return m ? decodeURIComponent(m[1]) : '';
   }
 
-  /** 用 tag 拼一份「最小可用」的 release（没有 API 时用） */
+  /** Dùng tag 拼一份「最NhỏKhả dụng」của release（没Có API 时Dùng） */
   _syntheticRelease(id, tag) {
     const s = SOURCES[id];
     const ver = String(tag).replace(/^v/i, '');
@@ -265,9 +265,9 @@ class Sources {
       `ApkStart-runtime-${tag}.zip`,
     ];
     // GitHub 和 Gitee 都支持 /releases/download/<tag>/<文件名> 这种规范地址
-    // （实测 Gitee 会 302 到 foruda.gitee.com 的附件地址，能正常下到完整字节），
-    // 所以没有 API 时也能拼出可用的下载地址。Gitee 上没有的资产会 404，
-    // 后面的测速排序会自动跳过它。
+    // （实测 Gitee 会 302 到 foruda.gitee.com của附件地址，能正常下到完整byte），
+    // 所以没Có API 时也能拼出Khả dụngcủa下载地址。Gitee 上没Cócủa资产会 404，
+    // 后面của测速排序会Tự động跳过它。
     const assets = names.map((n) => ({
       name: n,
       size: 0,
@@ -287,9 +287,9 @@ class Sources {
   async fetchReleases() {
     const prefs = String((this.settings().runtime || {}).sourcePreference || 'auto');
     const ids = prefs === 'github' || prefs === 'gitee' ? [prefs] : ['github', 'gitee'];
-    // 公开仓库的 releases 接口匿名就能读；仓库若是私有的，Gitee 会回 404
-    // "Not Found Project"（而不是 401），那种情况才需要在这里填一个只读 token。
-    // 另外匿名调用有频率限制，感兴趣的用户可以填 token 提高额度。
+    // 公开仓库của releases 接口匿名就能读；仓库若是私Cócủa，Gitee 会回 404
+    // "Not Found Project"（而不是 401），那种情况才Cần在这里填一cái只读 token。
+    // 另外匿名调DùngCó频率限制，感兴趣củaDùng户可以填 token 提高额度。
     const token = String((this.settings().runtime || {}).giteeToken || '').trim();
     const withToken = (id, url) => (id === 'gitee' && token
       ? `${url}${url.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(token)}`
@@ -303,13 +303,13 @@ class Sources {
         const rel = await getJson(withToken(id, `${s.api}/releases/latest`), 9000);
         return { source: id, name: s.name, web: s.web, rel };
       } catch (e) {
-        // Gitee 没有正式 release、或 GitHub 被墙，都退回列表取第一条
+        // Gitee 没Có正式 release、或 GitHub 被墙，都退回列表取第一条
         try {
           const list = await getJson(withToken(id, `${s.api}/releases?per_page=10`), 9000);
           const first = (Array.isArray(list) ? list : []).find((r) => r && !r.draft);
           if (first) return { source: id, name: s.name, web: s.web, rel: first };
-        } catch (_) { /* 继续尝试不依赖 API 的兜底 */ }
-        // API 被限流/被墙时的兜底：网页跳转拿 tag，资产名按约定拼
+        } catch (_) { /* Tiếp tục尝试不依赖 API của兜底 */ }
+        // API 被限流/被墙时của兜底：网页跳转拿 tag，资产名按约定拼
         try {
           const tag = await this._releaseTagViaRedirect(id);
           if (tag) {
@@ -319,8 +319,8 @@ class Sources {
         const limited = /\b(403|429)\b/.test(e.message);
         if (limited) this._blocked.set(id, Date.now() + this._blockMs);
         const hint = limited
-          ? '（被限流，已暂停使用该源一段时间）'
-          : (id === 'gitee' && !token ? '（可稍后重试，或在设置里填只读 token 提高额度）' : '');
+          ? '(bị giới hạn tốc độ, tạm ngưng dùng nguồn này một lúc)'
+          : (id === 'gitee' && !token ? '(thử lại sau, hoặc điền token chỉ đọc trong Cài đặt để tăng hạn mức)' : '');
         return { source: id, name: s.name, web: s.web, error: `${e.message}${hint}` };
       }
     });
@@ -328,7 +328,7 @@ class Sources {
   }
 
   /**
-   * 合并两边的最新版本：版本号更高的胜出，但**资产列表取并集**，
+   * 合并两边của最新版本：版本号更高của胜出，但**资产列表取并集**，
    * 这样即使 Gitee 只放了元数据、资产在 GitHub，也能两条路都试。
    */
   async latest({ force = false } = {}) {
@@ -338,8 +338,8 @@ class Sources {
       return cached.value;
     }
     const all = await this.fetchReleases();
-    // 被限流的源记入熔断（放在这里而不是 fetchReleases 内部，是为了让「谁来提供
-    // 结果」这件事可被替换/测试，同时保证任何入口拿到的 403 都会触发熔断）
+    // 被限流của源记入熔断（放在这里而不是 fetchReleases 内部，是为了让「谁来提供
+    // 结果」这件事可被替换/测试，同时保证任何入口拿到của 403 都会触发熔断）
     for (const x of all) {
       if (x && x.error && /\b(403|429)\b/.test(x.error)) {
         this._blocked.set(x.source, Date.now() + this._blockMs);
@@ -347,19 +347,19 @@ class Sources {
     }
     const ok = all.filter((x) => x && x.rel);
     if (!ok.length) {
-      const why = all.map((x) => `${x.name || x.source}: ${x.error || '无数据'}`).join('；');
-      // 全挂了但手里有上一次的结果：宁可给一份「可能是旧的」版本信息，
-      // 也不要让界面直接报错 —— 用户至少还能看到当前版本和发布页入口。
+      const why = all.map((x) => `${x.name || x.source}: ${x.error || 'Không có dữ liệu'}`).join('；');
+      // 全挂了但手里Có上一次của结果：宁可给一份「可能是旧của」版本信息，
+      // 也不要让界面直接报错 —— Dùng户至少还能看到Phiên bản hiện tại和发布页入口。
       if (cached.value) return { ...cached.value, stale: true, staleReason: why };
-      throw new Error(`连不上更新服务器（${why}）`);
+      throw new Error(`Không kết nối được máy chủ cập nhật (${why}）`);
     }
     ok.sort((a, b) => cmpVer(b.rel.tag_name || b.rel.name, a.rel.tag_name || a.rel.name));
     const top = ok[0];
     const tag = String(top.rel.tag_name || top.rel.name || '');
     const version = tag.replace(/^v/i, '');
 
-    // 只有同版本的资产才算数（不同源的旧版本资产不能拿来装）。
-    // 同名整包 + 分片组同时存在时优先用整包：分片要拼装，多一个失败点。
+    // 只Có同版本của资产才算数（不同源của旧版本资产不能拿来装）。
+    // 同名整包 + Phân mảnh组同时存在时优先Dùng整包：Phân mảnh要拼装，多一cáiThất bại点。
     let raw = [];
     for (const item of ok) {
       const t = String(item.rel.tag_name || item.rel.name || '').replace(/^v/i, '');
@@ -367,9 +367,9 @@ class Sources {
       for (const a of (item.rel.assets || [])) {
         const key = String(a.name || '');
         if (!key) continue;
-        // Gitee 会把「源码包」自动挂成资产（v0.3.2.zip / v0.3.2.tar.gz），
-        // 这些不是安装包，`\.zip$` 的匹配规则会把它当成更新包下载下来 —— 必须排除。
-        // 我们自己的发布资产统一以 ApkStart 开头，按这个前缀白名单更安全。
+        // Gitee 会把「源码包」Tự động挂成资产（v0.3.2.zip / v0.3.2.tar.gz），
+        // 这些不是Gói cài đặt，`\.zip$` của匹配规则会把它当成更新包下载下来 —— 必须排除。
+        // 我们自己của发布资产统一以 ApkStart 开头，按这cái前缀白名单更安全。
         if (!/^ApkStart/i.test(key)) continue;
         raw.push({
           name: key,
@@ -383,11 +383,11 @@ class Sources {
     const wholeNames = new Set(grouped.list.filter((a) => !a.partial).map((a) => a.name));
     raw = grouped.list.filter((a) => !(a.partial && wholeNames.has(a.name)));
 
-    // 同名资产两个源都有（整包不再切分片以后就是这种常态）：把地址都留着当候选。
-    // 以前是「按名字去重、谁先来用谁」—— GitHub 排在前面，Gitee 的地址就被丢掉了，
-    // 「自动选网络更好的源」实际退化成只走 GitHub。现在按实测速度挑（见 rank()）。
-    // 每个地址的大小单独记：两个源的包不是同一份字节（压缩器/构建机不同，能差几 MB），
-    // downloadMulti 只会混用「声明总大小一致」的地址，所以绝不能把两者的大小平均掉。
+    // 同名资产两cái源都Có（整包不再切Phân mảnh以后就是这种常态）：把地址都留着当候Chọn。
+    // 以前是「按名字去重、谁先来Dùng谁」—— GitHub 排在前面，Gitee của地址就被丢掉了，
+    // 「Tự độngChọn网络更好của源」实际退化成只走 GitHub。Hiện按实测速度挑（见 rank()）。
+    // 每cái地址củaLớnNhỏ单独记：两cái源của包不是同一份byte（压缩器/构建机不同，能差几 MB），
+    // downloadMulti 只会混Dùng「声明总LớnNhỏ一致」của地址，所以绝不能把两者củaLớnNhỏ平均掉。
     const assets = [];
     const byName = new Map();
     for (const a of raw) {
@@ -421,12 +421,12 @@ class Sources {
   }
 
   /**
-   * 某个资产在所有源 + 镜像下的候选地址（去重、保序：源站优先，其次镜像）。
-   * 镜像只套在 GitHub 的地址上：ghfast / gh-proxy 只代理 GitHub，
-   * 把 Gitee 的链接拼上去只会得到一个 403，白白多测一次速。
+   * 某cái资产在所Có源 + 镜像下của候Chọn地址（去重、保序：源站优先，其次镜像）。
+   * 镜像只套在 GitHub của地址上：ghfast / gh-proxy 只代理 GitHub，
+   * 把 Gitee của链接拼上去只会得到一cái 403，白白多测一次速。
    */
   candidates(assetOrUrl) {
-    // 支持三种入参：单个地址、资产对象（url）、合并后的资产对象（urls 数组，含两个源）
+    // 支持三种入参：单cái地址、资产对象（url）、合并后của资产对象（urls 数组，含两cái源）
     const urls = (typeof assetOrUrl === 'string'
       ? [assetOrUrl]
       : (assetOrUrl && (assetOrUrl.urls && assetOrUrl.urls.length ? assetOrUrl.urls : [assetOrUrl.url])))
@@ -450,8 +450,8 @@ class Sources {
   }
 
   /**
-   * 按实测速度排序候选地址。测速结果缓存 30 分钟；
-   * 全部测速失败就退回原始顺序（保证「最坏情况还是能下」）。
+   * 按实测速度排序候Chọn地址。测速结果缓存 30 phút；
+   * 全部测速Thất bại就退回原始顺序（保证「最坏情况还是能下」）。
    */
   async rank(urls, { onProgress } = {}) {
     const list = (urls || []).filter(Boolean);
@@ -463,17 +463,17 @@ class Sources {
       if (!c || now - c.at > this._rankTtl) need.push(u);
     }
     if (need.length) {
-      onProgress?.({ stage: 'probe', message: `正在测速 ${need.length} 个下载源…` });
-      // 顺序测而不是并发测：并发会互相抢带宽，测出来的名次变成「谁抢得凶」，
-      // 而不是「谁真的快」。每个源 256KB，正常也就一秒左右。
-      // 单个源最多等 6 秒就放弃（旧版 9 秒 × 4 个源 = 最长 36 秒没有任何字节进度，
-      // 用户看到的就是「卡在准备运行时」）；测速失败只会排到最后，不影响能下载。
+      onProgress?.({ stage: 'probe', message: `Đang đo tốc độ ${need.length}  nguồn tải…` });
+      // 顺序测而不是并发测：并发会互相抢带宽，测出来của名次变成「谁抢得凶」，
+      // 而不是「谁真của快」。每cái源 256KB，正常也就一秒左右。
+      // 单cái源最多等 6 秒就放弃（旧版 9 秒 × 4 cái源 = 最长 36 秒没Có任何byte进度，
+      // Dùng户看到của就是「卡在准备Bộ chạy」）；测速Thất bại只会排到最后，不影响能下载。
       let i = 0;
       for (const u of need) {
         i += 1;
         let host = u;
         try { host = new URL(u).host; } catch (_) { /* 地址不合法就原样显示 */ }
-        onProgress?.({ stage: 'probe', message: `正在测速第 ${i}/${need.length} 个源：${host}…` });
+        onProgress?.({ stage: 'probe', message: `Đang đo tốc độ lần ${i}/${need.length}  nguồn:${host}…` });
         // eslint-disable-next-line no-await-in-loop
         const r = await measure(u, { timeoutMs: 6000 });
         this._rankCache.set(u, { at: Date.now(), ok: r.ok, speed: r.speed });
@@ -489,13 +489,13 @@ class Sources {
     if (s > 0) {
       onProgress?.({
         stage: 'probe',
-        message: `已选最快的源：${new URL(best).host}（约 ${(s / 1048576).toFixed(2)} MB/s）`,
+        message: `Đã chọn nguồn nhanh nhất:${new URL(best).host}(khoảng ${(s / 1048576).toFixed(2)} MB/s）`,
       });
     }
     return sorted;
   }
 
-  /** 测速缓存清空（用户改了镜像前缀 / 换了网络后调用） */
+  /** 测速缓存清Trống（Dùng户改了镜像前缀 / 换了网络后调Dùng） */
   reset() {
     this._rankCache.clear();
     this._relCache = { at: 0, key: '', value: null };

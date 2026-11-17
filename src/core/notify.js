@@ -2,17 +2,17 @@
 /**
  * 安卓通知 → Windows 原生通知。
  *
- * 模拟器没有把通知接到 Windows 上，这里按 2.5 秒轮询 `dumpsys notification`（只读、低开销），
- * 解析出「新出现的通知」再用 Electron 的 Notification 走系统通知中心 / 操作中心。
- * 点通知直接回到对应的应用窗口。
+ * 模拟器没Có把通知接到 Windows 上，这里按 2.5 秒轮询 `dumpsys notification`（只读、低开销），
+ * 解析出「新出现của通知」再Dùng Electron của Notification 走系统通知中心 / 操作中心。
+ * 点通知直接回到对应củaCửa sổ ứng dụng。
  */
 const { Notification, nativeImage } = require('electron');
 
 const POLL_MS = 2500;
 
 /**
- * 系统自带的常驻通知不要往 Windows 上搬。
- * 「已检测到虚拟 SD 卡」「配置物理键盘」「Google Play 保护机制已开启」这类东西
+ * 系统自带của常驻通知不要往 Windows 上搬。
+ * 「已检测到虚拟 SD 卡」「配置物理键盘」「Google Play 保护机制Đã bật」这类东西
  * 每天都会冒一遍，转成 Windows 通知就是纯骚扰。
  */
 const SYSTEM_PKGS = [
@@ -109,27 +109,27 @@ class NotifyBridge {
         this.seen.add(id);
         fresh.push(n);
       }
-      // 防内存增长：只在最近 500 条里做去重
+      // 防Bộ nhớ增长：只在最近 500 条里做去重
       if (this.seen.size > 500) this.seen = new Set([...this.seen].slice(-300));
       for (const n of fresh) this._show(n);
-    } catch (_) { /* 运行时未就绪时忽略 */ }
+    } catch (_) { /* Bộ chạy chưa sẵn sàng时忽略 */ }
   }
 
   _show(n) {
     try {
       if (!Notification.isSupported()) return;
       const label = this.getAppLabel ? this.getAppLabel(n.pkg) : n.pkg;
-      const body = [n.title, n.text].filter(Boolean).join(' · ') || '新通知';
+      const body = [n.title, n.text].filter(Boolean).join(' · ') || 'Thông báo mới';
       const iconPath = this.getAppIcon ? this.getAppIcon(n.pkg) : '';
       const note = new Notification({
-        title: label || '安卓应用',
+        title: label || 'Ứng dụng Android',
         body: body.slice(0, 260),
         silent: false,
         icon: iconPath ? nativeImage.createFromPath(iconPath) : undefined,
       });
       note.on('click', () => { if (this.onOpen) this.onOpen(n.pkg); });
       note.show();
-    } catch (_) { /* 通知失败不影响应用 */ }
+    } catch (_) { /* 通知Thất bại不影响Áp dụng */ }
   }
 }
 

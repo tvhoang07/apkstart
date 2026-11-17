@@ -1,10 +1,10 @@
 'use strict';
 /**
- * 应用窗口：一个正在运行的安卓应用 = 一个干净的 Windows 窗口。
+ * Cửa sổ ứng dụng：一cáiĐang chạycủaỨng dụng Android = 一cái干净của Windows 窗口。
  *
- * 窗口里只有顶部一条 38px 的标题栏（旋转 / 最小化 / 最大化 / 关闭），
- * 下面的整块画面是嵌进来的模拟器窗口（SetParent），所以看不到安卓桌面、
- * 看不到模拟器自带的侧边工具栏，也不会多出第二个任务栏图标。
+ * 窗口里只Có顶部一条 38px của标题栏（旋转 / Thu nhỏ / Phóng to / Đóng），
+ * 下面của整块画面是嵌进来của模拟器窗口（SetParent），所以看不到安卓Màn hình nền、
+ * 看不到模拟器自带của侧边工具栏，也不会多出第二cái任务栏图标。
  */
 const { BrowserWindow, screen, nativeImage } = require('electron');
 const fs = require('fs');
@@ -15,8 +15,8 @@ const { physicalRect } = require('./geometry');
 
 const TITLEBAR_H = 38;
 /**
- * 模拟器窗口四周自带 8px 的灰色内边距（Qt 的边框留白），
- * 而真正的 LCD 画面是从 +8px 开始的。把子窗口整体放大 16px 并向左上偏移 8px，
+ * 模拟器窗口四周自带 8px của灰色内边距（Qt của边框留白），
+ * 而真正của LCD 画面是从 +8px 开始của。把子窗口整体放Lớn 16px 并向左上偏移 8px，
  * 这圈灰边就正好被推到客户区外面，画面干净地贴满四周。
  */
 const EMU_PAD = 8;
@@ -31,11 +31,11 @@ class AppWindow {
   constructor({ agent, setOrientation, mouseHook = false, pointerConfig = null, windowTargets = null }) {
     this.agent = agent;
     this.setOrientation = setOrientation || null;
-    // 画面窗口的候选句柄来源：现在只有一个底座，恒为 null，
-    // 由窗口代理按进程作用域自己找（这些窗口都是我们拉起的 emulator 创建的）。
+    // 画面窗口của候Chọn句柄来源：Hiện只Có一cái底座，恒为 null，
+    // 由窗口代理按进程作Dùng域自己找（这些窗口都是我们拉起của emulator Tạocủa）。
     this.windowTargets = typeof windowTargets === 'function' ? windowTargets : null;
-    // 全局鼠标钩子只在「应用窗口前台 + 至少一项映射开启」时安装。
-    // pointerConfig 传函数：设置页改了开关，下一次 focus 就生效，不用重启。
+    // 全局鼠标钩子只在「Cửa sổ ứng dụng前台 + 至少一mục映射开启」时Cài đặt。
+    // pointerConfig 传函数：Cài đặt页改了开关，下一次 focus 就生效，不Dùng重启。
     this.mouseHook = mouseHook;
     this.pointerConfig = pointerConfig;
     this.win = null;
@@ -47,7 +47,7 @@ class AppWindow {
 
   get isOpen() { return !!(this.win && !this.win.isDestroyed()); }
 
-  /** 竖屏 / 横屏下窗口内容的目标尺寸（自动缩放到屏幕内） */
+  /** Màn dọc / Màn ngang下窗口内容củaMục tiêu尺寸（Tự động缩放到屏幕内） */
   static sizeFor(area, portrait, landscape) {
     const p = portrait || { w: 540, h: 960 };
     // 留足边距：标题栏 38 + 上下各 24，左右各 40
@@ -58,7 +58,7 @@ class AppWindow {
       : Math.min(availH / p.h, availW / p.w);
     const w = Math.round((landscape ? p.h : p.w) * k);
     const h = Math.round((landscape ? p.w : p.h) * k);
-    // 双保险：绝不超过屏幕可用区，否则会被系统裁掉，看起来就是「有黑边 / 没填满」
+    // 双保险：绝不超过屏幕Khả dụng区，否则会被系统裁掉，看起来就是「Có黑边 / 没填满」
     return {
       w: Math.max(320, Math.min(w, Math.round(availW))),
       h: Math.max(360, Math.min(h, Math.round(availH))),
@@ -68,30 +68,30 @@ class AppWindow {
   _area() {
     const d = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     const a = d.workArea || d.bounds;
-    // workArea 是 DIP（逻辑像素）。窗口代理进程是 per-monitor DPI-aware 的，
-    // SetWindowPos 收的是物理像素，所以独立窗口模式把这里的值交给 agent.layout
-    // 之前必须乘 sf 换算。sf 与 area 取自同一块屏幕，多显示器也不会用错缩放比。
+    // workArea 是 DIP（逻辑像素）。窗口代理进程是 per-monitor DPI-aware của，
+    // SetWindowPos 收của是物理像素，所以独立窗口模式把这trong值交给 agent.layout
+    // 之前必须乘 sf 换算。sf 与 area 取自同一块屏幕，多显示器也不会Dùng错缩放比。
     return { x: a.x, y: a.y, w: a.width, h: a.height, sf: d.scaleFactor || 1 };
   }
 
   /**
    * 模拟器原生窗口自己按设备面板锁宽高比，给错比例会被夹回去。
-   * 这里算出当前窗口应有的 w/h 比（含标题栏高度），用来一次给对的尺寸。
-   * 独立窗口模式下壳窗口是隐藏的、bounds 可能是竖屏默认值，
-   * 所以要按面板方向校正（横屏时宽 > 高，比值 > 1）。
+   * 这里算出当前窗口应Cócủa w/h 比（含标题栏高度），Dùng来一次给对của尺寸。
+   * 独立窗口模式下壳窗口是隐藏của、bounds 可能是Màn dọc默认值，
+   * 所以要按面板方向校正（Màn ngang时宽 > 高，比值 > 1）。
    */
   _panelRatio() {
     const b = this.win ? this.win.getBounds() : this._area();
     if (b && b.width > 0 && b.height > 0) {
-      // 横屏面板下，壳窗口的 bounds 可能还是竖的（detached 模式 hide 了），
+      // Bảng màn ngang下，壳窗口của bounds 可能还是竖của（detached 模式 hide 了），
       // 直接读会得到 0.56 (9:16)，但实际面板是 16:9。
-      // 此时用 portrait 的 h/w 作为宽（横屏 = 竖屏面板旋转 90°）
+      // 此时Dùng portrait của h/w 作为宽（Màn ngang = Bảng màn dọc旋转 90°）
       if (this.state.landscape && b.height > b.width) {
         return b.height / b.width;
       }
       return b.width / b.height;
     }
-    return 0.5625; // 竖屏 9:16 兜底
+    return 0.5625; // Màn dọc 9:16 兜底
   }
 
   _scale() {
@@ -104,24 +104,24 @@ class AppWindow {
   }
 
   /**
-   * 把一块 DIP（逻辑像素）矩形换算成物理像素，供窗口代理的 SetWindowPos 使用。
-   * Electron 的 screen/BrowserWindow 坐标一律是 DIP；而 agent.ps1 顶层声明了
-   * per-monitor v2 DPI 感知，Win32 的 SetWindowPos 收到的是物理像素。二者混用
-   * 在 125%/150% 缩放下就是「窗口只显示一半 / 偏到角落 / 点击错位」的根因
-   * （issue #99）。_rect() 早已乘过 sf，这里补上独立窗口模式缺的这一环。
+   * 把一块 DIP（逻辑像素）矩形换算成物理像素，供窗口代理của SetWindowPos 使Dùng。
+   * Electron của screen/BrowserWindow 坐标一律是 DIP；而 agent.ps1 顶层声明了
+   * per-monitor v2 DPI 感知，Win32 của SetWindowPos 收到của是物理像素。二者混Dùng
+   * 在 125%/150% 缩放下就是「窗口只显示一半 / 偏到角落 / 点击错位」của根因
+   * （issue #99）。_rect() 早已乘过 sf，这里补上独立窗口模式Thiếucủa这一环。
    */
   _physical(rect, sf) {
     return physicalRect(rect, sf || this._scale());
   }
 
   /**
-   * 打开（或复用）应用窗口。
+   * Mở（或复Dùng）Cửa sổ ứng dụng。
    * @param {object} o { pkg, label, iconPath, portrait, fullscreen, detached,
    *                     showWhileWaiting, onClosed }
    *        detached=true 时走「独立窗口模式」：壳窗口只加载不显示，画面在模拟器原生窗口里。
    *        showWhileWaiting=true 时，**在等待期间**先把壳窗口显示出来（带提示文案），
-   *        等模拟器窗口接上后由 openDetached() 收起。切换应用到另一个方向的 App
-   *        需要重启运行时（约 40 秒），这段时间以前屏幕上什么都没有，用户以为崩了。
+   *        等模拟器窗口接上后由 openDetached() 收起。切换Áp dụng到另一cái方向của App
+   *        Cần重启Bộ chạy(khoảng 40 giây)，这段时间以前屏幕上什么都没Có，Dùng户以为崩了。
    */
   open(o) {
     const { pkg, label, iconPath, portrait, fullscreen, detached } = o;
@@ -129,8 +129,8 @@ class AppWindow {
     this._showWhileWaiting = !!o.showWhileWaiting;
     this._closedCb = o.onClosed || null;
     if (this.isOpen && this.pkg === pkg) {
-      // 独立窗口模式下壳窗口永远不该露脸（它没有内容，只是一块黑）。
-      // 这时候用户再点一次同一个应用，想要的是「把正在看的窗口拿到前面」，
+      // 独立窗口模式下壳窗口永远不该露脸（它没Có内容，只是一块黑）。
+      // 这时候Dùng户再点一次同一 ứng dụng，想要của是「把正在看của窗口拿到前面」，
       // 交给窗口代理去抬模拟器原生窗口。
       if (this.detachedMode) this.agent.show().catch(() => {});
       else {
@@ -142,14 +142,14 @@ class AppWindow {
     this.close({ keepApp: true });
 
     this.pkg = pkg;
-    // 记住原始图标文件路径：独立窗口模式下要把它设给模拟器原生窗口（Win32
-    // LoadImage 只认文件路径，不认 HTML 用的 data URL）。
+    // 记住原始图标文件Đường dẫn：独立窗口模式下要把它设给模拟器原生窗口（Win32
+    // LoadImage 只认文件Đường dẫn，不认 HTML Dùngcủa data URL）。
     this.iconFilePath = iconPath || '';
     this.portrait = portrait || { w: 540, h: 960 };
-    // 独立窗口模式下「全屏」要作用在模拟器窗口上（我们这层壳是隐藏的，
-    // maximize 一个隐藏窗口没有任何视觉效果，openDetached 会读这个标记）。
+    // 独立窗口模式下「全屏」要作Dùng在模拟器窗口上（我们这层壳是隐藏của，
+    // maximize 一cái隐藏窗口没Có任何视觉效果，openDetached 会读这cái标记）。
     this._wantFullscreen = !!fullscreen;
-    this.state = { label: label || '应用', tip: '正在启动安卓运行时…', ready: false, landscape: false };
+    this.state = { label: label || 'Áp dụng', tip: 'Đang khởi động bộ chạy Android…', ready: false, landscape: false };
 
     const area = this._area();
     const size = AppWindow.sizeFor(area, this.portrait, false);
@@ -184,26 +184,26 @@ class AppWindow {
     });
 
     this.win.loadFile(path.join(__dirname, '..', 'ui', 'shell.html'));
-    // 页面标题会把窗口标题改成 shell.html 的 <title>，任务栏就认不出是哪个应用了，
-    // 这里挡住，让 OS 标题一直等于应用名（任务栏悬浮提示、Alt+Tab 都靠它）。
+    // 页面标题会把窗口标题改成 shell.html của <title>，任务栏就认不出是哪 ứng dụng了，
+    // 这里挡住，让 OS 标题一直等于Áp dụng名（任务栏悬浮提示、Alt+Tab 都靠它）。
     this.win.webContents.on('page-title-updated', (e) => {
       e.preventDefault();
       try { this.win.setTitle(label || 'ApkStart'); } catch (_) { /* 窗口可能已销毁 */ }
     });
     this.win.once('ready-to-show', () => {
-      // 独立窗口模式下，安卓画面在模拟器自己的原生窗口里，我们这层壳没有内容可显示，
-      // 留着只会多一个黑色空窗口。所以只加载、不显示（外壳仍存在，供状态/关闭逻辑用）。
-      // 例外：showWhileWaiting（切换应用时没有开机动画兜底）—— 这时宁可先显示这块
-      // 「正在打开 xxx…」的壳，也不要让用户对着空桌面等 40 秒。
+      // 独立窗口模式下，安卓画面在模拟器自己của原生窗口里，我们这层壳没Có内容可显示，
+      // 留着只会多一cái黑色Trống窗口。所以只加载、不显示（外壳仍存在，供状态/Đóng逻辑Dùng）。
+      // 例外：showWhileWaiting（切换Áp dụng时没Có开机动画兜底）—— 这时宁可先显示这块
+      // 「Đang mở xxx…」của壳，也不要让Dùng户对着TrốngMàn hình nền等 40 秒。
       if (this.detachedMode && !this._showWhileWaiting) return;
       this.win.show();
       this._push();
     });
 
-    // Electron 最大化时窗口尺寸会分好几步才稳定（OS 动画、DPI 重算），
-    // 单次 40ms 防抖的 fit 常常抓到中间态，结果嵌入画面只占左上角一条，
-    // 右边一大片空白 —— 就是用户截图里「最大化后没填满」。
-    // 改成连续多轮贴合收敛，每轮都按最新的 getContentBounds 重算。
+    // Electron Phóng to时窗口尺寸会分好几步才稳定（OS 动画、DPI 重算），
+    // 单次 40ms 防抖của fit 常常抓到中间态，结果嵌入画面只占左上角一条，
+    // 右边一Lớn片Trống白 —— 就是Dùng户截图里「Phóng to后没填满」。
+    // 改成连续多轮贴合收敛，每轮都按最新của getContentBounds 重算。
     const refit = () => this.scheduleFit(6);
     this.win.on('resize', refit);
     this.win.on('move', refit);
@@ -216,13 +216,13 @@ class AppWindow {
     this.win.on('minimize', () => { this.agent.hide().catch(() => {}); });
     this.win.on('close', () => { this._closing = true; });
     this.win.on('closed', () => {
-      if (this._selfClose) return;   // close() 自己在 park 完成后收尾
+      if (this._selfClose) return;   // close() 自己在 park Hoàn tất后收尾
       this.win = null;
       const pkg = this.pkg;
       this.pkg = null;
       this._closing = false;
-      // 不走 close() 的关闭路径（Alt+F4、任务栏关闭、系统关机）也必须停掉安卓应用、
-      // 把模拟器窗口摘下来。否则窗口消失了但应用还在后台跑，用户再点开会因为
+      // 不走 close() củaĐóngĐường dẫn（Alt+F4、任务栏Đóng、系统关机）也必须停掉Ứng dụng Android、
+      // 把模拟器窗口摘下来。否则窗口消失了但Áp dụng还在后台跑，Dùng户再点开会因为
       // 「已在运行」直接切过去，看起来就是「关不掉」。
       if (pkg && this._onCloseApp) {
         try { this._onCloseApp(pkg); } catch (_) { /* ignore */ }
@@ -231,14 +231,14 @@ class AppWindow {
         if (this._closedCb) this._closedCb(pkg);
       });
     });
-    // 只在「应用窗口真正处于前台」且至少一项鼠标映射开启时装全局钩子；
-    // 失焦/关闭立即卸载，绝不让 ApkStart 在后台拖慢整个系统的鼠标。
+    // 只在「Cửa sổ ứng dụng真正处于前台」且至少一mục鼠标映射开启时装全局钩子；
+    // 失焦/Đóng立即Gỡ cài đặt，绝不让 ApkStart 在后台拖慢整cái系统của鼠标。
     this.win.on('focus', () => this._syncHook(true));
     this.win.on('blur', () => this._syncHook(false));
 
-    // 注意：maximize() 会把 show:false 的窗口直接显示出来。
+    // 注意：maximize() 会把 show:false của窗口直接显示出来。
     // 独立窗口模式下画面在模拟器原生窗口里，这里一 maximize 就会在屏幕正中
-    // 多出一个黑色空壳窗口 —— 用户反馈的「打开应用出现多个窗口」有一半来自这里。
+    // 多出一cái黑色Trống壳窗口 —— Dùng户反馈của「Mở ứng dụng出现多cái窗口」Có一半来自这里。
     if (fullscreen && !this.detachedMode) this.win.maximize();
     return this.win;
   }
@@ -251,8 +251,8 @@ class AppWindow {
 
   _syncHook(active) {
     const opts = this._pointerOptions();
-    // 游戏/低延迟模式下完全不装全局鼠标钩子：WH_MOUSE_LL 对桌面每个鼠标事件
-    // 都同步回调，会明显增加指针延迟；FPS 需要的是 Qt 窗口直接收到原始输入。
+    // 游戏/低延迟模式下完全不装全局鼠标钩子：WH_MOUSE_LL 对Màn hình nền每cái鼠标事件
+    // 都同步回调，会明显增加指针延迟；FPS Cầncủa是 Qt 窗口直接收到原始输入。
     const game = !!(store.getSettings().engine && store.getSettings().engine.priorityMode === 'game');
     const on = !!active && opts.enabled && !game;
     if (this.agent && typeof this.agent.setHook === 'function') {
@@ -260,11 +260,11 @@ class AppWindow {
     }
   }
 
-  /** 设置页改了鼠标映射：按当前焦点重新同步一次（不重装钩子线程） */
+  /** Cài đặt页改了鼠标映射：按当前焦点重新同步一次（不重装钩子luồng） */
   refreshPointer() {
     const focused = this.isOpen && !!this.win.isFocused();
     if (!focused) {
-      // 窗口没在前台：只卸载，别让钩子在后台空转
+      // 窗口没在前台：只Gỡ cài đặt，别让钩子在后台Trống转
       if (this.agent && typeof this.agent.setHook === 'function') {
         this.agent.setHook(false).catch(() => {});
       }
@@ -285,54 +285,54 @@ class AppWindow {
         ...this.state,
         iconUrl: this.iconUrl || '',
       });
-    } catch (_) { /* 窗口可能刚关闭 */ }
+    } catch (_) { /* 窗口可能刚Đóng */ }
   }
 
   setIcon(p) { this.iconUrl = iconUrl(p); this._push(); }
 
   /**
-   * 把模拟器窗口嵌进当前窗口，并铺满标题栏以下的区域。
-   * 常驻压制不关闭：它会跳过「已经嵌进我们窗口」的那一个，其余窗口（含 qemu /
-   * netsimd 的控制台黑窗）继续压住 —— 关了反而会给它们再露一次脸的机会。
-   * 模拟器窗口偶尔还没创建好（快照恢复太快的机器上），这里重试两次。
+   * 把模拟器窗口嵌进当前窗口，并铺满标题栏以下của区域。
+   * 常驻压制不Đóng：它会跳过「已经嵌进我们窗口」của那一cái，其余窗口（含 qemu /
+   * netsimd của控制台黑窗）Tiếp tục压住 —— 关了反而会给它们再露一次脸của机会。
+   * 模拟器窗口偶尔还没Tạo好（快照恢复太快của机器上），这里重试两次。
    */
   /**
-   * 独立窗口模式：**不**把模拟器嵌进我们窗口，而是让它开自己的原生窗口。
+   * 独立窗口模式：**不**把模拟器嵌进我们窗口，而是让它开自己của原生窗口。
    *
-   * 为什么要有这条路：嵌入（SetParent）虽然观感统一，但会带来一整串麻烦 ——
-   * 前后台 Z 序、黑边、坐标映射错位、最大化后不铺满、Qt 面板方向与宿主比例打架。
-   * 这些都是「把一个别人的窗口塞进自己窗口」固有的代价。
+   * 为什么要Có这条路：嵌入（SetParent）虽然观感统一，但会带来一整串麻烦 ——
+   * 前后台 Z 序、黑边、坐标映射错位、Phóng to后不铺满、Qt 面板方向与宿主比例打架。
+   * 这些都是「把一cái别人của窗口塞进自己窗口」固Cócủa代价。
    *
    * 独立窗口下，模拟器窗口是系统原生窗口：方向、缩放、输入全由它自己管，
-   * 上面那一整类问题从根上不存在。代价是多一个任务栏图标、观感不完全统一。
+   * 上面那一整类问题从根上Không tồn tại。代价是多一cái任务栏图标、观感不完全统一。
    *
    * @returns {Promise<boolean>} 是否成功切到独立窗口
    */
   async openDetached() {
     if (!this.isOpen) return false;
-    // 壳窗口在独立模式下绝不能露脸（它没有内容，只会是一块黑）。
-    // 但 showWhileWaiting 时它现在是可见的「等待提示」，这里负责收起它。
+    // 壳窗口在独立模式下绝不能露脸（它没Có内容，只会是一块黑）。
+    // 但 showWhileWaiting 时它Hiện是可见của「等待提示」，这里负责收起它。
     try { this.win.hide(); } catch (_) { /* ignore */ }
-    // 先确保它没被嵌在里面（从嵌入切过来时 _emu 的父窗口还是宿主）。
+    // 先确保它没被嵌在里面（从嵌入切过来时 _emu của父窗口还是宿主）。
     // keep=true：告诉代理这是「切独立窗口」，不是「结束嵌入」——否则它会把
-    // 用户正在看的模拟器窗口当成杂物藏掉。
+    // Dùng户正在看của模拟器窗口当成杂物藏掉。
     const dt = await this.agent.detach(true).catch((e) => ({ ok: false, error: e.message }));
     this._detachedDebug = `detach=${JSON.stringify(dt)}`;
     // 标题必须在 show 之前设。
-    // 代理进程是常驻的，里面缓存着「上次设过的标题」（_ourTitle）；新模拟器窗口
-    // 一 show 出来就会先被套上那个旧标题 —— 切换应用时窗口会以**上一个应用的
+    // 代理进程是常驻của，里面缓存着「Lần trước设过của标题」（_ourTitle）；新模拟器窗口
+    // 一 show 出来就会先被套上那cái旧标题 —— 切换Áp dụng时窗口会以**上一 ứng dụngcủa
     // 名字**闪 0.5 秒，首次启动则先显示 "Android Emulator - apkstart:5554"。
-    // 以前的顺序是 show() → setTitle()，所以那半秒一定看得到。
+    // 以前của顺序是 show() → setTitle()，所以那半秒一定看得到。
     const title = this.state && this.state.label ? this.state.label : 'ApkStart';
     await this.agent.setTitle(title).catch(() => {});
     await sleep(600);
-    // 让模拟器窗口真的可见
+    // 让模拟器窗口真của可见
     const shown = await this.agent.show().catch((e) => ({ ok: false, error: e.message }));
     this._detachedDebug += ` show=${JSON.stringify(shown)}`;
     if (!shown || shown.ok === false) { this.lastEmbedError = this._detachedDebug; return false; }
-    // 图标也换成当前应用的：模拟器原生窗口默认是 Google 绿机器人，独立窗口模式
+    // 图标也换成当前Áp dụngcủa：模拟器原生窗口默认是 Google 绿机器人，独立窗口模式
     // 下任务栏/Alt+Tab 会露馅。Win32 LoadImage 对 .ico 支持最可靠（PNG 不一定认），
-    // installer 已为每个应用生成过同名 .ico，这里优先用它。
+    // installer 已为每 ứng dụng生成过同名 .ico，这里优先Dùng它。
     const icoForNative = this.iconFilePath
       ? this.iconFilePath.replace(/\.png$/i, '.ico')
       : '';
@@ -342,13 +342,13 @@ class AppWindow {
       try { await this.agent.setIcon(this.iconFilePath); } catch (_) { /* ignore */ }
     }
     await sleep(300);
-    // 按屏幕可用区居中和 sizing。
-    // 注意：模拟器原生窗口自己按设备面板比例锁宽高比（竖屏 9:16），
-    // 给一个不匹配的 w/h，它会把宽夹回高度对应的值，结果就是「设了 1280 宽
-    // 却只有 400 宽」。所以这里主动按面板比例算尺寸，一次给对。
+    // 按屏幕Khả dụng区居中和 sizing。
+    // 注意：模拟器原生窗口自己按设备面板比例锁宽高比（Màn dọc 9:16），
+    // 给一cái不匹配của w/h，它会把宽夹回高度对应của值，结果就是「设了 1280 宽
+    // 却只Có 400 宽」。所以这里主动按面板比例算尺寸，一次给对。
     //
-    // 全屏（「启动时自动全屏」）时铺满整个可用区；横屏面板下宽高比本来就贴合
-    // 屏幕，铺满不会留黑边 —— 这也是横屏比竖屏更值得用全屏的原因。
+    // 全屏（「启动时Tự động toàn màn hình」）时铺满整cáiKhả dụng区；Bảng màn ngang下宽高比本来就贴合
+    // 屏幕，铺满不会留黑边 —— 这也是Màn ngang比Màn dọc更值得Dùng全屏của原因。
     const area = this._area();
     const ratio = this._panelRatio();
     let w;
@@ -360,7 +360,7 @@ class AppWindow {
       h = area.h;
       x = area.x;
       y = area.y;
-      // 同步全屏标记，否则第一次点「最大化」按钮会误判为「进入全屏」而不是还原。
+      // 同步全屏标记，否则第一次点「Phóng to」按钮会误判là “进入全屏」而不是还原。
       this._detachedFullscreen = true;
     } else {
       this._detachedFullscreen = false;
@@ -372,9 +372,9 @@ class AppWindow {
       x = Math.round(area.x + (area.w - w) / 2);
       y = Math.round(area.y + 60);
     }
-    // area/x/y/w/h 都是 Electron 的 DIP 逻辑像素，而窗口代理的 SetWindowPos 收
-    // 物理像素。150% 缩放下不换算，窗口就只有 2/3 大并偏左上角——即 issue #99
-    // 的「显示一半」。_rect()（嵌入模式）早已乘过 sf，这里补齐独立模式的缺口。
+    // area/x/y/w/h 都是 Electron của DIP 逻辑像素，而窗口代理của SetWindowPos 收
+    // 物理像素。150% 缩放下不换算，窗口就只Có 2/3 Lớn并偏左上角——即 issue #99
+    // của「显示一半」。_rect()（嵌入模式）早已乘过 sf，这里补齐独立模式củaThiếu口。
     const lay = await this.agent.layout(this._physical({ x, y, w, h }, area.sf))
       .catch((e) => ({ ok: false, error: e.message }));
     this._detachedDebug += ` layout=${JSON.stringify(lay)}`;
@@ -390,8 +390,8 @@ class AppWindow {
       if (!this.isOpen) return false;
       const hwnd = this._hwnd();
       if (!hwnd) return false;
-      // 外部若提供了候选句柄（历史接口，当前恒为 null）；拿不到就等一下再试
-      // —— 句柄是每次开机重新分配的，缓存一份旧的会把窗口嵌错地方。
+      // 外部若提供了候Chọn句柄（历史接口，当前恒为 null）；拿不到就等一下再试
+      // —— 句柄是每次开机重新分配của，缓存一份旧của会把窗口嵌错地方。
       let targets = null;
       if (typeof this.windowTargets === 'function') {
         // eslint-disable-next-line no-await-in-loop
@@ -409,8 +409,8 @@ class AppWindow {
       // eslint-disable-next-line no-await-in-loop
       await sleep(attempt < 2 ? 300 : 800);
     }
-    // 把失败原因带出去：上层会写进 app.log，出问题时一眼能看出是「没找到模拟器窗口」
-    // 还是「SetParent 失败」，不用再靠猜。
+    // 把Thất bại原因带出去：上层会写进 app.log，出问题时一眼能看出是「没Tìm thấy模拟器窗口」
+    // 还是「SetParent Thất bại」，不Dùng再靠猜。
     this.lastEmbedError = last ? (last.error || `emu=${last.emu}`) : 'no-response';
     return false;
   }
@@ -419,7 +419,7 @@ class AppWindow {
     if (!this.isOpen) return;
     await this.agent.fit(this._rect()).catch(() => {});  }
 
-  /** 模拟器子窗口应该占据的矩形（物理像素，已把 8px 内边距推出可视区） */
+  /** 模拟器子窗口应该占据của矩形（物理像素，已把 8px 内边距推出可视区） */
   _rect() {
     const sf = this._scale();
     const b = this.win.getContentBounds();
@@ -429,7 +429,7 @@ class AppWindow {
       y: top - EMU_PAD,
       w: Math.round(b.width * sf) + EMU_PAD * 2,
       h: Math.round((b.height - TITLEBAR_H) * sf) + EMU_PAD * 2,
-      // 上面那条 -EMU_PAD 会压到标题栏上，交给窗口代理裁掉（见 agent.fit 的 clipTop）
+      // 上面那条 -EMU_PAD 会压到标题栏上，交给窗口代理裁掉（见 agent.fit của clipTop）
       clipTop: EMU_PAD,
     };
   }
@@ -462,22 +462,22 @@ class AppWindow {
   }
 
   /**
-   * 横竖屏切换（标题栏旋转按钮）= 真正把「物理面板」换成横屏或竖屏。
+   * 横Màn dọc切换（标题栏旋转按钮）= 真正把「物理面板」换成Màn ngang或Màn dọc。
    *
-   * 为什么必须这么做（踩过的坑）：
-   *   - 改 wm size：只改 Android 逻辑分辨率，模拟器的物理 LCD 仍是竖的，
+   * 为什么必须这么做（踩过của坑）：
+   *   - 改 wm size：只改 Android 逻辑分辨率，模拟器của物理 LCD 仍是竖của，
    *     Qt 把画面贴在左上角 -> 画面躺倒 90°、只占一条、四周黑边、点击坐标错位；
-   *   - 改 wm density：framebuffer 尺寸不变，画面不会铺满，最大化后右侧一大片空；
-   *   - adb emu rotate：只转画面内容，系统里还是竖屏。
-   * 唯一能得到「正立 + 铺满」横屏的办法，就是把 hw.lcd.width/height 换成
+   *   - 改 wm density：framebuffer 尺寸不变，画面不会铺满，Phóng to后右侧一Lớn片Trống；
+   *   - adb emu rotate：只转画面内容，系统里还是Màn dọc。
+   * 唯一能得到「正立 + 铺满」Màn ngangcủa办法，就是把 hw.lcd.width/height 换成
    * 1280x720 并重启模拟器。重启约 30~60 秒，所以这里只做一次、并给出明确提示。
    *
-   * @param {(next:boolean)=>Promise<boolean>} [onRestart] 由上层注入的重启实现
+   * @param {(next:boolean)=>Promise<boolean>} [onRestart] 由上层注入của重启实现
    */
   async rotate(onRestart) {
     if (!this.isOpen) return this.state.landscape;
     const next = !this.state.landscape;
-    this.setState({ tip: next ? '正在切换到横屏（重启安卓运行时，约 30-60 秒）…' : '正在切回竖屏（重启安卓运行时，约 30-60 秒）…', ready: false });
+    this.setState({ tip: next ? 'Đang chuyển sang màn hình ngang (khởi động lại bộ chạy Android, khoảng 30-60 giây)…' : 'Đang chuyển về màn hình dọc (khởi động lại bộ chạy Android, khoảng 30-60 giây)…', ready: false });
     if (typeof onRestart === 'function') {
       const ok = await onRestart(next).catch(() => false);
       if (ok) {
@@ -494,14 +494,14 @@ class AppWindow {
         return next;
       }
     }
-    // 没有注入重启实现（或失败）时退回 density 方案，至少能切排版
+    // 没Có注入重启实现（或Thất bại）时退回 density 方案，至少能切排版
     if (this.setOrientation) await this.setOrientation(next).catch(() => {});
     this.state.landscape = next;
     this.setState({ ready: true, tip: '' });
     return next;
   }
 
-  /** 需要时切到指定方向（全屏=横屏，窗口=竖屏） */
+  /** Cần时切到指定方向（全屏=Màn ngang，窗口=Màn dọc） */
   async setLandscape(want) {
     if (!this.isOpen) return this.state.landscape;
     if (!!this.state.landscape === !!want) return this.state.landscape;
@@ -510,13 +510,13 @@ class AppWindow {
 
   async toggleMaximize() {
     if (!this.isOpen) return;
-    // 独立窗口模式：画面在模拟器原生窗口里，壳窗口是隐藏的 —— maximize 一个隐藏
-    // 窗口没有任何视觉效果（这正是「右上角按钮点了没反应」的原因）。这里改成把
-    // 模拟器窗口铺满工作区 / 还原到之前的尺寸。
+    // 独立窗口模式：画面在模拟器原生窗口里，壳窗口是隐藏của —— maximize 一cái隐藏
+    // 窗口没Có任何视觉效果（这正是「右上角按钮点了没反应」của原因）。这里改成把
+    // 模拟器窗口铺满工作区 / 还原到之前của尺寸。
     if (this.detachedMode) {
       const area = this._area();
       if (this._detachedFullscreen) {
-        // 还原：回到全屏前记住的尺寸（如果有的话），否则用默认按比例居中
+        // 还原：回到全屏前记住của尺寸（如果Cócủa话），否则Dùng默认按比例居中
         this._detachedFullscreen = false;
         if (this._preFullscreenRect) {
           await this.agent.layout(this._preFullscreenRect).catch(() => {});
@@ -525,13 +525,13 @@ class AppWindow {
           await this.openDetachedLayoutOnly(area);
         }
       } else {
-        // 全屏前记住当前窗口位置和大小，还原时用
+        // 全屏前记住当前窗口位置和LớnNhỏ，还原时Dùng
         try {
           const probe = await this.agent.probe().catch(() => null);
           if (probe && probe.w > 0 && probe.h > 0) {
             this._preFullscreenRect = { x: probe.x, y: probe.y, w: probe.w, h: probe.h };
           }
-        } catch (_) { /* 拿不到就还原时用默认 */ }
+        } catch (_) { /* 拿不到就还原时Dùng默认 */ }
         this._detachedFullscreen = true;
         await this.agent.layout(this._physical({ x: area.x, y: area.y, w: area.w, h: area.h }, area.sf))
           .catch(() => {});
@@ -544,8 +544,8 @@ class AppWindow {
   }
 
   /**
-   * 只重摆模拟器窗口尺寸（不重新 detach/show），供全屏/还原切换复用 openDetached
-   * 的尺寸计算逻辑。抽出来避免重复一遍 detach 流程。
+   * 只重摆模拟器窗口尺寸（不重新 detach/show），供全屏/还原切换复Dùng openDetached
+   * của尺寸计算逻辑。抽出来避免重复一遍 detach 流程。
    */
   async openDetachedLayoutOnly(area) {
     const maxH = Math.min(area.h - 140, 1000);
@@ -563,18 +563,18 @@ class AppWindow {
 
   minimize() {
     if (!this.isOpen) return;
-    // 独立窗口模式：最小化的是模拟器原生窗口（agent.hide 会藏它），
-    // 而不是那个看不见的壳窗口。
+    // 独立窗口模式：Thu nhỏcủa是模拟器原生窗口（agent.hide 会藏它），
+    // 而不是那cái看不见của壳窗口。
     if (this.detachedMode) { this.agent.hide().catch(() => {}); return; }
     this.win.minimize();
   }
 
   /**
-   * 关闭窗口。默认同时停掉这个安卓应用（省内存），但保留引擎，下次点开是秒开。
+   * Đóng窗口。默认同时停掉这cáiỨng dụng Android（省Bộ nhớ），但保留Engine，下次点开是秒开。
    *
    * 顺序很重要：必须先把模拟器窗口从宿主窗口上「摘下并藏好」，再销毁宿主。
-   * 反过来的话 Windows 会把跨进程的子窗口重新挂到桌面、并保持它原来的可见状态，
-   * 用户桌面上就会凭空多出一个 "Android Emulator - apkstart5554" 的黑窗。
+   * 反过来của话 Windows 会把跨进程của子窗口重新挂到Màn hình nền、并保持它原来của可见状态，
+   * Dùng户Màn hình nền上就会凭Trống多出一cái "Android Emulator - apkstart5554" của黑窗。
    */
   close({ keepApp = false } = {}) {
     if (!this.isOpen) return;

@@ -1,5 +1,7 @@
 # ApkStart
 
+> **Bản tiếng Việt** (nhánh `tieng-viet`, dịch từ v0.5.8): xem [i18n-vi/README.md](i18n-vi/README.md). Dự án gốc: [RoutineMiku/apkstart](https://github.com/RoutineMiku/apkstart).
+
 <p align="center"><img src="docs/images/logo.png" alt="ApkStart Logo" width="160" /></p>
 
 [![CI](https://github.com/RoutineMiku/apkstart/actions/workflows/ci.yml/badge.svg)](https://github.com/RoutineMiku/apkstart/actions/workflows/ci.yml)

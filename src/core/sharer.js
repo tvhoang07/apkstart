@@ -1,9 +1,9 @@
 'use strict';
 /**
- * 本机 ↔ 安卓 的共享目录双向同步
+ * Máy này ↔ 安卓 củaTổng享目录双向同步
  *
- * 没有 root 的情况下无法真正「挂载」目录，所以采用增量同步：
- * 任何一侧新增/修改的文件都会在几秒内同步到另一侧，语义上等价于共享文件夹。
+ * 没Có root của情况下无法真正「挂载」目录，所以采Dùng增量同步：
+ * 任何一侧新增/修改của文件都会在几秒内同步到另一侧，语义上等价于Tổng享文件夹。
  */
 const fs = require('fs');
 const path = require('path');
@@ -64,15 +64,15 @@ class Sharer {
     const result = { pushed: 0, pulled: 0, errors: [] };
     try {
       const client = this.runtime.client();
-      if (!(await client.isOnline())) throw new Error('运行时未连接');
+      if (!(await client.isOnline())) throw new Error('Bộ chạy chưa kết nối');
       await this.ensureDirs(onLog);
       const state = this.loadState();
 
-      // --- 本机 → 设备 ---
-      // 状态里同时记「本机 mtime」和「设备 mtime」两个值。
-      // 老实现只记一个 mtime、拉完写回本机时间，于是下一轮拿本机时间去和设备的
-      // 时间比 —— 永远不相等 → 每 8 秒把同一个文件从设备拉一遍，落盘时间又变，
-      // 再下一轮继续拉……表现就是「硬盘一直转、文件反复重写、空间越用越少」。
+      // --- Máy này → 设备 ---
+      // 状态里同时记「Máy này mtime」和「设备 mtime」两cái值。
+      // 老实现只记一cái mtime、拉完写回Máy này时间，于是下一轮拿Máy này时间去和设备của
+      // 时间比 —— 永远不相等 → 每 8 秒把同一cái文件从设备拉一遍，落盘时间又变，
+      // 再下一轮Tiếp tục拉……表现就是「硬盘一直转、文件反复重写、Trống间越Dùng越少」。
       const stateOf = (prev) => (prev ? {
         size: prev.size,
         lmtime: prev.lmtime || prev.mtime || 0,
@@ -96,8 +96,8 @@ class Sharer {
         }
       }
 
-      // --- 设备 → 本机 ---
-      // 优先用 toybox stat 拿真实 mtime；拿不到才退回 ls 解析（此时只能按大小判断）
+      // --- 设备 → Máy này ---
+      // 优先Dùng toybox stat 拿真实 mtime；拿不到才退回 ls 解析（此时只能按LớnNhỏ判断）
       let remoteList = null;
       try {
         remoteList = await client.listRemoteStat(this.remoteDir);
@@ -109,21 +109,21 @@ class Sharer {
       }
 
       for (const r of remoteList) {
-        // 超大文件（视频/游戏数据包）不往回拉：本地目录不该成为设备缓存的下水道
+        // 超Lớn文件（视频/游戏数据包）不往回拉：本地目录不该成为设备缓存của下水道
         if (r.size > MAX_FILE) continue;
         const prev = stateOf(state[r.rel]);
         const sizeSame = !!prev && prev.size === r.size;
         const rmtimeSame = !!(prev && prev.rmtime && r.mtime)
           && Math.abs(prev.rmtime - r.mtime) <= 1500;
         if (prev && sizeSame && (rmtimeSame || prev.dir === 'up')) {
-          // 大小一致，且要么设备时间没变、要么这个文件就是我们刚推上去的：
+          // LớnNhỏ一致，且要么设备时间没变、要么这cái文件就是我们刚推上去của：
           // 只把设备时间记下来收工，绝不重复下载
           if (r.mtime && prev.rmtime !== r.mtime) {
             state[r.rel] = { ...prev, rmtime: r.mtime };
           }
           continue;
         }
-        if (prev && sizeSame && !r.mtime) continue;   // 拿不到设备时间且大小相同 → 视为一致
+        if (prev && sizeSame && !r.mtime) continue;   // 拿不到设备时间且LớnNhỏ相同 → 视为一致
         const local = path.join(this.localDir, r.rel);
         try {
           fs.mkdirSync(path.dirname(local), { recursive: true });

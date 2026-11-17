@@ -3,7 +3,7 @@
  * 版本号比较。独立成模块，避免 updater ↔ sources 互相 require 形成循环依赖。
  */
 
-/** v0.3.2 / 0.3.2-preview / 1.0.0+build 归一化成可比较的数组 */
+/** v0.3.2 / 0.3.2-preview / 1.0.0+build 归一化成可比较của数组 */
 function parseVer(v) {
   return String(v || '')
     .replace(/^v/i, '')

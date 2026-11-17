@@ -1,9 +1,9 @@
 'use strict';
 /**
- * 桌面快捷方式 + 多尺寸 ICO 生成
+ * Màn hình nền快捷方式 + 多尺寸 ICO 生成
  *
- * ICO 直接用 Electron nativeImage 缩放并手写 ICO 容器（DIB 格式，全 Windows 版本兼容），
- * 不依赖任何第三方图像库，也不需要 ImageMagick。
+ * ICO 直接Dùng Electron nativeImage 缩放并手写 ICO 容器（DIB 格式，全 Windows 版本Tương thích），
+ * 不依赖任何第三方图像库，也不Cần ImageMagick。
  */
 const fs = require('fs');
 const path = require('path');
@@ -26,14 +26,14 @@ function buildDib(bgra, size) {
     const srcRow = (size - 1 - y) * size * 4;
     bgra.copy(xor, y * size * 4, srcRow, srcRow + size * 4);
   }
-  // AND 掩码：1bpp，行按 4 字节对齐，全 0（交给 alpha 通道）
+  // AND 掩码：1bpp，行按 4 byte对齐，全 0（交给 alpha 通道）
   const maskRow = Math.ceil(size / 32) * 4;
   const mask = Buffer.alloc(maskRow * size, 0);
   return Buffer.concat([header, xor, mask]);
 }
 
 /**
- * @param {Buffer} pngBuffer 任意尺寸的 PNG
+ * @param {Buffer} pngBuffer 任意尺寸của PNG
  * @returns {Buffer|null} ICO 文件内容
  */
 function pngToIco(pngBuffer) {
@@ -45,7 +45,7 @@ function pngToIco(pngBuffer) {
   for (const s of ICO_SIZES) {
     const img = base.getSize().width >= s
       ? base.resize({ width: s, height: s, quality: 'best' })
-      : base.resize({ width: s, height: s, quality: 'best' }); // 小图放大也比缺尺寸好
+      : base.resize({ width: s, height: s, quality: 'best' }); // Nhỏ图放Lớn也比Thiếu尺寸好
     const dib = buildDib(img.toBitmap(), s);
     images.push({ size: s, data: dib });
   }
@@ -77,8 +77,8 @@ function safeFileName(name) {
 }
 
 /**
- * PNG-in-ICO：Vista 起 ICO 条目允许直接内嵌 PNG，不用重编码、不丢 alpha。
- * APK 图标常是 WebP/大尺寸 PNG，老的 DIB 路线在这里会整包失败。
+ * PNG-in-ICO：Vista 起 ICO 条目允许直接内嵌 PNG，不Dùng重编码、不丢 alpha。
+ * APK 图标常是 WebP/Lớn尺寸 PNG，老của DIB 路线在这里会整包Thất bại。
  */
 function pngBytesToIco(png) {
   if (!Buffer.isBuffer(png) || png.length < 24 || png.toString('ascii', 1, 4) !== 'PNG') return null;
@@ -103,7 +103,7 @@ function pngBytesToIco(png) {
 /**
  * 任意 APK 图标 → ICO。三级兜底，保证快捷方式永远带图标：
  *  1) Electron 能直接解（真 PNG/JPEG）→ 多尺寸 DIB ICO；
- *  2) decode 回调（渲染进程用 Chromium 解 WebP）→ PNG-in-ICO；
+ *  2) decode 回调（渲染进程Dùng Chromium 解 WebP）→ PNG-in-ICO；
  *  3) 品牌占位图标 → PNG-in-ICO。
  */
 async function iconToIco(raw, { decode, onFallback } = {}) {
@@ -116,7 +116,7 @@ async function iconToIco(raw, { decode, onFallback } = {}) {
       const ico = pngToIco(img.toPNG());
       if (ico) return ico;
     }
-  } catch (_) { /* 非 PNG/JPEG，走下一级 */ }
+  } catch (_) { /* Không phải PNG/JPEG，走下一级 */ }
 
   if (typeof decode === 'function') {
     try {
@@ -137,7 +137,7 @@ async function iconToIco(raw, { decode, onFallback } = {}) {
 }
 
 /**
- * 快捷方式的扩展名：Windows 是 .lnk，Linux（FydeOS / ChromeOS 的 Linux 子系统、
+ * 快捷方式của扩展名：Windows 是 .lnk，Linux（FydeOS / ChromeOS của Linux 子系统、
  * 各种发行版）是 .desktop（freedesktop 规范）。
  */
 function shortcutExt() {
@@ -145,12 +145,12 @@ function shortcutExt() {
 }
 
 /**
- * 写一个 freedesktop .desktop 启动项。
+ * 写一cái freedesktop .desktop 启动mục。
  *
- * 和 Windows 的 .lnk 差别很大，几个必须注意的点：
- *  - Exec 里的路径带空格要加双引号，且 .desktop 规范里 `%` 是字段码，必须转义成 `%%`；
- *  - 文件必须 chmod +x，否则很多桌面环境会当成文档而不是启动器；
- *  - 图标只能用 PNG/SVG 的绝对路径，ICO 在 Linux 上无效。
+ * 和 Windows của .lnk 差别很Lớn，几cái必须注意của点：
+ *  - Exec trongĐường dẫn带Trống格要加双引号，且 .desktop 规范里 `%` 是字段码，必须转义成 `%%`；
+ *  - 文件必须 chmod +x，否则很多Màn hình nền环境会当成文档而不是启动器；
+ *  - 图标只能Dùng PNG/SVG của绝对Đường dẫn，ICO 在 Linux 上Không hợp lệ。
  *
  * @param {object} opt { shortcutPath, target, args, iconPngPath, description }
  */
@@ -159,10 +159,10 @@ function writeDesktopEntry(opt) {
   try {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   } catch (e) {
-    throw new Error(`快捷方式目录不可写：${dir}（${e.message}）`);
+    throw new Error(`Thư mục lối tắt không ghi được:${dir}（${e.message}）`);
   }
   const quote = (s) => `"${String(s).replace(/(["\\$`])/g, '\\$1').replace(/%/g, '%%')}"`;
-  // args 是按 shell 习惯拼好的字符串，这里拆成单个参数再各自加引号
+  // args 是按 shell 习惯拼好của字符串，这里拆成单cái参数再各自加引号
   const argv = String(opt.args || '').match(/"[^"]*"|\S+/g) || [];
   const execLine = [quote(opt.target), ...argv.map((a) => quote(a.replace(/^"|"$/g, '')))].join(' ');
   const icon = opt.iconPngPath && fs.existsSync(opt.iconPngPath) ? opt.iconPngPath : '';
@@ -180,24 +180,24 @@ function writeDesktopEntry(opt) {
     '',
   ].filter((l) => l !== '').join('\n');
   fs.writeFileSync(opt.shortcutPath, body, { encoding: 'utf8', mode: 0o755 });
-  try { fs.chmodSync(opt.shortcutPath, 0o755); } catch (_) { /* 某些文件系统不支持，忽略 */ }
+  try { fs.chmodSync(opt.shortcutPath, 0o755); } catch (_) { /* 某些文件系统Không hỗ trợ，忽略 */ }
   if (!fs.existsSync(opt.shortcutPath)) {
-    throw new Error(`快捷方式未落盘：${opt.shortcutPath}`);
+    throw new Error(`Lối tắt chưa được ghi ra đĩa:${opt.shortcutPath}`);
   }
   return opt.shortcutPath;
 }
 
 /**
- * 生成桌面快捷方式
+ * 生成Màn hình nền快捷方式
  *
- * writeShortcutLink 返回 true 并不代表文件真的落盘了：安全软件拦截、
- * 桌面目录被重定向到未登录的网盘时都可能「成功但没文件」。所以写完必须
- * 回读一次，保证调用方拿到的路径是真实存在的入口。
+ * writeShortcutLink 返回 true 并不代表文件真của落盘了：安全软件拦截、
+ * Màn hình nền目录被重定向到未登录của网盘时都可能「成功但没文件」。所以写完必须
+ * 回读一次，保证调Dùng方拿到củaĐường dẫn是真实存在của入口。
  *
  * @param {object} opt { shortcutPath, target, args, iconIcoPath, description, cwd }
  */
 function writeShortcut(opt) {
-  // Linux / FydeOS：走 .desktop，不用 Windows 的 COM 接口
+  // Linux / FydeOS：走 .desktop，不Dùng Windows của COM 接口
   if (process.platform !== 'win32') {
     return writeDesktopEntry({
       shortcutPath: opt.shortcutPath,
@@ -212,7 +212,7 @@ function writeShortcut(opt) {
   try {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   } catch (e) {
-    throw new Error(`快捷方式目录不可写：${dir}（${e.message}）`);
+    throw new Error(`Thư mục lối tắt không ghi được:${dir}（${e.message}）`);
   }
   if (fs.existsSync(opt.shortcutPath)) {
     try { fs.unlinkSync(opt.shortcutPath); } catch (_) { /* ignore */ }
@@ -226,9 +226,9 @@ function writeShortcut(opt) {
     cwd: opt.cwd || path.dirname(opt.target),
     appUserModelId: opt.appUserModelId,
   });
-  if (!ok) throw new Error('创建快捷方式失败（writeShortcutLink 返回 false）');
+  if (!ok) throw new Error('Tạo lối tắt thất bại (writeShortcutLink trả về false)');
   if (!fs.existsSync(opt.shortcutPath)) {
-    throw new Error(`快捷方式未落盘：${opt.shortcutPath}`);
+    throw new Error(`Lối tắt chưa được ghi ra đĩa:${opt.shortcutPath}`);
   }
   return opt.shortcutPath;
 }

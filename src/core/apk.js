@@ -1,7 +1,7 @@
 'use strict';
 /**
- * APK 元信息提取：包名 / 版本 / 应用名 / 启动 Activity / 图标 / ABI
- * 全部离线完成，不需要 aapt、不需要 adb、不需要联网。
+ * APK 元信息提取：包名 / 版本 / Áp dụng名 / 启动 Activity / 图标 / ABI
+ * 全部离线Hoàn tất，不Cần aapt、不Cần adb、不Cần联网。
  */
 const fs = require('fs');
 const { ZipFile } = require('./zip');
@@ -25,7 +25,7 @@ function isLauncherActivity(node) {
 }
 
 function pickIconFromZip(zip) {
-  // 兜底：在 res/ 里找最大的、名字像图标的位图（png / webp / jpg 都认）
+  // 兜底：在 res/ 里找最Lớncủa、名字像图标của位图（png / webp / jpg 都认）
   const candidates = zip.names().filter((n) => /^res\/.*\.(png|webp|jpe?g)$/i.test(n));
   const scored = candidates.map((n) => {
     const e = zip.entries.get(n);
@@ -49,33 +49,33 @@ function pickIconFromZip(zip) {
 
 const IMG_RE = /\.(png|webp|jpe?g)$/i;
 
-// ---- 屏幕方向 ----
-// AndroidManifest 里 android:screenOrientation 是一个枚举整数：
+// ---- Hướng màn hình ----
+// AndroidManifest 里 android:screenOrientation 是一cái枚举整数：
 //   0 unspecified / 1 portrait / 2 landscape / 3 sensor / 4 sensorLandscape
 //   5 sensorPortrait / 6 reverseLandscape / 7 reversePortrait / 8 behind
 //   9 nosensor / 10 user / 11 fullSensor / 12 userLandscape / 13 userPortrait
 //   14 fullUser / 15 locked
-// 只有「明确钉死某一方向」的才计入统计；sensor / fullSensor / user / unspecified
-// 这些会跟随重力，必须由运行时的物理面板决定，统计时必须跳过，否则每个应用都会
+// 只Có「明确钉死某一方向」của才计入统计；sensor / fullSensor / user / unspecified
+// 这些会跟随重力，必须由Bộ chạycủa物理面板决定，统计时必须跳过，否则每 ứng dụng都会
 // 被算成「方向未定」。
 const ORI_PORTRAIT = new Set([1, 5, 7, 13]);
 const ORI_LANDSCAPE = new Set([2, 4, 6, 12]);
 
 /**
- * 判断一个应用「天然」是竖屏还是横屏。
+ * 判断一 ứng dụng「天然」是Màn dọc还是Màn ngang。
  *
- * 为什么需要它：模拟器的物理面板（hw.lcd）方向一旦和应用自己的
- * screenOrientation 不一致，Android 只会给应用一个信箱式（letterbox）的
+ * 为什么Cần它：模拟器của物理面板（hw.lcd）方向一旦和Áp dụng自己của
+ * screenOrientation 不一致，Android 只会给Áp dụng一cái信箱式（letterbox）của
  * 中间窄条 —— 两侧全是黑边，怎么调 wm size / density / letterbox-style 都
- * 填不满（这套组合我们逐项试过，见 docs）。唯一能让画面铺满窗口的办法，
- * 就是让面板方向和应用声明的一致。所以在安装时离线把方向算出来存进 apps.json，
- * 启动时按它选面板，用户就不会看到黑边。
+ * 填不满（这套组合我们逐mục试过，见 docs）。唯一能让画面铺满窗口của办法，
+ * 就是让面板方向和Áp dụng声明của一致。所以在Cài đặt时离线把方向算出来存进 apps.json，
+ * 启动时按它Chọn面板，Dùng户就不会看到黑边。
  *
- * 统计口径：以声明了明确方向的 Activity 数量为准（启动 Activity 加权，
- * 因为它是用户最常看到的那一个）。红果这类「几十个 portrait + 一堆 sensor」
+ * 统计口径：以声明了明确方向của Activity 数量为准（启动 Activity 加权，
+ * 因为它是Dùng户最常看到của那一cái）。红果这类「几十cái portrait + 一堆 sensor」
  * 会得到 portrait；墨读这种单 Activity landscape 会得到 landscape。
  *
- * @returns {'portrait'|'landscape'|null} null = 声明为跟随重力，交给设置决定
+ * @returns {'portrait'|'landscape'|null} null = 声明为跟随重力，交给Cài đặt决定
  */
 function detectOrientation(acts, launcher) {
   let portrait = 0;
@@ -92,7 +92,7 @@ function detectOrientation(acts, launcher) {
   return portrait > landscape ? 'portrait' : 'landscape';
 }
 
-/** 取节点上的 drawable / src 引用，还原成 APK 内的文件路径 */
+/** 取节点上của drawable / src 引Dùng，还原成 APK 内của文件Đường dẫn */
 function drawableFileOf(node, res) {
   for (const name of ['drawable', 'src']) {
     const a = attr(node, name);
@@ -108,7 +108,7 @@ function drawableFileOf(node, res) {
 }
 
 /**
- * 在图标 XML 的节点树里找可用位图。深度优先、XML 最多再展开 3 层：
+ * 在图标 XML của节点树里找Khả dụng位图。深度优先、XML 最多再展开 3 层：
  * 现代图标常见 `<adaptive-icon><foreground><inset><drawable/></inset></foreground>`，
  * 或者 `<layer-list><item><bitmap android:src="@drawable/x"/></item></layer-list>`，
  * 只认一层属性会直接落到「品牌占位图」。
@@ -132,7 +132,7 @@ function iconFromNode(zip, node, res, depth = 0) {
   return null;
 }
 
-/** 从自适应图标 / layer-list 的 XML 里找出可用的前景/背景位图 */
+/** 从自适应图标 / layer-list của XML 里找出Khả dụngcủa前景/背景位图 */
 function iconFromXml(zip, xmlBuffer, res, depth = 0) {
   let root;
   try {
@@ -147,19 +147,19 @@ function iconFromXml(zip, xmlBuffer, res, depth = 0) {
     const hit = iconFromNode(zip, node, res, depth);
     if (hit) return hit;
   }
-  // 再整棵树扫一遍（layer-list / bitmap / inset 这类没有固定子节点名的）
+  // 再整棵树扫一遍（layer-list / bitmap / inset 这类没Có固定子节点名của）
   return iconFromNode(zip, root, res, depth);
 }
 
 /**
- * 解析一个 APK 的元信息。
- * 走文件版 ZIP 读取器（只读中央目录 + 按需读条目），因此**不把整个 APK 读进内存**：
- * 旧版 fs.readFileSync 整包读会让 2GB 以上的安装包直接失败（Node 单 Buffer 上限），
- * 低内存机器上大包也容易被 OOM 打断。
+ * 解析一cái APK của元信息。
+ * 走文件版 ZIP 读取器（只读中央目录 + 按需读条目），因此**不把整cái APK 读进Bộ nhớ**：
+ * 旧版 fs.readFileSync 整包读会让 2GB 以上củaGói cài đặt直接Thất bại（Node 单 Buffer 上限），
+ * 低Bộ nhớ机器上Lớn包也容易被 OOM 打断。
  */
 function parseApk(filePath) {
   const stat = fs.statSync(filePath);
-  if (stat.size < 1024) throw new Error('文件过小，不是有效的 APK');
+  if (stat.size < 1024) throw new Error('Tệp quá nhỏ, không phải APK');
   const zip = new ZipFile(filePath);
   try {
     return parseApkZip(zip, filePath, stat);
@@ -168,23 +168,23 @@ function parseApk(filePath) {
   }
 }
 
-/** parseApk 的主体：调用方负责关闭 zip */
+/** parseApk của主体：调Dùng方负责Đóng zip */
 function parseApkZip(zip, filePath, stat) {
   if (!zip.has('AndroidManifest.xml')) {
-    throw new Error('缺少 AndroidManifest.xml：这不是单个 APK（可能是 .apks/.xapk 拆分包）');
+    throw new Error('Thiếu AndroidManifest.xml: đây không phải APK đơn (có thể là gói tách .apks/.xapk)');
   }
 
   const manifestBuf = zip.read('AndroidManifest.xml');
   const manifest = parseAxml(manifestBuf);
 
-  // package 是 manifest 上的**非命名空间**属性（ns=''），必须按「任意命名空间」找：
-  // attrValue 默认只认 android 命名空间，传 null 表示不限定命名空间。
+  // package 是 manifest 上của**Không phải命名Trống间**属性（ns=''），必须按「任意命名Trống间」找：
+  // attrValue 默认只认 android 命名Trống间，传 null 表示不限定命名Trống间。
   const packageName = attrValue(manifest, 'package', null);
-  if (!packageName) throw new Error('清单中未找到 package 名');
-  // package 会一路流到路径拼接和 adb shell，必须是纯合法的 Android 包名。
-  // 恶意/损坏的清单里塞进 "../"、盘符或 shell 元字符时在这里就拦下（issue #2 P0-1）。
+  if (!packageName) throw new Error('Không tìm thấy tên gói trong manifest');
+  // package 会一路流到Đường dẫn拼接和 adb shell，Phải là纯合法của Android 包名。
+  // 恶意/损坏của清单里塞进 "../"、盘符或 shell 元字符时在这里就拦下（issue #2 P0-1）。
   if (!validPackageName(packageName)) {
-    throw new Error(`清单中的 package 名不合法：${JSON.stringify(String(packageName).slice(0, 80))}`);
+    throw new Error(`Tên gói trong manifest không hợp lệ:${JSON.stringify(String(packageName).slice(0, 80))}`);
   }
 
   const versionName = attrValue(manifest, 'versionName') || '1.0';
@@ -197,13 +197,13 @@ function parseApkZip(zip, filePath, stat) {
 
   const app = children(manifest, 'application')[0] || { children: [], attrs: [] };
 
-  // ---- 资源表（用于解析 @0x7f 引用）----
+  // ---- 资源表（Dùng于解析 @0x7f 引Dùng）----
   let res = null;
   if (zip.has('resources.arsc')) {
     try { res = new ResTable(zip.read('resources.arsc')); } catch (_) { res = null; }
   }
 
-  // ---- 应用名 ----
+  // ---- Áp dụng名 ----
   let label = null;
   const labelAttr = attr(app, 'label');
   if (labelAttr) {
@@ -232,7 +232,7 @@ function parseApkZip(zip, filePath, stat) {
     }
   }
 
-  // ---- 屏幕方向（决定模拟器物理面板该用横屏还是竖屏，见 detectOrientation）----
+  // ---- Hướng màn hình（决定模拟器物理面板该DùngMàn ngang还是Màn dọc，见 detectOrientation）----
   const orientation = detectOrientation(acts, launcher);
 
   // ---- 图标 ----
@@ -253,7 +253,7 @@ function parseApkZip(zip, filePath, stat) {
   }
   if (!icon) icon = pickIconFromZip(zip);
 
-  // ---- ABI（判断 x86 运行时能否直接跑 ARM 原生库）----
+  // ---- ABI（判断 x86 Bộ chạy能否直接跑 ARM 原生库）----
   const abis = [...new Set(zip.names()
     .filter((n) => n.startsWith('lib/'))
     .map((n) => n.split('/')[1])

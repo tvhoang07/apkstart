@@ -1,23 +1,23 @@
 'use strict';
 /**
- * 本机体检 + 自动配置。
+ * Máy nàyKiểm tra sức khỏe + Tự cấu hình。
  *
- * 为什么需要它：ApkStart 装完之后能不能跑，取决于四件和软件无关的事 ——
- *   1. CPU 虚拟化（VT-x / AMD-V）在 BIOS 里有没有开；
- *   2. Windows 的「虚拟机监控程序平台 / Hyper-V」有没有开（WHPX 靠它）；
- *   3. 显卡能撑到什么程度（厂商、显存、驱动版本，能不能走硬件渲染）；
- *   4. 内存 / 磁盘够不够开一台 2~8GB 的安卓虚拟机。
+ * 为什么Cần它：ApkStart 装完之后能不能跑，取决于四件和软件无关của事 ——
+ *   1. CPU 虚拟化（VT-x / AMD-V）在 BIOS 里Có没Có开；
+ *   2. Windows của「虚拟机监控程序平台 / Hyper-V」Có没Có开（WHPX 靠它）；
+ *   3. 显卡能撑到什么程度（厂商、VRAM、Trình điều khiển版本，能不能走硬件渲染）；
+ *   4. Bộ nhớ / 磁盘够不够开一台 2~8GB của安卓虚拟机。
  *
- * 这些以前都是「启动失败 → 用户看日志 → 自己猜」。现在先查一遍，能自动改的直接改
- * （内存、核心、画质、渲染后端），必须提权的给出一个按钮（开功能 / 装驱动），
- * 只能在 BIOS 里做的说清楚按哪个键、改成什么。
+ * 这些以前都是「Khởi động thất bại → Dùng户看Nhật ký → 自己猜」。Hiện先查一遍，能Tự động改của直接改
+ * （Bộ nhớ、nhân心、画质、渲染后端），必须提权của给出一cái按钮（开功能 / 装Trình điều khiển），
+ * 只能在 BIOS 里做của说清楚按哪cái键、改成什么。
  *
  * 分层：
- *   - collect()   —— 只做探测（Windows 上用一次 PowerShell 取全部信息），有降级路径；
- *   - evaluate()  —— 纯函数：把探测结果翻译成「体检项 + 建议配置」，可单测；
- *   - 应用动作在 main.js（保存设置 / 调已有的提权接口），本模块不碰权限。
+ *   - collect()   —— 只做探测（Windows 上Dùng一次 PowerShell 取全部信息），Có降级Đường dẫn；
+ *   - evaluate()  —— 纯函数：把探测结果翻译成「Kiểm tra sức khỏemục + 建议配置」，可单测；
+ *   - Áp dụng动作在 main.js（保存Cài đặt / 调已Cócủa提权接口），本模块不碰权限。
  *
- * 注意：**不假装能替用户开 BIOS 虚拟化**。那一步只能人去改，我们只负责判断和指路。
+ * 注意：**不假装能替Dùng户开 BIOS 虚拟化**。那一步只能人去改，我们只负责判断和指路。
  */
 
 const os = require('os');
@@ -27,10 +27,10 @@ const path = require('path');
 // ---------------- 探测 ----------------
 
 /**
- * 跑一段快捷脚本（Windows 的 powershell.exe），取 JSON；失败/超时返回 null。
+ * 跑一段快捷脚本（Windows của powershell.exe），取 JSON；Thất bại/Hết thời gian返回 null。
  *
- * 用异步 execFile 而不是 execFileSync：脚本启动 + 两条 CIM 查询要 1~2 秒，
- * 同步跑会把主进程（也就是整个界面）卡住，用户会以为点「体检」把程序点死了。
+ * Dùng异步 execFile 而不是 execFileSync：脚本启动 + 两条 CIM 查询要 1~2 秒，
+ * 同步跑会把主进程（也就是整cái界面）卡住，Dùng户会以为点「Kiểm tra sức khỏe」把程序点死了。
  */
 function psJson(script, timeout = 15000) {
   if (process.platform !== 'win32') return Promise.resolve(null);
@@ -56,7 +56,7 @@ const HW_SCRIPT = [
   '$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1 Name,NumberOfCores,NumberOfLogicalProcessors,VirtualizationFirmwareEnabled,VMMonitorModeExtensions,SecondLevelAddressTranslationExtensions;',
   '$cs = Get-CimInstance Win32_ComputerSystem | Select-Object -First 1 HypervisorPresent,TotalPhysicalMemory;',
   '$gpu = @(Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion,DriverDate,AdapterRAM,VideoProcessor,Status);',
-  // AdapterRAM 在 >4GB 时会被截成 4294967295；真实值在注册表 qwMemorySize（每个适配器一个 000N 子键）
+  // AdapterRAM 在 >4GB 时会被截成 4294967295；真实值在注册表 qwMemorySize（每cái适配器一cái 000N 子键）
   '$vram = 0;',
   'Get-ChildItem "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}" -ErrorAction SilentlyContinue | ForEach-Object {',
   '  $v = (Get-ItemProperty $_.PSPath -Name "HardwareInformation.qwMemorySize" -ErrorAction SilentlyContinue)."HardwareInformation.qwMemorySize";',
@@ -74,7 +74,7 @@ const FEATURE_SCRIPT = [
   '$o | ConvertTo-Json -Compress',
 ].join(' ');
 
-/** 判断文件存在（探测 WHPX 的 API 库 / AEHD 驱动 / 虚拟机平台服务） */
+/** 判断文件存在（探测 WHPX của API 库 / AEHD Trình điều khiển / 虚拟机平台服务） */
 function fileExists(rel) {
   try {
     return fs.existsSync(path.join(process.env.SystemRoot || 'C:\\Windows', rel));
@@ -85,7 +85,7 @@ function fileExists(rel) {
 
 function dateToISO(v) {
   if (!v) return '';
-  // PowerShell 的 DateTime → `/Date(1700000000000)/` 或 ISO 字符串
+  // PowerShell của DateTime → `/Date(1700000000000)/` 或 ISO 字符串
   const m = /\/Date\((\d+)\)\//.exec(String(v));
   if (m) {
     try { return new Date(Number(m[1])).toISOString().slice(0, 10); } catch (_) { return ''; }
@@ -95,10 +95,10 @@ function dateToISO(v) {
 }
 
 /**
- * 探测本机硬件与虚拟化状态。
+ * 探测Máy này硬件与虚拟化状态。
  *
- * 任何一项查不到都返回 null/0，**绝不让探测失败拖垮调用方**：
- * 查不到就是「未知」，体检项里会写「读不到」，而不是编一个结论。
+ * 任何一mục查不到都返回 null/0，**绝不让探测Thất bại拖垮调Dùng方**：
+ * 查不到就是「Không rõ」，Kiểm tra sức khỏemục里会写「读不到」，而不是编一cái结论。
  *
  * @param {object} o { accel } accel 由 provisioner.emulatorAccel() 传入，避免重复拉起 emulator
  * @returns {object} hw
@@ -111,7 +111,7 @@ async function collect({ accel = null } = {}) {
   const cs = (raw && raw.cs) || {};
   const gpus = Array.isArray(raw && raw.gpu) ? raw.gpu : (raw && raw.gpu ? [raw.gpu] : []);
 
-  // 选「主显卡」：优先非 Microsoft Basic Display / 非虚拟显示适配器
+  // Chọn「主显卡」：优先Không phải Microsoft Basic Display / Không phải虚拟显示适配器
   const usable = gpus.filter((g) => g && g.Name && !/microsoft basic|remote display|virtual display/i.test(g.Name));
   const gpu = (usable[0] || gpus[0]) || {};
   const name = String(gpu.Name || '');
@@ -128,11 +128,11 @@ async function collect({ accel = null } = {}) {
   const hypervisor = cs.HypervisorPresent === true;
   const accelOk = !!(accel && accel.ok);
   /**
-   * 注意 WMI 这两个字段的坑（本机实测）：
+   * 注意 WMI 这两cái字段của坑（Máy này实测）：
    * Hyper-V / VBS 一旦接管 VT，`VMMonitorModeExtensions` 与
-   * `SecondLevelAddressTranslationExtensions` 会返回 False —— 但机器明明能跑硬件加速。
-   * 所以「False」只有在「没有 Hypervisor、加速也不可用」时才能当成「不支持」，
-   * 否则一律当「未知」，别把能用的机器误判成不支持虚拟化。
+   * `SecondLevelAddressTranslationExtensions` 会返回 False —— 但机器明明能跑Tăng tốc phần cứng。
+   * 所以「False」只Có在「没Có Hypervisor、Tăng tốc也Không khả dụng」时才能当成「Không hỗ trợ」，
+   * 否则一律当「Không rõ」，别把能Dùngcủa机器误判成Không hỗ trợ虚拟化。
    */
   const vmExt = cpu.VMMonitorModeExtensions;
   const slatRaw = cpu.SecondLevelAddressTranslationExtensions;
@@ -196,11 +196,11 @@ async function collect({ accel = null } = {}) {
 
 // ---------------- 评估（纯函数） ----------------
 
-/** 硬件推荐档位：内存 / 核心 / 画质。规则保守，宁可少给不可给多。 */
+/** 硬件推荐档位：Bộ nhớ / nhân心 / 画质。规则保守，宁可少给不可给多。 */
 function recommendResources({ totalMB = 0, cores = 0, accelOk = false, vramMB = 0 } = {}) {
   const mem = Number(totalMB) || 0;
   const n = Number(cores) || 1;
-  // 虚拟机最多吃宿主的一半，且留 1 核给 Windows；再按绝对区间收一次
+  // 虚拟机最多吃宿主của一半，且留 1 nhân给 Windows；Rồi nhấn绝对区间收一次
   let memoryMB = 2048;
   if (mem >= 32768) memoryMB = 8192;
   else if (mem >= 16384) memoryMB = 6144;
@@ -212,24 +212,24 @@ function recommendResources({ totalMB = 0, cores = 0, accelOk = false, vramMB = 
   }
   const wantCores = n >= 8 ? 4 : n >= 4 ? Math.max(2, n - 2) : 2;
   const c = Math.max(1, Math.min(wantCores, n - 1));
-  // 软件模拟 + 小显存：分辨率降到 540p，帧率优先（画面面积只有 56%）
+  // Giả lập phần mềm + NhỏVRAM：分辨率降到 540p，帧率优先（画面面积只Có 56%）
   const renderSize = (!accelOk || (vramMB > 0 && vramMB < 512)) ? '540x960' : 'auto';
   return { memoryMB, cores: c, renderSize };
 }
 
-/** 渲染后端建议：按厂商 + 加速状态 + 显存给一个「先试这个」的档位 */
+/** 渲染后端建议：按厂商 + Tăng tốc状态 + VRAM给一cái「Thử trước这cái」của档位 */
 function recommendGpu({ vendor = 'unknown', accelOk = false, vramMB = 0 } = {}) {
-  if (!accelOk) return { gpuMode: 'software', why: '没有可用的硬件加速，先用软件渲染保证画面能出来' };
-  if (vendor === 'unknown') return { gpuMode: 'auto', why: '显卡型号读不到，交给自动降级链去试' };
-  if (!vramMB || vramMB < 512) return { gpuMode: 'swangle', why: '显存很小（或读不到），用 swangle 更稳' };
-  if (vendor === 'nvidia') return { gpuMode: 'host', why: 'NVIDIA 驱动成熟，host 直通通常最快' };
-  if (vendor === 'amd') return { gpuMode: 'swangle', why: 'AMD 核显/老驱动下 host 可能起来后崩，swangle 更稳' };
-  if (vendor === 'intel') return { gpuMode: 'swangle', why: 'Intel 核显对 GLES 支持参差，swangle 更稳' };
-  return { gpuMode: 'auto', why: '显卡型号读不到，交给自动降级链去试' };
+  if (!accelOk) return { gpuMode: 'software', why: 'Không có tăng tốc phần cứng khả dụng, dùng kết xuất phần mềm trước để hiện được hình' };
+  if (vendor === 'unknown') return { gpuMode: 'auto', why: 'Không đọc được mẫu card đồ họa, giao cho chuỗi hạ cấp tự động thử' };
+  if (!vramMB || vramMB < 512) return { gpuMode: 'swangle', why: 'VRAM rất nhỏ (hoặc không đọc được), dùng swangle sẽ ổn định hơn' };
+  if (vendor === 'nvidia') return { gpuMode: 'host', why: 'NVIDIA Trình điều khiển ổn định, host passthrough thường nhanh nhất' };
+  if (vendor === 'amd') return { gpuMode: 'swangle', why: 'AMD Với card đồ họa tích hợp/driver cũ, host có thể khởi động rồi sập, swangle ổn định hơn' };
+  if (vendor === 'intel') return { gpuMode: 'swangle', why: 'Intel Card đồ họa tích hợp hỗ trợ GLES không đồng đều, swangle ổn định hơn' };
+  return { gpuMode: 'auto', why: 'Không đọc được mẫu card đồ họa, giao cho chuỗi hạ cấp tự động thử' };
 }
 
 /**
- * 把探测结果翻译成体检报告。
+ * 把探测结果翻译成Kiểm tra sức khỏe报告。
  *
  * @param {object} o { hw, settings, edition } edition: 'store' | 'installer'
  * @returns {{ level:string, items:Array, patch:object|null, driver:object|null, summary:string }}
@@ -248,34 +248,34 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
     add({
       key: 'vt-unsupported',
       level: 'bad',
-      title: '这颗 CPU 不支持硬件虚拟化',
-      detail: '只能走软件模拟，速度会慢 5~10 倍。轻量应用还能用，大型游戏不建议。',
+      title: 'CPU này không hỗ trợ ảo hóa phần cứng',
+      detail: 'Chỉ chạy được bằng giả lập phần mềm, tốc độ sẽ chậm 5~10  lần. Ứng dụng nhẹ vẫn dùng được, không khuyến nghị game lớn.',
       action: null,
     });
   } else if (cpu.vtFirmware === false) {
     add({
       key: 'vt-bios-off',
       level: 'bad',
-      title: 'CPU 虚拟化在 BIOS 里没开',
-      detail: '重启进 BIOS/UEFI，把 Intel VT-x（Intel）或 SVM Mode（AMD）设为 Enabled，保存后回来重新体检。'
-        + '联想/戴尔/华硕一般在 Advanced → CPU Configuration 里；品牌机可能叫 Virtualization Technology。',
-      action: { kind: 'manual', id: 'bios', label: '需要重启进 BIOS，无法自动完成' },
+      title: 'CPU Ảo hóa chưa bật trong BIOS',
+      detail: 'Khởi động lại vào BIOS/UEFI, đặt Intel VT-x (Intel) hoặc SVM Mode (AMD) thành Enabled, lưu rồi quay lại kiểm tra máy.'
+        + 'Lenovo/Dell/ASUS thường ở Advanced → CPU Configuration; máy hãng có thể gọi là Virtualization Technology.',
+      action: { kind: 'manual', id: 'bios', label: 'Cần khởi động lại vào BIOS, không thể tự hoàn tất' },
     });
   } else if (cpu.vtFirmware === true) {
     add({
       key: 'vt-ok',
       level: 'ok',
-      title: 'CPU 虚拟化已在 BIOS 开启',
-      detail: cpu.name ? `${cpu.name} · ${cpu.cores || '?'} 核 / ${cpu.threads || '?'} 线程` : '',
+      title: 'CPU Ảo hóa đã bật trong BIOS',
+      detail: cpu.name ? `${cpu.name} · ${cpu.cores || '?'} nhân / ${cpu.threads || '?'} luồng` : '',
       action: null,
     });
   } else {
     add({
       key: 'vt-unknown',
       level: 'warn',
-      title: '读不到 CPU 虚拟化状态',
-      detail: '可能是主板/权限限制。若启动时提示没有硬件加速，请手动进 BIOS 确认 VT-x / SVM 已开启。',
-      action: { kind: 'manual', id: 'bios', label: '手动确认' },
+      title: 'Không đọc được trạng thái ảo hóa CPU',
+      detail: 'Có thể do bo mạch chủ/giới hạn quyền. Nếu khi khởi động báo không có tăng tốc phần cứng, hãy tự vào BIOS xác nhận VT-x / SVM đã bật.',
+      action: { kind: 'manual', id: 'bios', label: 'Xác nhận thủ công' },
     });
   }
 
@@ -286,50 +286,50 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
     add({
       key: 'whpx-ok',
       level: 'ok',
-      title: 'Windows 虚拟机监控程序平台已启用',
+      title: 'Windows Nền tảng hypervisor đã được bật',
       detail: v.hypervisorPresent
-        ? 'Hypervisor 正在运行，WHPX 可用。'
-        : '功能已启用；如果加速仍不可用，重启一次让 Hypervisor 起来。',
+        ? 'Hypervisor Đang chạy, WHPX khả dụng.'
+        : 'Tính năng đã bật; nếu tăng tốc vẫn không dùng được, hãy khởi động lại một lần để Hypervisor hoạt động.',
       action: null,
     });
   } else if (edition === 'store') {
     add({
       key: 'whpx-off',
       level: 'bad',
-      title: '「虚拟机监控程序平台」没有启用',
-      detail: '商店版不能自行改系统功能。按 Win+R → 输入 optionalfeatures → 勾选「Windows 虚拟机监控程序平台」'
-        + '（HypervisorPlatform）与「虚拟机平台」→ 确定 → 重启。',
-      action: { kind: 'elevate', id: 'virtualization', label: '打开「Windows 功能」窗口' },
+      title: '“Nền tảng giám sát máy ảo” chưa được bật',
+      detail: 'Bản Store không tự đổi được tính năng hệ thống. Nhấn Win+R → nhập optionalfeatures → tích “Windows Hypervisor Platform”'
+        + '(HypervisorPlatform) và “Virtual Machine Platform” → OK → khởi động lại.',
+      action: { kind: 'elevate', id: 'virtualization', label: 'Mở cửa sổ “Windows Features”' },
     });
   } else {
     add({
       key: 'whpx-off',
       level: 'bad',
-      title: '「虚拟机监控程序平台」没有启用',
-      detail: '点下面的按钮会自动开启 HypervisorPlatform + VirtualMachinePlatform（需要管理员确认），完成后重启电脑。',
-      action: { kind: 'elevate', id: 'virtualization', label: '一键开启（需管理员）' },
+      title: '“Nền tảng giám sát máy ảo” chưa được bật',
+      detail: 'Nhấn nút bên dưới sẽ tự bật HypervisorPlatform + VirtualMachinePlatform (cần quản trị viên xác nhận), xong hãy khởi động lại máy.',
+      action: { kind: 'elevate', id: 'virtualization', label: 'Bật bằng một cú nhấp (cần quyền quản trị)' },
     });
   }
 
-  // ---- 3. 硬件加速当前是否真的能用 ----
+  // ---- 3. Tăng tốc phần cứng当前是否真của能Dùng ----
   if (v.accelOk) {
     add({
       key: 'accel-ok',
       level: 'ok',
-      title: `硬件加速可用（${v.accelKind === 'aehd' ? 'AEHD' : 'WHPX'}）`,
-      detail: '启动会走硬件加速；下面的配置按这台机器的显卡与内存推荐。',
+      title: `Tăng tốc phần cứng khả dụng (${v.accelKind === 'aehd' ? 'AEHD' : 'WHPX'}）`,
+      detail: 'Khởi động sẽ dùng tăng tốc phần cứng; cấu hình dưới đây được đề xuất theo card đồ họa và bộ nhớ của máy này.',
       action: null,
     });
   } else {
     add({
       key: 'accel-off',
       level: 'warn',
-      title: '当前没有可用的硬件加速',
+      title: 'Hiện không có tăng tốc phần cứng nào dùng được',
       detail: edition === 'installer' && v.vtFirmware !== false
-        ? '可以装 AEHD 驱动（需管理员），或先开「虚拟机监控程序平台」后重启；两者都不行就只能软件模拟。'
-        : '会先用软件模拟保证能跑；速度比硬件加速慢 5~10 倍。',
+        ? 'Có thể cài trình điều khiển AEHD (cần quyền quản trị), hoặc bật “Nền tảng giám sát máy ảo” rồi khởi động lại; cả hai đều không được thì chỉ còn giả lập phần mềm.'
+        : 'Sẽ dùng giả lập phần mềm để đảm bảo chạy được; chậm hơn tăng tốc phần cứng 5~10  lần.',
       action: edition === 'installer' && v.vtFirmware !== false
-        ? { kind: 'elevate', id: 'accel', label: '安装 AEHD 驱动（需管理员）' }
+        ? { kind: 'elevate', id: 'accel', label: 'Cài trình điều khiển AEHD (cần quyền quản trị)' }
         : null,
     });
   }
@@ -339,20 +339,20 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
     add({
       key: 'gpu-unknown',
       level: 'warn',
-      title: '读不到显卡信息',
-      detail: '可能是远程桌面 / 虚拟机 / 驱动异常。渲染后端交给自动降级链处理。',
+      title: 'Không đọc được thông tin card đồ họa',
+      detail: 'Có thể do Remote Desktop / máy ảo / trình điều khiển bất thường. Chuỗi hạ cấp tự động sẽ xử lý phần kết xuất.',
       action: null,
     });
   } else {
     const integrated = /radeon\s+(graphics|vega)|uhd|iris|hd\s+graphics|vega/i.test(gpu.name);
     const vram = gpu.vramMB
-      ? `${(gpu.vramMB / 1024).toFixed(1)} GB 显存${integrated ? '（核显，其余走共享内存）' : ''}`
-      : '显存未知';
+      ? `${(gpu.vramMB / 1024).toFixed(1)} GB VRAM${integrated ? '(card đồ họa tích hợp, phần còn lại dùng bộ nhớ chia sẻ)' : ''}`
+      : 'Không rõ VRAM';
     add({
       key: 'gpu-info',
       level: 'ok',
       title: `${gpu.name}`,
-      detail: `${vram}${gpu.driverVersion ? ` · 驱动 ${gpu.driverVersion}` : ''}${gpu.driverDate ? `（${gpu.driverDate}）` : ''}`,
+      detail: `${vram}${gpu.driverVersion ? ` · Trình điều khiển ${gpu.driverVersion}` : ''}${gpu.driverDate ? `（${gpu.driverDate}）` : ''}`,
       action: null,
     });
     const old = /^(19|20)\d{2}-\d{2}-\d{2}$/.test(gpu.driverDate || '')
@@ -361,30 +361,30 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
       add({
         key: 'gpu-driver-old',
         level: 'warn',
-        title: '显卡驱动比较旧',
-        detail: `驱动日期 ${gpu.driverDate}（约 ${Math.floor(old)} 年前）。老驱动是「起来后黑屏 / 花屏」的常见原因，建议去厂商官网更新。`,
+        title: 'Trình điều khiển đồ họa khá cũ',
+        detail: `Ngày của driver ${gpu.driverDate}(khoảng ${Math.floor(old)}  năm trước). Trình điều khiển cũ là nguyên nhân thường gặp gây màn hình đen / vỡ hình sau khi chạy, nên cập nhật từ trang chủ nhà sản xuất.`,
         action: null,
       });
     }
   }
 
-  // ---- 5. 内存 / 磁盘 / 系统版本 ----
+  // ---- 5. Bộ nhớ / 磁盘 / 系统版本 ----
   const total = Number(mem.totalMB) || 0;
   if (!total) {
-    add({ key: 'mem-unknown', level: 'warn', title: '读不到物理内存', detail: '', action: null });
+    add({ key: 'mem-unknown', level: 'warn', title: 'Không đọc được bộ nhớ vật lý', detail: '', action: null });
   } else if (total < 6144) {
     add({
       key: 'mem-low',
       level: 'warn',
-      title: `内存偏小（${(total / 1024).toFixed(1)} GB）`,
-      detail: '安卓虚拟机最多只能分 2 GB、2 核，画质降到 540×960，并建议关掉浏览器标签页再开应用。',
+      title: `Bộ nhớ hơi ít (${(total / 1024).toFixed(1)} GB）`,
+      detail: 'Máy ảo Android tối đa chỉ được 2 GB, 2 nhân, chất lượng hình giảm xuống 540×960, nên đóng các tab trình duyệt trước khi mở ứng dụng.',
       action: null,
     });
   } else {
     add({
       key: 'mem-ok',
       level: 'ok',
-      title: `物理内存 ${(total / 1024).toFixed(0)} GB`,
+      title: `Bộ nhớ vật lý ${(total / 1024).toFixed(0)} GB`,
       detail: '',
       action: null,
     });
@@ -395,8 +395,8 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
     add({
       key: 'os-old',
       level: 'warn',
-      title: `Windows 版本较旧（build ${build}）`,
-      detail: 'ApkStart 最低支持 Windows 10 2004（build 19041）。更旧的系统上 emulator 可能直接退出。',
+      title: `Windows Phiên bản khá cũ (build ${build}）`,
+      detail: 'ApkStart Tối thiểu hỗ trợ Windows 10 2004 (build 19041). Trên hệ thống cũ hơn, emulator có thể thoát ngay.',
       action: null,
     });
   }
@@ -410,21 +410,21 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
       memoryMB: rec.memoryMB,
       cores: rec.cores,
       renderSize: rec.renderSize,
-      // 加速不可用 → 直接锁定软件模拟，省掉两轮白等；可用则交回 auto 让降级链工作
+      // Tăng tốcKhông khả dụng → 直接锁定Giả lập phần mềm，省掉两轮白等；Khả dụng则交回 auto 让降级链工作
       gpuMode: v.accelOk ? 'auto' : 'software',
       forceTcg: !v.accelOk,
     },
   };
 
-  // 给这台机器生成一份驱动：以后每次开机都按它来，不用重复体检
+  // 给这台机器生成一份Trình điều khiển：以后每次开机都按它来，不Dùng重复Kiểm tra sức khỏe
   const vendor = gpu.vendor && gpu.vendor !== 'unknown' ? gpu.vendor : 'unknown';
   const driver = {
     format: 'apkstart-driver/1',
     id: `auto-${vendor}-${build || 'x'}`.toLowerCase().replace(/[^a-z0-9._-]/g, '-'),
-    name: `本机自动配置（${gpu.name || vendor}）`,
+    name: `Tự cấu hình theo máy (${gpu.name || vendor}）`,
     version: '1.0.0',
-    author: 'ApkStart 体检',
-    description: `由「本机体检 · 自动配置」生成：${gpuRec.why}。${v.accelOk ? '硬件加速可用。' : '当前无硬件加速。'}`,
+    author: 'ApkStart Kiểm tra sức khỏe',
+    description: `Được tạo bởi “Kiểm tra máy · Tự cấu hình”:${gpuRec.why}。${v.accelOk ? 'Tăng tốc phần cứng khả dụng.' : 'Hiện không có tăng tốc phần cứng.'}`,
     priority: 5,
     match: {
       platform: [hw.platform || process.platform],
@@ -443,10 +443,10 @@ function evaluate({ hw = {}, settings = {}, edition = 'installer' } = {}) {
   const warn = items.filter((i) => i.level === 'warn').length;
   const level = bad ? 'bad' : warn ? 'warn' : 'good';
   const summary = bad
-    ? `发现 ${bad} 项必须先处理（${items.filter((i) => i.level === 'bad').map((i) => i.title).join('、')}）`
+    ? `Phát hiện ${bad} mục phải xử lý trước (${items.filter((i) => i.level === 'bad').map((i) => i.title).join('、')}）`
     : warn
-      ? `有 ${warn} 项建议优化（${items.filter((i) => i.level === 'warn').map((i) => i.title).join('、')}）`
-      : '这台机器可以直接跑硬件加速，配置已经是最优';
+      ? `Có ${warn} mục nên tối ưu (${items.filter((i) => i.level === 'warn').map((i) => i.title).join('、')}）`
+      : 'Máy này chạy được tăng tốc phần cứng trực tiếp, cấu hình đã tối ưu';
 
   return {
     level,

@@ -1,8 +1,8 @@
 'use strict';
 /**
  * Android 二进制 XML(AXML) 解析器
- * AndroidManifest.xml 在 APK 内是编译后的二进制格式，无法直接当文本读。
- * 这里实现字符串池 + 元素/属性树解析，输出普通的 DOM 结构。
+ * AndroidManifest.xml 在 APK 内是编译后của二进制格式，无法直接当文本读。
+ * 这里实现字符串池 + 元素/属性树解析，输出普通của DOM 结构。
  */
 
 const RES_STRING_POOL_TYPE = 0x0001;
@@ -25,7 +25,7 @@ const ANDROID_NS = 'http://schemas.android.com/apk/res/android';
 
 function readStringPool(buf, start) {
   const type = buf.readUInt16LE(start);
-  if (type !== RES_STRING_POOL_TYPE) throw new Error('字符串池类型错误');
+  if (type !== RES_STRING_POOL_TYPE) throw new Error('Sai kiểu bảng chuỗi');
   const headerSize = buf.readUInt16LE(start + 2);
   const chunkSize = buf.readUInt32LE(start + 4);
   const count = buf.readUInt32LE(start + 8);
@@ -43,10 +43,10 @@ function readStringPool(buf, start) {
   for (let i = 0; i < count; i++) {
     let p = base + offsets[i];
     if (isUtf8) {
-      // utf16 长度（1~2 字节）
+      // utf16 长度（1~2 byte）
       let len = buf[p++];
       if (len & 0x80) { len = ((len & 0x7f) << 8) | buf[p++]; }
-      // utf8 字节长度
+      // utf8 byte长度
       let byteLen = buf[p++];
       if (byteLen & 0x80) { byteLen = ((byteLen & 0x7f) << 8) | buf[p++]; }
       strings[i] = buf.toString('utf8', p, p + byteLen);
@@ -67,7 +67,7 @@ function readStringPool(buf, start) {
 function parseAxml(buffer) {
   const buf = buffer;
   if (buf.readUInt16LE(0) !== RES_XML_TYPE) {
-    throw new Error('不是 Android 二进制 XML（可能被混淆或非法 APK）');
+    throw new Error('Không phải XML nhị phân Android (có thể bị làm rối hoặc APK không hợp lệ)');
   }
   let pos = buf.readUInt16LE(2); // headerSize
   const total = buf.readUInt32LE(4);
@@ -145,7 +145,7 @@ function parseAxml(buffer) {
   }
 
   const el = root.children.find((c) => c.name === 'manifest') || root.children[0];
-  if (!el) throw new Error('APK 清单为空');
+  if (!el) throw new Error('APK Manifest trống');
   return el;
 }
 

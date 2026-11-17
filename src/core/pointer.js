@@ -1,15 +1,15 @@
 'use strict';
 /**
- * 鼠标键位映射（纯计算，不依赖 Electron / adb，便于单测）
+ * Phím chuột映射（纯计算，不依赖 Electron / adb，便于单测）
  *
- * 应用窗口里嵌的是 Android Emulator 的 Qt 子窗口，原生行为是：
- *   左键 = 手指点击（正好就是「确认」，不需要我们介入）
+ * Cửa sổ ứng dụng里嵌của是 Android Emulator của Qt 子窗口，原生行为是：
+ *   左键 = 手指点击（正好就是「Xác nhận」，不Cần我们介入）
  *   右键 = 也当成一次手指点击（会误触，必须拦下来改成「返回」）
  *   滚轮 = 单指滑动，但 Qt 每一格都单独发一次触摸事件，画面会抽搐
  *
- * 因此 ApkStart 只在「应用窗口处于前台」时装一个专用线程上的低级钩子，
+ * 因此 ApkStart 只在「Cửa sổ ứng dụng处于前台」时装一cái专Dùngluồng上của低级钩子，
  * 拦下右键与滚轮；滚轮按时间窗合并后翻译成一条 `input swipe`，
- * 既平滑又不会每次滚动都拉起一个 adb 进程。
+ * 既平滑又不会每次滚动都拉起一cái adb 进程。
  */
 
 const WHEEL_NOTCH = 120;
@@ -23,8 +23,8 @@ function clamp(v, lo, hi) {
 function clampInt(v, lo, hi) { return Math.round(clamp(v, lo, hi)); }
 
 /**
- * 读取设置，得到钩子需要的开关。
- * 老配置里没有这些键时，按「右键返回 + 平滑滚轮、侧键关闭」迁移。
+ * 读取Cài đặt，得到钩子Cầncủa开关。
+ * 老配置里没Có这些键时，按「右键返回 + 平滑滚轮、侧键Đóng」迁移。
  */
 function pointerOptions(settings = {}) {
   const e = (settings && settings.engine) || {};
@@ -35,10 +35,10 @@ function pointerOptions(settings = {}) {
   return { rightBack, wheel, side, enabled: rightBack || wheel === 'smooth' || side };
 }
 
-/** 把任意来源的配置收敛成 agent 能直接消费的 0/1 组合 */
+/** 把任意来源của配置收敛成 agent 能直接消费của 0/1 组合 */
 function hookOptions(raw = {}) {
   let v = raw;
-  // 兼容旧的布尔写法：true = 只开侧键映射
+  // Tương thích旧của布尔写法：true = 只开侧键映射
   if (typeof v === 'boolean') v = { enabled: v, rightBack: false, wheel: 'off', side: v };
   if (typeof v === 'function') v = v();
   if (!v || typeof v !== 'object') v = {};
@@ -54,13 +54,13 @@ function hookOptions(raw = {}) {
   };
 }
 
-/** 只允许我们自己在内部拼出来的 input 命令进 adb shell，杜绝命令注入 */
+/** 只允许我们自己在内部拼出来của input 命令进 adb shell，杜绝命令注入 */
 const INPUT_RE = /^input (?:keyevent \d{1,3}|swipe -?\d+ -?\d+ -?\d+ -?\d+ \d{1,4}|tap -?\d+ -?\d+)$/;
 function isInputCommand(cmd) { return INPUT_RE.test(String(cmd || '')); }
 
 /**
  * 把一批滚轮位移翻译成一次滑动手势。
- * @param {object} o { dx, dy, nx, ny, width, height } —— nx/ny 是光标在 LCD 内的归一化位置
+ * @param {object} o { dx, dy, nx, ny, width, height } —— nx/ny 是光标在 LCD 内của归一化位置
  * @returns {{x1:number,y1:number,x2:number,y2:number,duration:number}|null}
  */
 function wheelToSwipe({ dx = 0, dy = 0, nx = 0.5, ny = 0.5, width = 900, height = 1600 } = {}) {
@@ -70,7 +70,7 @@ function wheelToSwipe({ dx = 0, dy = 0, nx = 0.5, ny = 0.5, width = 900, height 
   const delta = vertical ? (Number(dy) || 0) : (Number(dx) || 0);
   if (!delta) return null;
 
-  // 一格滚轮 = 约 30% 屏宽的滑动；连续快滚合并成一次更长的滑动（最多 78% 屏宽）
+  // 一格滚轮 = 约 30% 屏宽của滑动；连续快滚合并成一次更长của滑动（最多 78% 屏宽）
   const steps = clamp(Math.abs(delta) / WHEEL_NOTCH, 0.6, 6);
   const axis = vertical ? h : w;
   const span = clamp(Math.round(axis * 0.30 * steps), 80, Math.round(axis * 0.78));
@@ -100,9 +100,9 @@ function swipeToCommand(swipe) {
 }
 
 /**
- * 滚轮合并器：一个时间窗内的所有滚动只产生一条滑动命令。
- * 注入是异步的（adb shell 里 input swipe 要跑完整个手势），期间继续累计，
- * 完成后再补发一次，避免命令在 shell 里排队造成越滚越卡。
+ * 滚轮合并器：一cái时间窗内của所Có滚动只产生一条滑动命令。
+ * 注入是异步của（adb shell 里 input swipe 要跑完整cái手势），期间Tiếp tục累计，
+ * Hoàn tất后再补发一次，避免命令在 shell 里排队造成越滚越卡。
  */
 class WheelRouter {
   constructor({ inject, getSize, flushMs = 80 } = {}) {
@@ -153,7 +153,7 @@ class WheelRouter {
       const size = await this.getSize();
       const cmd = swipeToCommand(wheelToSwipe({ ...batch, width: size.width, height: size.height }));
       if (cmd && isInputCommand(cmd)) await this.inject(cmd);
-    } catch (_) { /* 输入注入失败不能影响鼠标钩子 */ }
+    } catch (_) { /* 输入注入Thất bại不能影响鼠标钩子 */ }
     finally {
       this._busy = false;
       if (!this._closed && (this._acc.dx || this._acc.dy)) this._schedule();
